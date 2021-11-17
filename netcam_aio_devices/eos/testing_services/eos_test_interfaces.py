@@ -30,6 +30,10 @@ __all__ = ["eos_testcases_interfaces", "eos_test_one_interface"]
 #
 # -----------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
+# EOS Measurement dataclass
+# -----------------------------------------------------------------------------
+
 BITS_TO_MBS = 10 ** -6
 
 
@@ -63,6 +67,11 @@ class EosInterfaceMeasurement:
             desc=values["desc"],
             speed=values["speed"] * BITS_TO_MBS,
         )
+
+
+# -----------------------------------------------------------------------------
+# EOS Test One Interface
+# -----------------------------------------------------------------------------
 
 
 def eos_test_one_interface(
@@ -105,19 +114,27 @@ def eos_test_one_interface(
     # Interface is USED ... check other attributes
     # -------------------------------------------------------------------------
 
-    for field in ("oper_up", "desc", "speed"):
-        exp_val, msrd_val = getattr(should_oper_status, field), getattr(
-            measurement, field
-        )
-        if exp_val != msrd_val:
-            yield TestCaseFailed(
-                device=device,
-                test_case=test_case,
-                measurement=measurement,
-                error=f"Mismatch: {field}: expected {exp_val}, measured {msrd_val}",
-            )
+    failures = 0
 
-    yield TestCasePass(device=device, test_case=test_case, measurement=measurement)
+    for field in ("oper_up", "desc", "speed"):
+
+        exp_val = getattr(should_oper_status, field)
+        msrd_val = getattr(measurement, field)
+
+        if exp_val == msrd_val:
+            continue
+
+        failures += 1
+        yield TestCaseFailed(
+            device=device,
+            test_case=test_case,
+            measurement=msrd_val,
+            field=field,
+            error=f"Mismatch: {field}: expected {exp_val}, measured {msrd_val}",
+        )
+
+    if not failures:
+        yield TestCasePass(device=device, test_case=test_case, measurement=measurement)
 
 
 async def eos_testcases_interfaces(device: Device, testcases: InterfaceTestCases):
