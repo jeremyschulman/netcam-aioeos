@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from netcad.testing_services import TestCasePass, TestCaseFailed, interfaces as if_tests
+from netcad.testing_services import TestCasePass, interfaces as if_tests
 
 from netcam_aio_devices.eos import Device
 from netcam_aio_devices.eos.testing_services.eos_test_interfaces import (
@@ -20,14 +20,15 @@ async def mock_device():
     return dev
 
 
-@pytest.fixture()
-def paylaod_dir():
-    return Path(__file__).parent / "payloads"
+PAYLOADS_DIR = Path(__file__).parent / "payloads"
 
 
 @pytest.mark.asyncio
-async def test_eos_pass_testcases_interface(mock_device: Device, paylaod_dir):
-
+async def test_eos_pass_testcases_interface(mock_device: Device):
+    """
+    This test case validates a "passing" interface whereby the measured values
+    match the test-case expected values.
+    """
     if_name = "Ethernet3"
 
     test_case = if_tests.InterfaceTestCase(
@@ -37,7 +38,7 @@ async def test_eos_pass_testcases_interface(mock_device: Device, paylaod_dir):
         ),
     )
 
-    payload_file = paylaod_dir / "eos_show_interfaces_status.json"
+    payload_file = PAYLOADS_DIR / "eos_show_interfaces_status.json"
     payload_data = json.load(payload_file.open())
 
     results = list(
@@ -48,4 +49,4 @@ async def test_eos_pass_testcases_interface(mock_device: Device, paylaod_dir):
         )
     )
 
-    assert all((isinstance(result, TestCasePass) for result in results))
+    assert isinstance(results[0], TestCasePass)
