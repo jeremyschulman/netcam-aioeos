@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from netcad.testing_services import TestCasePass, TestCaseFailed, interfaces as if_tests
+from netcad.testing_services import TestCasePass, interfaces as if_tests
 
 from netcam_aio_devices.eos import Device
 from netcam_aio_devices.eos.testing_services.eos_test_interfaces import (

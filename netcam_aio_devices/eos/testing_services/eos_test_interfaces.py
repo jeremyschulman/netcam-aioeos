@@ -1,13 +1,34 @@
+# -----------------------------------------------------------------------------
+# System Imports
+# -----------------------------------------------------------------------------
+
 from operator import itemgetter
 
-from pydantic import dataclasses, PositiveInt, root_validator
+# -----------------------------------------------------------------------------
+# Public Imports
+# -----------------------------------------------------------------------------
 
+from pydantic import dataclasses, PositiveInt, root_validator
 from netcad.testing_services import TestCasePass, TestCaseFailed
-from netcam_aio_devices.eos import Device
 from netcad.testing_services.interfaces import InterfaceTestCases, InterfaceTestCase
+
+# -----------------------------------------------------------------------------
+# Private Imports
+# -----------------------------------------------------------------------------
+
+from netcam_aio_devices.eos import Device
+
+# -----------------------------------------------------------------------------
+# Exports
+# -----------------------------------------------------------------------------
 
 __all__ = ["eos_testcases_interfaces", "eos_test_one_interface"]
 
+# -----------------------------------------------------------------------------
+#
+#                                 CODE BEGINS
+#
+# -----------------------------------------------------------------------------
 
 BITS_TO_MBS = 10 ** -6
 
@@ -65,8 +86,36 @@ def eos_test_one_interface(
     # comparison with the expected values.
 
     measurement = EosInterfaceMeasurement.from_cli(iface_oper_status)
-
     should_oper_status = test_case.expected_results
+
+    if should_oper_status.used != measurement.used:
+        yield TestCaseFailed(
+            device=device,
+            test_case=test_case,
+            measurement=measurement,
+            error=f"Mismatch: used: expected {should_oper_status.used}, measured {measurement.used}",
+        )
+
+    # if the interface is not being used, then no more checks are required.
+
+    if not should_oper_status.used:
+        return
+
+    # -------------------------------------------------------------------------
+    # Interface is USED ... check other attributes
+    # -------------------------------------------------------------------------
+
+    for field in ("oper_up", "desc", "speed"):
+        exp_val, msrd_val = getattr(should_oper_status, field), getattr(
+            measurement, field
+        )
+        if exp_val != msrd_val:
+            yield TestCaseFailed(
+                device=device,
+                test_case=test_case,
+                measurement=measurement,
+                error=f"Mismatch: {field}: expected {exp_val}, measured {msrd_val}",
+            )
 
     yield TestCasePass(device=device, test_case=test_case, measurement=measurement)
 

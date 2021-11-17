@@ -1,1 +1,1 @@
-from aioeapi import Device
+from aioeapi import Device  # noqa
