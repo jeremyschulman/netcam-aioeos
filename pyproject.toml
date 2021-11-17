@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "netcam-aio-devices"
+version = "0.1.0"
+description = ""
+authors = ["Jeremy Schulman"]
+packages = [
+    {include = "netcam_aio_devices"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+aio-eapi = "^0.2.1"
+interrogate = "^1.5.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.interrogate]
+    fail-under = 0
+    verbose = 1
+    color = true
+    ignore-module = true
+    exclude = ["tasks.py", "examples", "build", "venv"]
+
+
+[tool.pytest.ini_options]
+    filterwarnings = [
+        'ignore::pytest.PytestCollectionWarning:.*netcad.*test_results'
+    ]
