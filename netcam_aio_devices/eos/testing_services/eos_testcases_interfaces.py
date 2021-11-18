@@ -1,14 +1,8 @@
 # -----------------------------------------------------------------------------
-# System Imports
-# -----------------------------------------------------------------------------
-
-from operator import itemgetter
-
-# -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from pydantic import dataclasses, PositiveInt, root_validator
+from pydantic import BaseModel, PositiveInt
 from netcad.testing_services import TestCasePass, TestCaseFailed
 from netcad.testing_services.interfaces import InterfaceTestCases, InterfaceTestCase
 
@@ -17,6 +11,7 @@ from netcad.testing_services.interfaces import InterfaceTestCases, InterfaceTest
 # -----------------------------------------------------------------------------
 
 from netcam_aio_devices.eos import Device
+from netcam_aio_devices.testing_services import executor_test_interfaces
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -24,11 +19,29 @@ from netcam_aio_devices.eos import Device
 
 __all__ = ["eos_testcases_interfaces", "eos_test_one_interface"]
 
+
 # -----------------------------------------------------------------------------
 #
 #                                 CODE BEGINS
 #
 # -----------------------------------------------------------------------------
+
+
+@executor_test_interfaces.register
+async def eos_testcases_interfaces(device: Device, testcases: InterfaceTestCases):
+    cli_data = await device.cli("show interfaces status")
+    map_if_oper_data: dict = cli_data["interfaceStatuses"]
+
+    for each_test in testcases.tests:
+        if_name = each_test.test_case_id()
+
+        for result in eos_test_one_interface(
+            device=device,
+            test_case=each_test,
+            iface_oper_status=map_if_oper_data.get(if_name),
+        ):
+            yield result
+
 
 # -----------------------------------------------------------------------------
 # EOS Measurement dataclass
@@ -37,8 +50,7 @@ __all__ = ["eos_testcases_interfaces", "eos_test_one_interface"]
 BITS_TO_MBS = 10 ** -6
 
 
-@dataclasses.dataclass()
-class EosInterfaceMeasurement:
+class EosInterfaceMeasurement(BaseModel):
     """
     This dataclass is used to store the values as retrieved from the EOS device
     into a set of attributes that align to the test-case.
@@ -49,23 +61,14 @@ class EosInterfaceMeasurement:
     desc: str
     speed: PositiveInt
 
-    # these are the CLI keys that will be mapped to the above fields.
-    map_fields = itemgetter(
-        "linkStatus", "lineProtocolStatus", "description", "bandwidth"
-    )
-
     @classmethod
-    def from_cli(cls, payload: dict):
-        """return an instance of the measurement after mapping the CLI fields"""
-        return cls(*cls.map_fields(payload))
-
-    @root_validator(pre=True)
-    def map_data(cls, values):  # noqa
-        return dict(
-            used=values["used"] != "disabled",
-            oper_up=values["oper_up"] == "up",
-            desc=values["desc"],
-            speed=values["speed"] * BITS_TO_MBS,
+    def from_cli(cls, cli_payload: dict):
+        """returns an EOS specific measurement mapping the CLI object fields"""
+        return cls(
+            used=cli_payload["linkStatus"] != "disabled",
+            oper_up=cli_payload["lineProtocolStatus"] == "up",
+            desc=cli_payload["description"],
+            speed=cli_payload["bandwidth"] * BITS_TO_MBS,
         )
 
 
@@ -79,13 +82,14 @@ def eos_test_one_interface(
 ):
     if_name = test_case.test_case_id()
 
-    # if the interface does not exist on the device, then the test fails,
-    # and we go onto the next text.
+    # if the interface does not exist on the device, then the test fails, and we
+    # go onto the next text.
 
     if not iface_oper_status:
         yield TestCaseFailed(
             device=device,
             test_case=test_case,
+            field=if_name,
             measurement=None,
             error=f"Missing expected interface: {if_name}",
         )
@@ -101,7 +105,8 @@ def eos_test_one_interface(
         yield TestCaseFailed(
             device=device,
             test_case=test_case,
-            measurement=measurement,
+            field="used",
+            measurement=measurement.used,
             error=f"Mismatch: used: expected {should_oper_status.used}, measured {measurement.used}",
         )
 
@@ -115,7 +120,6 @@ def eos_test_one_interface(
     # -------------------------------------------------------------------------
 
     failures = 0
-
     for field in ("oper_up", "desc", "speed"):
 
         exp_val = getattr(should_oper_status, field)
@@ -135,18 +139,3 @@ def eos_test_one_interface(
 
     if not failures:
         yield TestCasePass(device=device, test_case=test_case, measurement=measurement)
-
-
-async def eos_testcases_interfaces(device: Device, testcases: InterfaceTestCases):
-    cli_data = await device.cli("show interfaces status")
-    map_if_oper_data: dict = cli_data["interfaceStatuses"]
-
-    for each_test in testcases.tests:
-        if_name = each_test.test_case_id()
-
-        for result in eos_test_one_interface(
-            device=device,
-            test_case=each_test,
-            iface_oper_status=map_if_oper_data.get(if_name),
-        ):
-            yield result

@@ -4,10 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from netcad.testing_services import TestCasePass, interfaces as if_tests
+from netcad.testing_services import TestCasePass
+from netcad.testing_services import interfaces as if_tests
 
 from netcam_aio_devices.eos import Device
-from netcam_aio_devices.eos.testing_services.eos_test_interfaces import (
+
+from netcam_aio_devices.eos.testing_services.eos_testcases_interfaces import (
     eos_test_one_interface,
 )
 
@@ -49,4 +51,7 @@ async def test_eos_pass_testcases_interface(mock_device: Device):
         )
     )
 
+    # There shuold be only 1 result of "pass"
+
+    assert len(results) == 1
     assert isinstance(results[0], TestCasePass)
