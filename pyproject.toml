@@ -29,5 +29,5 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
     filterwarnings = [
-        'ignore::pytest.PytestCollectionWarning:.*netcad.*test_results'
+        'ignore::pytest.PytestCollectionWarning:.*netcad.*'
     ]
