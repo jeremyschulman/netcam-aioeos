@@ -8,7 +8,7 @@ from functools import singledispatchmethod
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from aioeapi import Device as EapiDevice
+from aioeapi import Device as DeviceEAPI
 
 from netcad.device import Device
 from netcad.testing_services import TestCases
@@ -27,11 +27,13 @@ __all__ = ["DeviceUnderTestEOS"]
 #
 # -----------------------------------------------------------------------------
 
+from .testing_services import eos_testcases_interfaces
+
 
 class DeviceUnderTestEOS(AsyncDeviceUnderTest):
     def __init__(self, device: Device, **kwargs):
         super().__init__(device=device, **kwargs)
-        self.eapi = EapiDevice(host=device.name)
+        self.eapi = DeviceEAPI(host=device.name)
 
     async def setup(self):
         await self.eapi.cli("show version")
@@ -45,7 +47,5 @@ class DeviceUnderTestEOS(AsyncDeviceUnderTest):
         raise RuntimeError(
             f'Missing: device {self.device.name} support for testcases of type "{cls_name}"'
         )
-
-    from .testing_services import eos_testcases_interfaces
 
     execute_testcases.register(eos_testcases_interfaces)

@@ -129,3 +129,44 @@ async def test_dispatch_eos_testcases_interfaces(mock_device, monkeypatch):
     # through the dispatching mechanism.
 
     assert fake_meth.called
+
+
+# @pytest.mark.asyncio
+# async def test_dispatch_eos_testcases_interfaces(mock_device, monkeypatch):
+#     """
+#     This purpose of tc_cls_exec test is to ensure that the mechanism of the
+#     "singledispatchmethod" is working as expected.
+#     """
+#
+#     from netcad.testing_services.interfaces import InterfaceTestCases
+#     from netcam_aio_devices.eos.eos_device import DeviceUnderTestEOS
+#     from netcam_aio_devices.eos import eos_device
+#
+#     fake_meth = AsyncMock()
+#     monkeypatch.setattr(eos_device, 'eos_testcases_interfaces', fake_meth)
+#
+#     breakpoint()
+#
+#     # noinspection PyTypeChecker
+#     dut = DeviceUnderTestEOS(device=mock_device, testcases_dir=TESTCASES_DIR)
+#
+#     # Now execute the "interfaces" testcases as would normally be performed via
+#     # the "netcam test ..." command.
+#
+#     payload_file = PAYLOADS_DIR / "eos_show_interfaces_status.json"
+#     payload_data = json.load(payload_file.open())
+#     dut.eapi.cli = AsyncMock(return_value=payload_data)
+#
+#     if_testcases = await InterfaceTestCases.load(testcase_dir=TESTCASES_DIR)
+#
+#     # nothing should actually be return since this call does not invoke the
+#     # actual method implementing the tests; the fake_meth should be called
+#     # however as a result of the above monkeypatch.
+#
+#     async for _ in dut.execute_testcases(if_testcases):
+#         pass
+#
+#     # check that the fake method mocking the "interface" method was invoked
+#     # through the dispatching mechanism.
+#
+#     assert fake_meth.called
