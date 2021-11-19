@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from pydantic import BaseModel, PositiveInt
 
 from netcad.device import Device
-from netcad.testing_services import TestCasePass, TestCaseFailed
+from netcad.netcam import TestCasePass, TestCaseFailed
 from netcad.testing_services.interfaces import InterfaceTestCases, InterfaceTestCase
 
 # -----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_testcases_interfaces", "eos_test_one_interface"]
+__all__ = ["eos_tc_interfaces", "eos_test_one_interface"]
 
 
 # -----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ __all__ = ["eos_testcases_interfaces", "eos_test_one_interface"]
 # -----------------------------------------------------------------------------
 
 
-async def eos_testcases_interfaces(self, testcases: InterfaceTestCases):
+async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
     """
     This async generator is responsible for implementing the "interfaces" test
     cases for EOS devices.
@@ -154,7 +154,9 @@ def eos_test_one_interface(
     failures = 0
     for field in ("oper_up", "desc", "speed"):
 
-        exp_val = getattr(should_oper_status, field)
+        if not (exp_val := getattr(should_oper_status, field)):
+            continue
+
         msrd_val = getattr(measurement, field)
 
         if exp_val == msrd_val:
@@ -170,4 +172,6 @@ def eos_test_one_interface(
         )
 
     if not failures:
-        yield TestCasePass(device=device, test_case=test_case, measurement=measurement)
+        yield TestCasePass(
+            device=device, field=if_name, test_case=test_case, measurement=measurement
+        )

@@ -41,7 +41,7 @@ async def test_eos_pass_testcases_interface(mock_device: Device):
     match the test-case expected values.
     """
 
-    from netcam_aio_devices.eos.testing_services.eos_testcases_interfaces import (
+    from netcam_aio_devices.eos.eos_tc_interfaces import (
         eos_test_one_interface,
     )
 

@@ -1,6 +1,6 @@
 {
    "service": "interfaces",
-   "device": "cwtrs21.fsl",
+   "device": "milsw2111",
    "exclusive": true,
    "tests": [
       {
@@ -10,8 +10,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "BDS-CAM01_DATA",
-            "speed": 10000
+            "desc": "EthFibFC01_MGT",
+            "speed": 1000
          }
       },
       {
@@ -21,8 +21,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "BDS-CAM02_DATA",
-            "speed": 10000
+            "desc": "scorp01_MGT-Primary",
+            "speed": 1000
          }
       },
       {
@@ -32,8 +32,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "BDS-CAM03_DATA",
-            "speed": 10000
+            "desc": "scorp01_MGT-Secondary",
+            "speed": 1000
          }
       },
       {
@@ -43,8 +43,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "BDS-CAM04_DATA",
-            "speed": 10000
+            "desc": "scorp02_MGT-Primary",
+            "speed": 1000
          }
       },
       {
@@ -52,10 +52,7 @@
             "interface": "Ethernet5"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "BDS-CAM05_DATA",
-            "speed": 10000
+            "used": false
          }
       },
       {
@@ -65,8 +62,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "BDS-CAM06_DATA",
-            "speed": 10000
+            "desc": "scorp03_MGT-Primary",
+            "speed": 1000
          }
       },
       {
@@ -74,10 +71,7 @@
             "interface": "Ethernet7"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "BDS-CAM07_DATA",
-            "speed": 10000
+            "used": false
          }
       },
       {
@@ -87,8 +81,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "BDS-CAM08_DATA",
-            "speed": 10000
+            "desc": "scorp04_MGT-Primary",
+            "speed": 1000
          }
       },
       {
@@ -96,10 +90,7 @@
             "interface": "Ethernet9"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "HET-PProcSRV01_HEI-DAT",
-            "speed": 10000
+            "used": false
          }
       },
       {
@@ -107,7 +98,10 @@
             "interface": "Ethernet10"
          },
          "expected_results": {
-            "used": false
+            "used": true,
+            "oper_up": true,
+            "desc": "FEC-FR01",
+            "speed": 1000
          }
       },
       {
@@ -115,7 +109,10 @@
             "interface": "Ethernet11"
          },
          "expected_results": {
-            "used": false
+            "used": true,
+            "oper_up": true,
+            "desc": "ScorpPDU01",
+            "speed": 1000
          }
       },
       {
@@ -125,8 +122,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CtrlSRV02_HEI-DAT",
-            "speed": 10000
+            "desc": "FC01_MGT",
+            "speed": 1000
          }
       },
       {
@@ -136,8 +133,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV03_HEI-DAT",
-            "speed": 10000
+            "desc": "FC02_MGT",
+            "speed": 1000
          }
       },
       {
@@ -147,8 +144,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV03_DATA1-1",
-            "speed": 10000
+            "desc": "FC03_MGT",
+            "speed": 1000
          }
       },
       {
@@ -158,8 +155,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV03_DATA2-1",
-            "speed": 10000
+            "desc": "HH-CAM_MGT",
+            "speed": 1000
          }
       },
       {
@@ -169,8 +166,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV04_HEI_DAT",
-            "speed": 10000
+            "desc": "CF-CAM01_MGT",
+            "speed": 1000
          }
       },
       {
@@ -180,8 +177,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV04_DATA1-1",
-            "speed": 10000
+            "desc": "PWR-SW03_MGT",
+            "speed": 1000
          }
       },
       {
@@ -191,8 +188,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV04_DATA2-1",
-            "speed": 10000
+            "desc": "PCAST01_DAT",
+            "speed": 1000
          }
       },
       {
@@ -202,8 +199,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV05_HEI-DAT",
-            "speed": 10000
+            "desc": "PCAST02_DAT",
+            "speed": 1000
          }
       },
       {
@@ -213,8 +210,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV05_DATA1-1",
-            "speed": 10000
+            "desc": "PCAST03_DAT",
+            "speed": 1000
          }
       },
       {
@@ -224,8 +221,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV05_DATA2-1",
-            "speed": 10000
+            "desc": "ESPN Kzone",
+            "speed": 1000
          }
       },
       {
@@ -235,8 +232,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV06_HEI-DAT",
-            "speed": 10000
+            "desc": "SC Home KVM",
+            "speed": 1000
          }
       },
       {
@@ -246,8 +243,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV06_DATA1-1",
-            "speed": 10000
+            "desc": "SC Away KVM",
+            "speed": 1000
          }
       },
       {
@@ -257,8 +254,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "HET-CamSRV06_DATA2-1",
-            "speed": 10000
+            "desc": "SC Home 3rd Truck Tie 1",
+            "speed": 1000
          }
       },
       {
@@ -268,7 +265,7 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "BLANT01",
+            "desc": "SC Home 3rd Truck Tie 2",
             "speed": 1000
          }
       },
@@ -279,7 +276,7 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "BLANT02",
+            "desc": "SC Away 3rd Truck Tie 1",
             "speed": 1000
          }
       },
@@ -290,7 +287,7 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "NSA01",
+            "desc": "SC Away 3rd Truck Tie 2",
             "speed": 1000
          }
       },
@@ -301,7 +298,7 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "NSA02",
+            "desc": "MOXA03 - SC Home Shuttle",
             "speed": 1000
          }
       },
@@ -312,7 +309,7 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "BBR01",
+            "desc": "MOXA03 - SC Away Shuttle",
             "speed": 1000
          }
       },
@@ -323,7 +320,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "node01.c01.k3s-DATA1"
+            "desc": "TRX-01-1-MGT",
+            "speed": 1000
          }
       },
       {
@@ -331,7 +329,10 @@
             "interface": "Ethernet31"
          },
          "expected_results": {
-            "used": false
+            "used": true,
+            "oper_up": true,
+            "desc": "TRX-01-2-MGT",
+            "speed": 1000
          }
       },
       {
@@ -341,7 +342,8 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "node02.c01.k3s-DATA3"
+            "desc": "PTX-MGT",
+            "speed": 1000
          }
       },
       {
@@ -357,10 +359,7 @@
             "interface": "Ethernet34"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "CAM-PDU01",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -368,10 +367,7 @@
             "interface": "Ethernet35"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "CAM-PDU02",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -379,10 +375,7 @@
             "interface": "Ethernet36"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "CAM-PDU03",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -390,10 +383,7 @@
             "interface": "Ethernet37"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "CAM-PDU04",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -401,10 +391,7 @@
             "interface": "Ethernet38"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "KVM01",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -412,10 +399,7 @@
             "interface": "Ethernet39"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "UPS01",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -423,10 +407,7 @@
             "interface": "Ethernet40"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "CAM-PDU04",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -434,10 +415,7 @@
             "interface": "Ethernet41"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "CAM-PDU04",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -445,9 +423,7 @@
             "interface": "Ethernet42"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "node01.c01.mgmt"
+            "used": false
          }
       },
       {
@@ -455,9 +431,7 @@
             "interface": "Ethernet43"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "node02.c01.mgmt"
+            "used": false
          }
       },
       {
@@ -465,10 +439,7 @@
             "interface": "Ethernet44"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "HET-NUC01-MGMT",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -476,10 +447,7 @@
             "interface": "Ethernet45"
          },
          "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "HET-NUC01-DATA",
-            "speed": 1000
+            "used": false
          }
       },
       {
@@ -489,7 +457,7 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "cwtsw2101.fsl-9",
+            "desc": "UPS01_MGT",
             "speed": 1000
          }
       },
@@ -500,7 +468,7 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "cwtmx01.fsl-9",
+            "desc": "PDU-01_MGT",
             "speed": 1000
          }
       },
@@ -511,82 +479,68 @@
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "cwtmx01.fsl-10",
+            "desc": "PDU-02_MGT",
             "speed": 1000
          }
       },
       {
          "test_params": {
-            "interface": "Ethernet49/1"
-         },
-         "expected_results": {
-            "used": false
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Ethernet50/1"
-         },
-         "expected_results": {
-            "used": false
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Ethernet51/1"
-         },
-         "expected_results": {
-            "used": false
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Ethernet52/1"
-         },
-         "expected_results": {
-            "used": false
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Ethernet53/1"
-         },
-         "expected_results": {
-            "used": false
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Ethernet54/1"
-         },
-         "expected_results": {
-            "used": false
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Ethernet55/1"
-         },
-         "expected_results": {
-            "used": false
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Ethernet56/1"
-         },
-         "expected_results": {
-            "used": false
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Loopback0"
+            "interface": "Ethernet49"
          },
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "cwtrs21.fsl-lo0"
+            "desc": "milrs21-et1",
+            "speed": 10000
+         }
+      },
+      {
+         "test_params": {
+            "interface": "Ethernet50"
+         },
+         "expected_results": {
+            "used": true,
+            "oper_up": true,
+            "desc": "milrs21-et2",
+            "speed": 10000
+         }
+      },
+      {
+         "test_params": {
+            "interface": "Ethernet51"
+         },
+         "expected_results": {
+            "used": true,
+            "oper_up": true,
+            "desc": "milrs22-et1",
+            "speed": 10000
+         }
+      },
+      {
+         "test_params": {
+            "interface": "Ethernet52"
+         },
+         "expected_results": {
+            "used": true,
+            "oper_up": true,
+            "desc": "milrs22-et2",
+            "speed": 10000
+         }
+      },
+      {
+         "test_params": {
+            "interface": "Ethernet53"
+         },
+         "expected_results": {
+            "used": false
+         }
+      },
+      {
+         "test_params": {
+            "interface": "Ethernet54"
+         },
+         "expected_results": {
+            "used": false
          }
       },
       {
@@ -599,162 +553,12 @@
       },
       {
          "test_params": {
-            "interface": "Vlan10"
+            "interface": "Port-Channel2000"
          },
          "expected_results": {
             "used": true,
             "oper_up": true,
-            "desc": "CODEC_DATA_L3_172.31.224.96/27"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan11"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "CODEC_DATA_ATT_172.31.224.128/27"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan12"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "COMMS_172.31.224.64/28"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan19"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "RIDEL_BOLERO_172.31.224.80/28"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan25"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "EQUIP_MGMT_172.31.224.32/27"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan26"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "NET_MGMT_172.31.224.16/28"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan30"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "SYSTEMS_172.31.224.160/27"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan150"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "VPN_TRANSIT_172.31.255.128/29"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan301"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "Hawkeye_Cam01_Srv03_1_172.31.224.192/29"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan302"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "Hawkeye_Cam02_Srv04_1_172.31.224.200/29"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan303"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "Hawkeye_Cam03_Srv05_1_172.31.224.208/29"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan304"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "Hawkeye_Cam04_Srv06_1_172.31.224.216/29"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan305"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "Hawkeye_Cam05_Srv03_2_172.31.224.224/29"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan306"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "Hawkeye_Cam06_Srv04_2_172.31.224.232/29"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan307"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "Hawkeye_Cam07_Srv05_2_172.31.224.240/29"
-         }
-      },
-      {
-         "test_params": {
-            "interface": "Vlan308"
-         },
-         "expected_results": {
-            "used": true,
-            "oper_up": true,
-            "desc": "Hawkeye_Cam08_Srv06_2_172.31.224.248/29"
+            "desc": "milrs21/rs22-po1"
          }
       }
    ]

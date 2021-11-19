@@ -27,12 +27,10 @@ __all__ = ["DeviceUnderTestEOS"]
 #
 # -----------------------------------------------------------------------------
 
-from .testing_services import eos_testcases_interfaces
-
 
 class DeviceUnderTestEOS(AsyncDeviceUnderTest):
-    def __init__(self, device: Device, **kwargs):
-        super().__init__(device=device, **kwargs)
+    def __init__(self, device: Device, **_kwargs):
+        super().__init__(device=device)
         self.eapi = DeviceEAPI(host=device.name)
 
     async def setup(self):
@@ -48,4 +46,10 @@ class DeviceUnderTestEOS(AsyncDeviceUnderTest):
             f'Missing: device {self.device.name} support for testcases of type "{cls_name}"'
         )
 
-    execute_testcases.register(eos_testcases_interfaces)
+    from .eos_tc_device_info import eos_tc_device_info
+
+    execute_testcases.register(eos_tc_device_info)
+
+    from .eos_tc_interfaces import eos_tc_interfaces
+
+    execute_testcases.register(eos_tc_interfaces)
