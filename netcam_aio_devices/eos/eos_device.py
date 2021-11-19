@@ -12,7 +12,7 @@ from aioeapi import Device as DeviceEAPI
 
 from netcad.device import Device
 from netcad.testing_services import TestCases
-from netcad.testing_services.device_under_test import AsyncDeviceUnderTest
+from netcad.netcam.dut import AsyncDeviceUnderTest
 
 # -----------------------------------------------------------------------------
 # Exports
