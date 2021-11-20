@@ -11,7 +11,8 @@ from typing import TYPE_CHECKING
 from pydantic import BaseModel, PositiveInt
 
 from netcad.device import Device
-from netcad.netcam import TestCasePass, TestCaseFailed
+from netcad.netcam import tc_result_types as tr
+
 from netcad.testing_services.interfaces import InterfaceTestCases, InterfaceTestCase
 
 # -----------------------------------------------------------------------------
@@ -118,7 +119,7 @@ def eos_test_one_interface(
     # go onto the next text.
 
     if not iface_oper_status:
-        yield TestCaseFailed(
+        yield tr.TestCaseFailed(
             device=device,
             test_case=test_case,
             field=if_name,
@@ -134,12 +135,11 @@ def eos_test_one_interface(
     should_oper_status = test_case.expected_results
 
     if should_oper_status.used != measurement.used:
-        yield TestCaseFailed(
+        yield tr.TestCaseFailedOnField(
             device=device,
             test_case=test_case,
             field="used",
             measurement=measurement.used,
-            error=f"Mismatch: used: expected {should_oper_status.used}, measured {measurement.used}",
         )
 
     # if the interface is not being used, then no more checks are required.
@@ -154,6 +154,10 @@ def eos_test_one_interface(
     failures = 0
     for field in ("oper_up", "desc", "speed"):
 
+        # if a field is not present in the testcase, then we will skip it. this
+        # is true for when `oper_up` is not present when the interface is marked
+        # as "is_reserved=True".
+
         if not (exp_val := getattr(should_oper_status, field)):
             continue
 
@@ -163,15 +167,12 @@ def eos_test_one_interface(
             continue
 
         failures += 1
-        yield TestCaseFailed(
-            device=device,
-            test_case=test_case,
-            measurement=msrd_val,
-            field=field,
-            error=f"Mismatch: {field}: expected {exp_val}, measured {msrd_val}",
+
+        yield tr.TestCaseFailedOnField(
+            device=device, test_case=test_case, measurement=msrd_val, field=field
         )
 
     if not failures:
-        yield TestCasePass(
-            device=device, field=if_name, test_case=test_case, measurement=measurement
+        yield tr.TestCasePass(
+            device=device, test_case=test_case, measurement=measurement.dict()
         )
