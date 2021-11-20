@@ -1,23 +1,31 @@
 # -----------------------------------------------------------------------------
+# System Imports
+# -----------------------------------------------------------------------------
+
+from typing import TYPE_CHECKING
+
+# -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
 
 from pydantic import BaseModel, PositiveInt
-from netcad.testing_services import TestCasePass, TestCaseFailed
+
+from netcad.device import Device
+from netcad.netcam import TestCasePass, TestCaseFailed
 from netcad.testing_services.interfaces import InterfaceTestCases, InterfaceTestCase
 
 # -----------------------------------------------------------------------------
 # Private Imports
 # -----------------------------------------------------------------------------
 
-from netcam_aio_devices.eos import Device
-from netcam_aio_devices.testing_services import executor_test_interfaces
+if TYPE_CHECKING:
+    from netcam_aio_devices.eos import DeviceUnderTestEOS
 
 # -----------------------------------------------------------------------------
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_testcases_interfaces", "eos_test_one_interface"]
+__all__ = ["eos_tc_interfaces", "eos_test_one_interface"]
 
 
 # -----------------------------------------------------------------------------
@@ -27,16 +35,40 @@ __all__ = ["eos_testcases_interfaces", "eos_test_one_interface"]
 # -----------------------------------------------------------------------------
 
 
-@executor_test_interfaces.register
-async def eos_testcases_interfaces(device: Device, testcases: InterfaceTestCases):
-    cli_data = await device.cli("show interfaces status")
+async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
+    """
+    This async generator is responsible for implementing the "interfaces" test
+    cases for EOS devices.
+
+    Notes
+    ------
+    This function is **IMPORTED** directly into the DUT class so that these
+    testcase files can be separated.
+
+    Parameters
+    ----------
+    self: <!LEAVE UNHINTED!>
+        The DUT instance for the EOS device
+
+    testcases: InterfaceTestCases
+        The testcases instance that contains the specific testing details.
+
+    Yields
+    ------
+    TestCasePass, TestCaseFailed
+    """
+
+    # noinspection PyTypeChecker
+    dut: DeviceUnderTestEOS = self
+
+    cli_data = await dut.eapi.cli("show interfaces status")
     map_if_oper_data: dict = cli_data["interfaceStatuses"]
 
     for each_test in testcases.tests:
         if_name = each_test.test_case_id()
 
         for result in eos_test_one_interface(
-            device=device,
+            device=dut.device,
             test_case=each_test,
             iface_oper_status=map_if_oper_data.get(if_name),
         ):
@@ -122,7 +154,9 @@ def eos_test_one_interface(
     failures = 0
     for field in ("oper_up", "desc", "speed"):
 
-        exp_val = getattr(should_oper_status, field)
+        if not (exp_val := getattr(should_oper_status, field)):
+            continue
+
         msrd_val = getattr(measurement, field)
 
         if exp_val == msrd_val:
@@ -138,4 +172,6 @@ def eos_test_one_interface(
         )
 
     if not failures:
-        yield TestCasePass(device=device, test_case=test_case, measurement=measurement)
+        yield TestCasePass(
+            device=device, field=if_name, test_case=test_case, measurement=measurement
+        )

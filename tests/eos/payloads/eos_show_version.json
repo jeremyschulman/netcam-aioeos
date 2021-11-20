@@ -1,0 +1,18 @@
+{
+    "memTotal": 8104272,
+    "uptime": 21458557.34,
+    "modelName": "DCS-7020TR-48-F",
+    "internalVersion": "4.24.5M-21307065.4245M",
+    "mfgName": "Arista",
+    "serialNumber": "JPE12345678",
+    "systemMacAddress": "94:8e:d3:06:28:01",
+    "bootupTimestamp": 1615905019.0,
+    "memFree": 6164048,
+    "version": "4.24.5M",
+    "configMacAddress": "00:00:00:00:00:00",
+    "isIntlVersion": false,
+    "internalBuildId": "4414ab71-ff3f-4a98-b4be-a881da3d18f7",
+    "hardwareRevision": "14.00",
+    "hwMacAddress": "94:8e:d3:06:28:01",
+    "architecture": "i686"
+}
