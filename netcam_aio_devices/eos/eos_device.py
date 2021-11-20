@@ -2,12 +2,14 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
+from typing import Optional
+import os
 from functools import singledispatchmethod
 
 # -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
-
+import httpx
 from aioeapi import Device as DeviceEAPI
 
 from netcad.device import Device
@@ -28,13 +30,20 @@ __all__ = ["DeviceUnderTestEOS"]
 # -----------------------------------------------------------------------------
 
 
+class DeviceEAPIAuth(DeviceEAPI):
+    auth = httpx.BasicAuth(
+        username=os.environ["NETWORK_USERNAME"], password=os.environ["NETWORK_PASSWORD"]
+    )
+
+
 class DeviceUnderTestEOS(AsyncDeviceUnderTest):
     def __init__(self, device: Device, **_kwargs):
         super().__init__(device=device)
-        self.eapi = DeviceEAPI(host=device.name)
+        self.eapi = DeviceEAPIAuth(host=device.name)
+        self.version_info: Optional[dict] = None
 
     async def setup(self):
-        await self.eapi.cli("show version")
+        self.version_info = await self.eapi.cli("show version")
 
     async def teardown(self):
         await self.eapi.aclose()

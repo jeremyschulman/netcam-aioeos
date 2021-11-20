@@ -1,4 +1,10 @@
 # -----------------------------------------------------------------------------
+# System Impors
+# -----------------------------------------------------------------------------
+
+from typing import TYPE_CHECKING
+
+# -----------------------------------------------------------------------------
 # Public Impors
 # -----------------------------------------------------------------------------
 
@@ -9,7 +15,8 @@ from netcad.netcam import TestCasePass, TestCaseFailed, TestCaseInfo
 # Private Improts
 # -----------------------------------------------------------------------------
 
-from .eos_device import DeviceUnderTestEOS
+if TYPE_CHECKING:
+    from .eos_device import DeviceUnderTestEOS
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -26,16 +33,17 @@ __all__ = ["eos_tc_device_info"]
 
 async def eos_tc_device_info(self, testcases: DeviceInformationTestCases):
     dut: DeviceUnderTestEOS = self
-    cli_data = await dut.eapi.cli("show version")
+    ver_info = dut.version_info
 
     # check the product model for a match.  The actual product model may be a
     # "front" or "rear" designation.  We'll ignore those for comparison
     # purposes.
+
     testcase = testcases.tests[0]
     exp_values = testcase.expected_results
 
     exp_product_model = exp_values.product_model
-    has_product_model = cli_data["modelName"]
+    has_product_model = ver_info["modelName"]
 
     if has_product_model[: len(exp_product_model)] == exp_product_model:
         result = TestCasePass(
@@ -58,5 +66,5 @@ async def eos_tc_device_info(self, testcases: DeviceInformationTestCases):
     # include an information block that provides the raw "show version" object content.
 
     yield TestCaseInfo(
-        device=dut.device, test_case=testcase, field="version", measurement=cli_data
+        device=dut.device, test_case=testcase, field="version", measurement=ver_info
     )
