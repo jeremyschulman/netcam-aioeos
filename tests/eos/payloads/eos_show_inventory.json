@@ -1,0 +1,392 @@
+{
+    "fpgas": {},
+    "mgmtXcvrSlots": {},
+    "xcvrSlots": {
+        "56": {
+            "modelName": "AOC-Q-Q-100G-1M",
+            "serialNum": "XHN195200578",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "20"
+        },
+        "28": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "29": {
+            "modelName": "SFP-10G-LR-AR",
+            "serialNum": "GTWJ0481",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "B4"
+        },
+        "35": {
+            "modelName": "SFPP-AO03",
+            "serialNum": "C2003110793-2",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "0001"
+        },
+        "34": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "24": {
+            "modelName": "SFCT-5716PZ",
+            "serialNum": "AGA1743UB6M",
+            "mfgName": "CISCO",
+            "hardwareRev": "001"
+        },
+        "25": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "26": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "27": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "20": {
+            "modelName": "SFCT-5716PZ",
+            "serialNum": "AGA1743U7T0",
+            "mfgName": "CISCO",
+            "hardwareRev": "001"
+        },
+        "21": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "22": {
+            "modelName": "RTXM191-404-C88",
+            "serialNum": "ACW21300JN4",
+            "mfgName": "CISCO",
+            "hardwareRev": "1.0"
+        },
+        "23": {
+            "modelName": "FTLX1474D3BCL-C3",
+            "serialNum": "FNS2202110R",
+            "mfgName": "CISCO-FINISAR",
+            "hardwareRev": "A"
+        },
+        "46": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "47": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "44": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "45": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "42": {
+            "modelName": "FTLX1474D3BCL-C3",
+            "serialNum": "FNS21450B2V",
+            "mfgName": "CISCO-FINISAR",
+            "hardwareRev": "A"
+        },
+        "43": {
+            "modelName": "FTLX1474D3BCL-C3",
+            "serialNum": "FNS21440E3G",
+            "mfgName": "CISCO-FINISAR",
+            "hardwareRev": "A"
+        },
+        "40": {
+            "modelName": "SFCT-709SMZ-CS1",
+            "serialNum": "AVD1938T0M4",
+            "mfgName": "CISCO-AVAGO",
+            "hardwareRev": "G2.1"
+        },
+        "41": {
+            "modelName": "FTLX1474D3BCL-C3",
+            "serialNum": "FNS2203026A",
+            "mfgName": "CISCO-FINISAR",
+            "hardwareRev": "A"
+        },
+        "1": {
+            "modelName": "AOC-S-S-10G-7M",
+            "serialNum": "XPF202700156",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "21"
+        },
+        "3": {
+            "modelName": "AOC-S-S-10G-5M",
+            "serialNum": "AHN18450007X",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "21"
+        },
+        "2": {
+            "modelName": "AOC-S-S-10G-7M",
+            "serialNum": "XPF202700020",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "21"
+        },
+        "5": {
+            "modelName": "AOC-S-S-10G-3M",
+            "serialNum": "XHN194400113",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "21"
+        },
+        "4": {
+            "modelName": "AOC-S-S-10G-5M",
+            "serialNum": "AHN1851000GP",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "21"
+        },
+        "7": {
+            "modelName": "AOC-S-S-10G-5M",
+            "serialNum": "AHN1851000L7",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "21"
+        },
+        "6": {
+            "modelName": "AOC-S-S-10G-3M",
+            "serialNum": "XHN194400556",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "21"
+        },
+        "9": {
+            "modelName": "10110818-4030HLF",
+            "serialNum": "CN1914SA304H0037",
+            "mfgName": "FCI Electronics",
+            "hardwareRev": "G"
+        },
+        "8": {
+            "modelName": "AOC-S-S-10G-5M",
+            "serialNum": "AHN1851000FK",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "21"
+        },
+        "18": {
+            "modelName": "10302",
+            "serialNum": "N265520L9360",
+            "mfgName": "OEM",
+            "hardwareRev": "A"
+        },
+        "13": {
+            "modelName": "AOC-S-S-10G-5M",
+            "serialNum": "AHN1851000LT",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "21"
+        },
+        "38": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "30": {
+            "modelName": "SFP-10G-LR-AR",
+            "serialNum": "GTWJ0474",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "B4"
+        },
+        "14": {
+            "modelName": "SFP-10GLR-31",
+            "serialNum": "F2010660750",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "0002"
+        },
+        "11": {
+            "modelName": "10110818-4030HLF",
+            "serialNum": "CN1903SA304H0007",
+            "mfgName": "FCI Electronics",
+            "hardwareRev": "G"
+        },
+        "10": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "39": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "12": {
+            "modelName": "10110818-4030HLF",
+            "serialNum": "CN1649SA304H0298",
+            "mfgName": "FCI Electronics",
+            "hardwareRev": "G"
+        },
+        "15": {
+            "modelName": "SFP-10GLR-31",
+            "serialNum": "F2010660747",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "0002"
+        },
+        "48": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "17": {
+            "modelName": "10302",
+            "serialNum": "N265520LA327",
+            "mfgName": "OEM",
+            "hardwareRev": "A"
+        },
+        "16": {
+            "modelName": "FTLX1474D3BCL-C3",
+            "serialNum": "FNS214406PJ",
+            "mfgName": "CISCO-FINISAR",
+            "hardwareRev": "A"
+        },
+        "19": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "54": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "31": {
+            "modelName": "PLRXPL-SC-S43-CI",
+            "serialNum": "JUR2148H40C",
+            "mfgName": "CISCO-LUMENTUM",
+            "hardwareRev": "3"
+        },
+        "49": {
+            "modelName": "QSFP-40G-LR4-AR",
+            "serialNum": "GTZBAL00460",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "  "
+        },
+        "51": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "36": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "53": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "52": {
+            "modelName": "",
+            "serialNum": "",
+            "mfgName": "Not Present",
+            "hardwareRev": ""
+        },
+        "33": {
+            "modelName": "SFBR-709SMZ-CS1",
+            "serialNum": "AVD1849A2U8",
+            "mfgName": "CISCO-AVAGO",
+            "hardwareRev": "G4.1"
+        },
+        "55": {
+            "modelName": "AOC-Q-Q-100G-1M",
+            "serialNum": "XHN195200348",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "20"
+        },
+        "37": {
+            "modelName": "SFCT-739SMZ-CS1",
+            "serialNum": "AVD2035K0J3",
+            "mfgName": "CISCO-AVAGO",
+            "hardwareRev": "G3.1"
+        },
+        "32": {
+            "modelName": "PLRXPL-SC-S43-CI",
+            "serialNum": "JUR2148H4DP",
+            "mfgName": "CISCO-LUMENTUM",
+            "hardwareRev": "3"
+        },
+        "50": {
+            "modelName": "QSFP-40G-LR4-AR",
+            "serialNum": "GTZBAL00459",
+            "mfgName": "Arista Networks",
+            "hardwareRev": "  "
+        }
+    },
+    "subcompSerNums": {},
+    "portCount": 81,
+    "switchedBootstrapPortCount": 4,
+    "managementPortCount": 1,
+    "dataLinkPortCount": 0,
+    "storageDevices": {},
+    "emmcFlashDevices": {
+        "Toshiba 303136474230": {
+            "firmwareRev": "0.0",
+            "serialNum": "ab99e0af",
+            "mount": "/mnt/flash",
+            "storageSize": 8,
+            "model": "Toshiba 303136474230"
+        }
+    },
+    "cardSlots": {},
+    "internalPortCount": 0,
+    "powerSupplySlots": {
+        "1": {
+            "name": "PWR-511-AC-RED",
+            "serialNum": "EEWT2044069233"
+        },
+        "2": {
+            "name": "PWR-511-AC-RED",
+            "serialNum": "EEWT2044069231"
+        }
+    },
+    "fanTraySlots": {
+        "1": {
+            "serialNum": "N/A",
+            "numFans": 2,
+            "name": "FAN-7011M-F"
+        },
+        "2": {
+            "serialNum": "N/A",
+            "numFans": 2,
+            "name": "FAN-7011M-F"
+        }
+    },
+    "systemInformation": {
+        "name": "DCS-7280SR3-48YC8",
+        "description": "48x25GbE (SFP) & 8x100GbE (QSFP) Ethernet Switch",
+        "mfgDate": "2021-03-15",
+        "hardwareRev": "11.02",
+        "hwEpoch": "01.00",
+        "serialNum": "JPE21081529"
+    },
+    "unconnectedPortCount": 0,
+    "switchedPortCount": 76,
+    "switchedFortyGOnlyPortCount": 0
+}
