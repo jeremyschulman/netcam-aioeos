@@ -16,7 +16,7 @@ from netcad.netcam import TestCasePass, TestCaseFailed, TestCaseInfo
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from .eos_device import DeviceUnderTestEOS
+    from .eos_dut import DeviceUnderTestEOS
 
 # -----------------------------------------------------------------------------
 # Exports

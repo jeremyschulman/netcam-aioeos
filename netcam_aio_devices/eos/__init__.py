@@ -1,1 +1,1 @@
-from .eos_device import DeviceUnderTestEOS
+from .eos_dut import DeviceUnderTestEOS

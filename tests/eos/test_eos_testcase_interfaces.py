@@ -79,7 +79,7 @@ async def test_dispatch_eos_testcases_interfaces(mock_device, monkeypatch):
     """
 
     from netcad.testing_services.interfaces import InterfaceTestCases
-    from netcam_aio_devices.eos.eos_device import DeviceUnderTestEOS
+    from netcam_aio_devices.eos.eos_dut import DeviceUnderTestEOS
 
     # noinspection PyTypeChecker
     dut = DeviceUnderTestEOS(device=mock_device, testcases_dir=TESTCASES_DIR)
