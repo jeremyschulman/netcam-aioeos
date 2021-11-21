@@ -1,7 +1,11 @@
 __all__ = ["eos_xcvr_type_matches", "eos_xcvr_model_matches"]
 
 
-ARISTA_TYPE_ALIAS = {"100GBASE-AR4": "100GBASE-LR", "10GBASE-AR": "10GBASE-LR"}
+ARISTA_TYPE_ALIAS = {
+    "100GBASE-AR4": "100GBASE-LR",
+    "10GBASE-AR": "10GBASE-LR",
+    "10GBASE-CRA": "10GBASE-CR",
+}
 
 
 def eos_xcvr_model_matches(expected: str, measured: str) -> bool:
