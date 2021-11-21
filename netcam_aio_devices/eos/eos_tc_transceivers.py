@@ -115,30 +115,3 @@ def eos_test_one_interface(
         test_case=test_case,
         measurement=dict(model=msrd_model, type=msrd_type),
     )
-
-
-# def eos_test_one_interface(
-#     device: Device, test_case: TransceiverTestCase, ifoper_status: dict
-# ):
-#     if not ifoper_status:
-#         yield trt.FailNoExistsTestCase(
-#             device=device,
-#             test_case=test_case,
-#         )
-#         return
-#
-#     xcvr_type = ifoper_status['transceiverType']
-#
-#     if xcvr_type != test_case.expected_results.model:
-#         yield trt.FailTestCaseOnField(
-#             device=device,
-#             test_case=test_case,
-#             field='model',
-#             measurement=xcvr_type
-#         )
-#     else:
-#         yield trt.TestCasePass(
-#             device=device,
-#             test_case=test_case,
-#             measurement=xcvr_type
-#         )
