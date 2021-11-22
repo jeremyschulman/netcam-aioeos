@@ -14,7 +14,7 @@ from netcad.device import Device
 # Private Imports
 # -----------------------------------------------------------------------------
 
-from netcam_aio_devices.eos import DeviceUnderTestEOS
+from netcam_test_aiodevices.eos import DeviceUnderTestEOS
 
 # -----------------------------------------------------------------------------
 # Exports

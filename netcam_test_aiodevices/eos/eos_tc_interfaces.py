@@ -20,7 +20,7 @@ from netcad.testing_services.interfaces import InterfaceTestCases, InterfaceTest
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_aio_devices.eos import DeviceUnderTestEOS
+    from netcam_test_aiodevices.eos import DeviceUnderTestEOS
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -119,7 +119,7 @@ def eos_test_one_interface(
     # go onto the next text.
 
     if not iface_oper_status:
-        yield tr.TestCaseFailed(
+        yield tr.FailTestCase(
             device=device,
             test_case=test_case,
             field=if_name,
@@ -135,7 +135,7 @@ def eos_test_one_interface(
     should_oper_status = test_case.expected_results
 
     if should_oper_status.used != measurement.used:
-        yield tr.FailTestCaseOnField(
+        yield tr.FailOnFieldTestCase(
             device=device,
             test_case=test_case,
             field="used",
@@ -168,11 +168,11 @@ def eos_test_one_interface(
 
         failures += 1
 
-        yield tr.FailTestCaseOnField(
+        yield tr.FailOnFieldTestCase(
             device=device, test_case=test_case, measurement=msrd_val, field=field
         )
 
     if not failures:
-        yield tr.TestCasePass(
+        yield tr.PassTestCase(
             device=device, test_case=test_case, measurement=measurement.dict()
         )
