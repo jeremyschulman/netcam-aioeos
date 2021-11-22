@@ -91,3 +91,11 @@ class DeviceUnderTestEOS(AsyncDeviceUnderTest):
     from .eos_tc_transceivers import eos_test_transceivers
 
     execute_testcases.register(eos_test_transceivers)
+
+    # -------------------------------------------------------------------------
+    # Support the 'cabling' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_cabling import eos_test_cabling
+
+    execute_testcases.register(eos_test_cabling)

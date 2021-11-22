@@ -135,7 +135,7 @@ def eos_test_one_interface(
     should_oper_status = test_case.expected_results
 
     if should_oper_status.used != measurement.used:
-        yield tr.FailOnFieldTestCase(
+        yield tr.FailFieldMismatchTestCase(
             device=device,
             test_case=test_case,
             field="used",
@@ -168,7 +168,7 @@ def eos_test_one_interface(
 
         failures += 1
 
-        yield tr.FailOnFieldTestCase(
+        yield tr.FailFieldMismatchTestCase(
             device=device, test_case=test_case, measurement=msrd_val, field=field
         )
 
