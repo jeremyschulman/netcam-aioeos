@@ -84,7 +84,7 @@ async def eos_test_mlag_system_status(dut: "DeviceUnderTestEOS"):
         )
     ):
         return trt.PassTestCase(
-            device=dut.device, test_case=test_case, measurement=cli_mlagst_rsp
+            device=dut.device, test_case=test_case, measurement="OK"
         )
 
     return trt.FailFieldMismatchResult(
