@@ -57,7 +57,7 @@ def eos_test_one_vlan(
 ) -> Generator:
 
     if not vlan_status:
-        yield trt.FailNoExistsTestCase(
+        yield trt.FailNoExistsResult(
             device=device,
             test_case=test_case,
         )
@@ -71,7 +71,7 @@ def eos_test_one_vlan(
 
     msrd_vlan_status = vlan_status["status"]
     if msrd_vlan_status != "active":
-        yield trt.FailFieldMismatchTestCase(
+        yield trt.FailFieldMismatchResult(
             device=device,
             test_case=test_case,
             field="status",
@@ -86,7 +86,7 @@ def eos_test_one_vlan(
     expd_vlan_name = test_case.expected_results.vlan.name
 
     if msrd_vlan_name != expd_vlan_name:
-        yield trt.FailFieldMismatchTestCase(
+        yield trt.FailFieldMismatchResult(
             device=device,
             test_case=test_case,
             field="name",
@@ -99,10 +99,32 @@ def eos_test_one_vlan(
     # check the VLAN interface membership list.
     # -------------------------------------------------------------------------
 
-    msrd_vlan_interfaces = set(
+    expd_interfaces = set(test_case.expected_results.interfaces)
+
+    msrd_interfaces = set(
         if_name if if_name != "Cpu" else f"Vlan{vlan_id}"
         for if_name in vlan_status["interfaces"]
     )
+
+    if missing_interfaces := expd_interfaces - msrd_interfaces:
+        yield trt.FailMissingMembersResult(
+            device=device,
+            test_case=test_case,
+            field="interfaces",
+            expected=list(expd_interfaces),
+            missing=list(missing_interfaces),
+        )
+        fails += 1
+
+    if extra_interfaces := msrd_interfaces - expd_interfaces:
+        yield trt.FailExtraMembersResult(
+            device=device,
+            test_case=test_case,
+            field="interfaces",
+            expected=list(expd_interfaces),
+            extras=list(extra_interfaces),
+        )
+        fails += 1
 
     if fails:
         return
@@ -112,7 +134,7 @@ def eos_test_one_vlan(
     # -------------------------------------------------------------------------
 
     # these must be a list in order to JSON serialize.
-    msrd_vlan_interfaces = list(msrd_vlan_interfaces)
+    msrd_interfaces = list(msrd_interfaces)
 
     yield trt.PassTestCase(
         device=device,
@@ -120,6 +142,6 @@ def eos_test_one_vlan(
         measurement=dict(
             name=msrd_vlan_name,
             status=msrd_vlan_status,
-            interfaces=msrd_vlan_interfaces,
+            interfaces=msrd_interfaces,
         ),
     )

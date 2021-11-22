@@ -102,7 +102,7 @@ def eos_test_one_interface(
     """
 
     if not ifnei_status:
-        yield trt.FailNoExistsTestCase(device=device, test_case=test_case)
+        yield trt.FailNoExistsResult(device=device, test_case=test_case)
         return
 
     fails = 0
@@ -114,13 +114,13 @@ def eos_test_one_interface(
     msrd_ifname = ifnei_status["neighborPort"]
 
     if not nei_hostname_match(expd_name, msrd_name):
-        yield trt.FailFieldMismatchTestCase(
+        yield trt.FailFieldMismatchResult(
             device=device, test_case=test_case, field="device", measurement=msrd_name
         )
         fails += 1
 
     if not nei_interface_match(expd_ifname, msrd_ifname):
-        yield trt.FailFieldMismatchTestCase(
+        yield trt.FailFieldMismatchResult(
             device=device, test_case=test_case, field="interface", measurement=msrd_name
         )
         fails += 1
