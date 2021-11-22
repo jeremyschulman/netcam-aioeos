@@ -20,7 +20,7 @@ from netcad.testing_services.interfaces import InterfaceTestCases, InterfaceTest
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_aio_devices.eos import DeviceUnderTestEOS
+    from netcam_test_aiodevices.eos import DeviceUnderTestEOS
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -61,17 +61,25 @@ async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
 
     # noinspection PyTypeChecker
     dut: DeviceUnderTestEOS = self
+    device = dut.device
 
     cli_data = await dut.eapi.cli("show interfaces status")
     map_if_oper_data: dict = cli_data["interfaceStatuses"]
 
-    for each_test in testcases.tests:
-        if_name = each_test.test_case_id()
+    for test_case in testcases.tests:
+        if_name = test_case.test_case_id()
+
+        # if the interface does not exist on the device, then the test fails, and we
+        # go onto the next text.
+
+        if not (iface_oper_status := map_if_oper_data.get(if_name)):
+            yield tr.FailNoExistsResult(device=device, test_case=test_case)
+            continue
 
         for result in eos_test_one_interface(
-            device=dut.device,
-            test_case=each_test,
-            iface_oper_status=map_if_oper_data.get(if_name),
+            device=device,
+            test_case=test_case,
+            iface_oper_status=iface_oper_status,
         ):
             yield result
 
@@ -113,20 +121,6 @@ class EosInterfaceMeasurement(BaseModel):
 def eos_test_one_interface(
     device: Device, test_case: InterfaceTestCase, iface_oper_status: dict
 ):
-    if_name = test_case.test_case_id()
-
-    # if the interface does not exist on the device, then the test fails, and we
-    # go onto the next text.
-
-    if not iface_oper_status:
-        yield tr.TestCaseFailed(
-            device=device,
-            test_case=test_case,
-            field=if_name,
-            measurement=None,
-            error=f"Missing expected interface: {if_name}",
-        )
-        return
 
     # transform the CLI data into a measurment instance for consistent
     # comparison with the expected values.
@@ -135,7 +129,7 @@ def eos_test_one_interface(
     should_oper_status = test_case.expected_results
 
     if should_oper_status.used != measurement.used:
-        yield tr.FailTestCaseOnField(
+        yield tr.FailFieldMismatchResult(
             device=device,
             test_case=test_case,
             field="used",
@@ -168,11 +162,11 @@ def eos_test_one_interface(
 
         failures += 1
 
-        yield tr.FailTestCaseOnField(
+        yield tr.FailFieldMismatchResult(
             device=device, test_case=test_case, measurement=msrd_val, field=field
         )
 
     if not failures:
-        yield tr.TestCasePass(
+        yield tr.PassTestCase(
             device=device, test_case=test_case, measurement=measurement.dict()
         )

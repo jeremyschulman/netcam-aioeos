@@ -1,0 +1,626 @@
+{
+    "markerMessages": {
+        "markerMessages": [
+            {
+                "marker": "*",
+                "msg": "Only local interfaces for MLAGs are displayed. Connect to the peer to see the state for peer interfaces."
+            }
+        ]
+    },
+    "portChannels": {
+        "Port-Channel8": {
+            "interfaces": {
+                "Ethernet30": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,fc-bd-67-7f-8b-6b",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0008",
+                    "partnerPortId": 49,
+                    "actorPortId": 32798
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel9": {
+            "interfaces": {
+                "Ethernet24": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x0009",
+                    "partnerSysId": "8000,00-77-8d-0c-e4-00",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0009",
+                    "partnerPortId": 286,
+                    "actorPortId": 32792
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel1": {
+            "interfaces": {
+                "Ethernet2": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-06-28-01",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0001",
+                    "partnerPortId": 50,
+                    "actorPortId": 32770
+                },
+                "Ethernet1": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-06-28-01",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0001",
+                    "partnerPortId": 49,
+                    "actorPortId": 32769
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel2": {
+            "interfaces": {
+                "Ethernet3": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-06-0c-39",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0002",
+                    "partnerPortId": 49,
+                    "actorPortId": 32771
+                },
+                "Ethernet4": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-06-0c-39",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0002",
+                    "partnerPortId": 50,
+                    "actorPortId": 32772
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel3": {
+            "interfaces": {
+                "Ethernet6": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-06-2c-d1",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0003",
+                    "partnerPortId": 50,
+                    "actorPortId": 32774
+                },
+                "Ethernet5": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-06-2c-d1",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0003",
+                    "partnerPortId": 49,
+                    "actorPortId": 32773
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel4": {
+            "interfaces": {
+                "Ethernet7": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-06-11-09",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0004",
+                    "partnerPortId": 49,
+                    "actorPortId": 32775
+                },
+                "Ethernet8": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-06-11-09",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0004",
+                    "partnerPortId": 50,
+                    "actorPortId": 32776
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel5": {
+            "interfaces": {
+                "Ethernet49/1": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,fc-bd-67-79-05-6b",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0005",
+                    "partnerPortId": 197,
+                    "actorPortId": 32965
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel6": {
+            "interfaces": {
+                "Ethernet50/1": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,fc-bd-67-79-1e-4d",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0006",
+                    "partnerPortId": 197,
+                    "actorPortId": 32969
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel7": {
+            "interfaces": {
+                "Ethernet29": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,fc-bd-67-6f-39-47",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x0007",
+                    "partnerPortId": 49,
+                    "actorPortId": 32797
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel10": {
+            "interfaces": {
+                "Ethernet42": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x000a",
+                    "partnerSysId": "8000,00-bf-77-e3-3a-80",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x000a",
+                    "partnerPortId": 286,
+                    "actorPortId": 32810
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel11": {
+            "interfaces": {
+                "Ethernet43": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x000b",
+                    "partnerSysId": "8000,00-bf-77-32-c0-00",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x000b",
+                    "partnerPortId": 286,
+                    "actorPortId": 32811
+                }
+            },
+            "markers": {
+                "markers": [
+                    "*"
+                ]
+            }
+        },
+        "Port-Channel2000": {
+            "interfaces": {
+                "Ethernet56/1": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-51-b1-8e",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x07d0",
+                    "partnerPortId": 225,
+                    "actorPortId": 225
+                },
+                "Ethernet55/1": {
+                    "partnerPortPriority": 32768,
+                    "partnerPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortState": {
+                        "collecting": true,
+                        "distributing": true,
+                        "synchronization": true,
+                        "defaulted": false,
+                        "timeout": false,
+                        "activity": true,
+                        "expired": false,
+                        "aggregation": true
+                    },
+                    "actorPortPriority": 32768,
+                    "partnerOperKey": "0x07d0",
+                    "partnerSysId": "8000,94-8e-d3-51-b1-8e",
+                    "actorPortStatus": "bundled",
+                    "actorOperKey": "0x07d0",
+                    "partnerPortId": 221,
+                    "actorPortId": 221
+                }
+            }
+        }
+    },
+    "orphanPorts": {}
+}

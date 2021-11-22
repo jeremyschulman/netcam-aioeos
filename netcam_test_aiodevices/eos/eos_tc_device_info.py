@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 # -----------------------------------------------------------------------------
 
 from netcad.testing_services.device import DeviceInformationTestCases
-from netcad.netcam import TestCasePass, TestCaseFailed, TestCaseInfo
+from netcad.netcam import PassTestCase, FailTestCase, InfoTestCase
 
 # -----------------------------------------------------------------------------
 # Private Improts
@@ -46,14 +46,14 @@ async def eos_tc_device_info(self, testcases: DeviceInformationTestCases):
     has_product_model = ver_info["modelName"]
 
     if has_product_model[: len(exp_product_model)] == exp_product_model:
-        result = TestCasePass(
+        result = PassTestCase(
             device=dut.device,
             test_case=testcase,
             measurement=has_product_model,
             field="product_model",
         )
     else:
-        result = TestCaseFailed(
+        result = FailTestCase(
             device=dut.device,
             test_case=testcase,
             measurement=has_product_model,
@@ -65,6 +65,6 @@ async def eos_tc_device_info(self, testcases: DeviceInformationTestCases):
 
     # include an information block that provides the raw "show version" object content.
 
-    yield TestCaseInfo(
+    yield InfoTestCase(
         device=dut.device, test_case=testcase, field="version", measurement=ver_info
     )

@@ -21,7 +21,7 @@ from netcad.netcam import tc_result_types as trt
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_aio_devices.eos import DeviceUnderTestEOS
+    from netcam_test_aiodevices.eos import DeviceUnderTestEOS
 
 from .eos_xcvr_matching import eos_xcvr_model_matches, eos_xcvr_type_matches
 
@@ -79,7 +79,7 @@ def eos_test_one_interface(
 ):
 
     if not ifaceinv:
-        yield trt.FailNoExistsTestCase(
+        yield trt.FailNoExistsResult(
             device=device,
             test_case=test_case,
         )
@@ -90,7 +90,7 @@ def eos_test_one_interface(
     exp_model = test_case.expected_results.model
     msrd_model = ifaceinv["modelName"]
     if not eos_xcvr_model_matches(exp_model, msrd_model):
-        yield trt.FailTestCaseOnField(
+        yield trt.FailFieldMismatchResult(
             device=device, test_case=test_case, field="model", measurement=msrd_model
         )
         failed += 1
@@ -98,7 +98,7 @@ def eos_test_one_interface(
     expd_type = test_case.expected_results.type
     msrd_type = ifacehw["transceiverType"]
     if not eos_xcvr_type_matches(expd_type, msrd_type):
-        yield trt.FailTestCaseOnField(
+        yield trt.FailFieldMismatchResult(
             device=device, test_case=test_case, field="type", measurement=msrd_type
         )
         failed += 1
@@ -110,7 +110,7 @@ def eos_test_one_interface(
     # Test Case Passes, provide info data as well.
     # -------------------------------------------------------------------------
 
-    yield trt.TestCasePass(
+    yield trt.PassTestCase(
         device=device,
         test_case=test_case,
         measurement=dict(model=msrd_model, type=msrd_type),

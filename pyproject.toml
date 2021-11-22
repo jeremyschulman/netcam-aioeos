@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "netcam-aio-devices"
+name = "netcam-test-aiodevices"
 version = "0.1.0"
 description = ""
 authors = ["Jeremy Schulman"]
 packages = [
-    {include = "netcam_aio_devices"}
+    {include = "netcam_test_aiodevices"}
 ]
 
 [tool.poetry.dependencies]

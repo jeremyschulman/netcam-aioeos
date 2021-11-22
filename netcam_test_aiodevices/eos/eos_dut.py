@@ -2,7 +2,7 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import Optional
+from typing import Optional, AsyncGenerator
 import os
 from functools import singledispatchmethod
 
@@ -15,6 +15,7 @@ from aioeapi import Device as DeviceEAPI
 from netcad.device import Device
 from netcad.testing_services import TestCases
 from netcad.netcam.dut import AsyncDeviceUnderTest
+from netcad.netcam import SkipTestCases
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -61,11 +62,14 @@ class DeviceUnderTestEOS(AsyncDeviceUnderTest):
         await self.eapi.aclose()
 
     @singledispatchmethod
-    async def execute_testcases(self, testcases: TestCases):
+    async def execute_testcases(self, testcases: TestCases) -> AsyncGenerator:
         """dispatch the testcases to the registered methods"""
         cls_name = testcases.__class__.__name__
-        raise RuntimeError(
-            f'Missing: device {self.device.name} support for testcases of type "{cls_name}"'
+
+        yield SkipTestCases(
+            device=self.device,
+            test_case=testcases.tests[0],
+            message=f'Missing: device {self.device.name} support for testcases of type "{cls_name}"',
         )
 
     # -------------------------------------------------------------------------
@@ -91,3 +95,35 @@ class DeviceUnderTestEOS(AsyncDeviceUnderTest):
     from .eos_tc_transceivers import eos_test_transceivers
 
     execute_testcases.register(eos_test_transceivers)
+
+    # -------------------------------------------------------------------------
+    # Support the 'cabling' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_cabling import eos_test_cabling
+
+    execute_testcases.register(eos_test_cabling)
+
+    # -------------------------------------------------------------------------
+    # Support the 'vlans' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_vlans import eos_test_vlans
+
+    execute_testcases.register(eos_test_vlans)
+
+    # -------------------------------------------------------------------------
+    # Support the 'lags' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_lags import eos_test_lags
+
+    execute_testcases.register(eos_test_lags)
+
+    # -------------------------------------------------------------------------
+    # Support the 'mlags' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_mlags import eos_test_mlags
+
+    execute_testcases.register(eos_test_mlags)
