@@ -1,0 +1,1681 @@
+{
+    "sourceDetail": "",
+    "vlans": {
+        "151": {
+            "status": "active",
+            "name": "10.113.116.240/28-wifi_trans",
+            "interfaces": {
+                "PeerEthernet23": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet23": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "308": {
+            "status": "active",
+            "name": "Hawkeye_Cam08_Srv05_2",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "212": {
+            "status": "active",
+            "name": "Hawkeye_Private_Vlan",
+            "interfaces": {
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "210": {
+            "status": "active",
+            "name": "Hego-Private",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "309": {
+            "status": "active",
+            "name": "Hawkeye_Cam09_Srv06_1",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "312": {
+            "status": "active",
+            "name": "Hawkeye_Cam12_Srv08_2",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "311": {
+            "status": "active",
+            "name": "Hawkeye_Cam11_Srv08_1",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "310": {
+            "status": "active",
+            "name": "Hawkeye_Cam10_Srv07_2",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "24": {
+            "status": "active",
+            "name": "STRINGER2-EXPANSION",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "25": {
+            "status": "active",
+            "name": "MGMT",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel9": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel1": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel3": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel4": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "26": {
+            "status": "active",
+            "name": "Netmgmt",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel1": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel3": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel4": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "27": {
+            "status": "active",
+            "name": "Hawkeye",
+            "interfaces": {
+                "Port-Channel9": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel4": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "20": {
+            "status": "active",
+            "name": "CODEC_DATA",
+            "interfaces": {
+                "PeerEthernet9": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet9": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel4": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel3": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet12": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet12": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "22": {
+            "status": "active",
+            "name": "DUGOUT2_DHCP-EXPANSION",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "28": {
+            "status": "active",
+            "name": "DUGOUT_VOIP_EXPANSION",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel9": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "29": {
+            "status": "active",
+            "name": "MGMT_EXP",
+            "interfaces": {
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel1": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "1": {
+            "status": "active",
+            "name": "default",
+            "interfaces": {},
+            "dynamic": false
+        },
+        "5": {
+            "status": "active",
+            "name": "native_vlan_5",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel9": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel1": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel3": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel4": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet40": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet46": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "201": {
+            "status": "active",
+            "name": "LNM_DIA",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet41": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet40": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "200": {
+            "status": "active",
+            "name": "10.113.116.192/27-wifi_dmz",
+            "interfaces": {
+                "PeerEthernet23": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet23": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel4": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "4094": {
+            "status": "active",
+            "name": "MLAG_CTRLVLAN",
+            "interfaces": {
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "301": {
+            "status": "active",
+            "name": "Hawkeye_Cam01_Srv03_1",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "302": {
+            "status": "active",
+            "name": "Hawkeye_Cam02_Srv04_1",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "303": {
+            "status": "active",
+            "name": "Hawkeye_Cam03_Srv05_1",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "304": {
+            "status": "active",
+            "name": "Hawkeye_Cam04_Srv06_1",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "305": {
+            "status": "active",
+            "name": "Hawkeye_Cam05_Srv07_1",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "306": {
+            "status": "active",
+            "name": "Hawkeye_Cam06_Srv03_2",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "307": {
+            "status": "active",
+            "name": "Hawkeye_Cam07_Srv04_2",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "91": {
+            "status": "active",
+            "name": "LMN_MPLS",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet40": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "100": {
+            "status": "active",
+            "name": "iBGP-TRANS",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "95": {
+            "status": "active",
+            "name": "ATT_MPLS",
+            "interfaces": {
+                "PeerEthernet46": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "11": {
+            "status": "active",
+            "name": "CODEC_DATA_ATT",
+            "interfaces": {
+                "PeerEthernet16": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet13": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet35": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel3": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "10": {
+            "status": "active",
+            "name": "CODEC_DATA_L3",
+            "interfaces": {
+                "Ethernet35": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet13": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel3": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet16": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "13": {
+            "status": "active",
+            "name": "PARTNER",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel1": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel3": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel4": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet32": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet32": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet31": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet33": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet31": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "12": {
+            "status": "active",
+            "name": "COMMS",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "15": {
+            "status": "active",
+            "name": "Systems",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet23": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "14": {
+            "status": "active",
+            "name": "STRINGER",
+            "interfaces": {
+                "Port-Channel9": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel1": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel4": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "17": {
+            "status": "active",
+            "name": "DUGOUT-WIFI",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "16": {
+            "status": "active",
+            "name": "Hego",
+            "interfaces": {
+                "Port-Channel1": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel4": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "33": {
+            "status": "active",
+            "name": "PTP33",
+            "interfaces": {
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet14": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet15": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "18": {
+            "status": "active",
+            "name": "Dugout_Phone",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel9": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet17": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel10": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel11": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "PeerEthernet22": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "30": {
+            "status": "active",
+            "name": "SYSTEMS-EXPANSION",
+            "interfaces": {
+                "Port-Channel8": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel7": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        },
+        "32": {
+            "status": "active",
+            "name": "PTP32",
+            "interfaces": {
+                "Ethernet14": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Ethernet21": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel5": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Cpu": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel6": {
+                    "privatePromoted": false,
+                    "blocked": null
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false,
+                    "blocked": null
+                }
+            },
+            "dynamic": false
+        }
+    }
+}

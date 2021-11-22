@@ -99,3 +99,11 @@ class DeviceUnderTestEOS(AsyncDeviceUnderTest):
     from .eos_tc_cabling import eos_test_cabling
 
     execute_testcases.register(eos_test_cabling)
+
+    # -------------------------------------------------------------------------
+    # Support the 'vlans' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_vlans import eos_test_vlans
+
+    execute_testcases.register(eos_test_vlans)
