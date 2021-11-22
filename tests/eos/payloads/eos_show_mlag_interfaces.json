@@ -1,0 +1,92 @@
+{
+    "interfaces": {
+        "11": {
+            "localInterface": "Port-Channel11",
+            "peerInterface": "Port-Channel11",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "milsw2116-poc11"
+        },
+        "10": {
+            "localInterface": "Port-Channel10",
+            "peerInterface": "Port-Channel10",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "milsw2115-poc10"
+        },
+        "1": {
+            "localInterface": "Port-Channel1",
+            "peerInterface": "Port-Channel1",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "sw2111"
+        },
+        "3": {
+            "localInterface": "Port-Channel3",
+            "peerInterface": "Port-Channel3",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "milsw2113-poc2000"
+        },
+        "2": {
+            "localInterface": "Port-Channel2",
+            "peerInterface": "Port-Channel2",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "milsw2112-poc2000"
+        },
+        "5": {
+            "localInterface": "Port-Channel5",
+            "peerInterface": "Port-Channel5",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "milsw2115a-poc2000"
+        },
+        "4": {
+            "localInterface": "Port-Channel4",
+            "peerInterface": "Port-Channel4",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "sw2114"
+        },
+        "7": {
+            "localInterface": "Port-Channel7",
+            "peerInterface": "Port-Channel7",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "milsw2101a-poc2000 Home_Clubhouse"
+        },
+        "6": {
+            "localInterface": "Port-Channel6",
+            "peerInterface": "Port-Channel6",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "sw2116a e49/1"
+        },
+        "9": {
+            "localInterface": "Port-Channel9",
+            "peerInterface": "Port-Channel9",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "milswstring01-poc9"
+        },
+        "8": {
+            "localInterface": "Port-Channel8",
+            "peerInterface": "Port-Channel8",
+            "peerInterfaceStatus": "up",
+            "localInterfaceStatus": "up",
+            "status": "active-full",
+            "localInterfaceDescription": "milsw2201a-poc2000 Visit_Clubhouse"
+        }
+    }
+}
