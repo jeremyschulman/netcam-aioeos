@@ -4,6 +4,7 @@
 
 from typing import TYPE_CHECKING, AsyncGenerator, Generator
 from collections import defaultdict
+from itertools import chain
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -65,6 +66,19 @@ def eos_test_one_lag(
 
     po_interfaces = lag_status["interfaces"]
 
+    # TODO: presenting this code is **ASSUMING** that the given LAG is enabled
+    #       in the design.  The test-case does account for this setting; but not
+    #       checking it.  Need to implement that logic.
+
+    # TODO: each test-case interface has an `enabled` setting to account for
+    #       whether or not the interface is expected to be in the bundled state.
+    #       the code below is currently not checking this setting.  Need to
+    #       implement that logic.
+
+    expd_interfaces = set(
+        lagif.interface for lagif in test_case.expected_results.interfaces
+    )
+
     # -------------------------------------------------------------------------
     # check the interface bundle status.  we will use a defaultdict-list to find
     # any non-bundled values.
@@ -81,7 +95,13 @@ def eos_test_one_lag(
     # this as a failure.
 
     if bundle_status:
-        # TODO: yield an error
+        nonb_interfacees = list(chain.from_iterable(bundle_status.values()))
+        yield trt.FailMissingMembersResult(
+            device=device,
+            test_case=test_case,
+            expected=list(expd_interfaces),
+            missing=nonb_interfacees,
+        )
         fails += 1
 
     # -------------------------------------------------------------------------
@@ -89,10 +109,6 @@ def eos_test_one_lag(
     # -------------------------------------------------------------------------
 
     msrd_interfaces = set(po_interfaces)
-
-    expd_interfaces = set(
-        lagif.interface for lagif in test_case.expected_results.interfaces
-    )
 
     if missing_interfaces := expd_interfaces - msrd_interfaces:
         yield trt.FailMissingMembersResult(
