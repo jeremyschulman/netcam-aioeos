@@ -107,3 +107,11 @@ class DeviceUnderTestEOS(AsyncDeviceUnderTest):
     from .eos_tc_vlans import eos_test_vlans
 
     execute_testcases.register(eos_test_vlans)
+
+    # -------------------------------------------------------------------------
+    # Support the 'lags' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_lags import eos_test_lags
+
+    execute_testcases.register(eos_test_lags)

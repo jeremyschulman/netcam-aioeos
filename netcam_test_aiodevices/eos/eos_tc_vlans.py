@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_test_vlans"]
+__all__ = ["eos_test_vlans", "eos_test_one_vlan"]
 
 
 async def eos_test_vlans(self, testcases: VlanTestCases) -> AsyncGenerator:
@@ -101,9 +101,15 @@ def eos_test_one_vlan(
 
     expd_interfaces = set(test_case.expected_results.interfaces)
 
+    # Map the EOS reported interfaces list into a set for comparitive
+    # processing. Do not include any "peer" interfaces; these represent MLAG
+    # information. If the VLAN includes a reference to "Cpu", the map that to
+    # the "interface Vlan<X>" name.
+
     msrd_interfaces = set(
         if_name if if_name != "Cpu" else f"Vlan{vlan_id}"
         for if_name in vlan_status["interfaces"]
+        if not if_name.startswith("Peer")
     )
 
     if missing_interfaces := expd_interfaces - msrd_interfaces:
