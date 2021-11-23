@@ -128,7 +128,10 @@ def eos_test_one_interface(
     measurement = EosInterfaceMeasurement.from_cli(iface_oper_status)
     should_oper_status = test_case.expected_results
 
+    fails = 0
+
     if should_oper_status.used != measurement.used:
+        fails += 1
         yield tr.FailFieldMismatchResult(
             device=device,
             test_case=test_case,
@@ -145,7 +148,6 @@ def eos_test_one_interface(
     # Interface is USED ... check other attributes
     # -------------------------------------------------------------------------
 
-    failures = 0
     for field in ("oper_up", "desc", "speed"):
 
         # if a field is not present in the testcase, then we will skip it. this
@@ -160,13 +162,19 @@ def eos_test_one_interface(
         if exp_val == msrd_val:
             continue
 
-        failures += 1
+        fails += 1
 
         yield tr.FailFieldMismatchResult(
             device=device, test_case=test_case, measurement=msrd_val, field=field
         )
 
-    if not failures:
-        yield tr.PassTestCase(
-            device=device, test_case=test_case, measurement=measurement.dict()
-        )
+    if fails:
+        return
+
+    # -------------------------------------------------------------------------
+    # All checks passed
+    # -------------------------------------------------------------------------
+
+    yield tr.PassTestCase(
+        device=device, test_case=test_case, measurement=measurement.dict()
+    )
