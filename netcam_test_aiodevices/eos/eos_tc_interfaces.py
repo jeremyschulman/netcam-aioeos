@@ -214,6 +214,64 @@ def eos_test_one_interface(
 def eos_test_one_svi(
     device: Device, test_case: InterfaceTestCase, svi_oper_status: dict
 ):
+    fails = 0
+
+    # -------------------------------------------------------------------------
+    # check the vlan 'name' field, as that should match the test case
+    # description field.
+    # -------------------------------------------------------------------------
+
+    msrd_name = svi_oper_status["name"]
+    expd_desc = test_case.expected_results.desc
+
+    if msrd_name != expd_desc:
+        yield tr.FailFieldMismatchResult(
+            device=device, test_case=test_case, field="desc", measurement=msrd_name
+        )
+        fails += 1
+
+    # -------------------------------------------------------------------------
+    # check the status field to match it to the expected is operational enabled
+    # / disabled value.
+    # -------------------------------------------------------------------------
+
+    msrd_status = svi_oper_status["status"]
+    expd_status = test_case.expected_results.oper_up
+
+    if expd_status != (msrd_status == "active"):
+        yield tr.FailFieldMismatchResult(
+            device=device, test_case=test_case, field="oper_up", measurement=msrd_status
+        )
+        fails += 1
+
+    # -------------------------------------------------------------------------
+    # check the existance of the "Cpu" as an interface in the VLAN interfaces
+    # list.  This presences indicates that "interface Vlan<N>" exists.
+    # -------------------------------------------------------------------------
+
+    msrd_used = "Cpu" in svi_oper_status["interfaces"]
+    expd_used = test_case.expected_results.used
+
+    if msrd_used != expd_used:
+        yield tr.FailFieldMismatchResult(
+            device=device,
+            test_case=test_case,
+            field="used",
+            measurement=dict(
+                error="missing", errmsg="Cpu is missing from VLAN interfaces list"
+            ),
+        )
+        fails += 1
+
+    if fails:
+        return
+
+    # -------------------------------------------------------------------------
+    # All checks passeed !
+    # -------------------------------------------------------------------------
+
     yield tr.PassTestCase(
-        device=device, test_case=test_case, measurement=svi_oper_status
+        device=device,
+        test_case=test_case,
+        measurement=test_case.expected_results.dict(),
     )
