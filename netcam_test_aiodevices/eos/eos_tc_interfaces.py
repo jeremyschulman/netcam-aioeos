@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # System Imports
 # -----------------------------------------------------------------------------
-
+import re
 from typing import TYPE_CHECKING
 
 # -----------------------------------------------------------------------------
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_tc_interfaces", "eos_test_one_interface"]
+__all__ = ["eos_tc_interfaces", "eos_test_one_interface", "eos_test_one_svi"]
 
 
 # -----------------------------------------------------------------------------
@@ -34,6 +34,8 @@ __all__ = ["eos_tc_interfaces", "eos_test_one_interface"]
 #                                 CODE BEGINS
 #
 # -----------------------------------------------------------------------------
+
+_match_svi = re.compile(r"Vlan(\d+)").match
 
 
 async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
@@ -59,18 +61,47 @@ async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
     TestCasePass, TestCaseFailed
     """
 
-    # noinspection PyTypeChecker
     dut: DeviceUnderTestEOS = self
     device = dut.device
 
-    cli_data = await dut.eapi.cli("show interfaces status")
-    map_if_oper_data: dict = cli_data["interfaceStatuses"]
+    cli_show_ifaces_rsp, cli_show_vlans_rsp = await dut.eapi.cli(
+        commands=["show interfaces status", "show vlan brief"]
+    )
+
+    map_if_oper_data: dict = cli_show_ifaces_rsp["interfaceStatuses"]
+    map_svi_oper_data: dict = cli_show_vlans_rsp["vlans"]
 
     for test_case in testcases.tests:
         if_name = test_case.test_case_id()
 
-        # if the interface does not exist on the device, then the test fails, and we
-        # go onto the next text.
+        # ---------------------------------------------------------------------
+        # if the interface is a SVI, that is begins with "Vlan", then we need to
+        # examine it differently since it does not show up in the "show
+        # interfaces ..." command.
+        # ---------------------------------------------------------------------
+
+        if vlan_mo := _match_svi(if_name):
+            # extract the VLAN ID value from the interface name; the lookup is a
+            # int-as-string since that is how the data is encoded in the CLI
+            # response object.
+
+            vlan_id = vlan_mo.group(1)
+
+            if not (svi_oper_status := map_svi_oper_data.get(vlan_id)):
+                continue
+
+            for result in eos_test_one_svi(
+                device=device, test_case=test_case, svi_oper_status=svi_oper_status
+            ):
+                yield result
+
+            continue
+
+        # ---------------------------------------------------------------------
+        # The interface is not an SVI, look into the "show interfaces ..."
+        # output. if the interface does not exist on the device, then the test
+        # fails, and we go onto the next text.
+        # ---------------------------------------------------------------------
 
         if not (iface_oper_status := map_if_oper_data.get(if_name)):
             yield tr.FailNoExistsResult(device=device, test_case=test_case)
@@ -177,4 +208,12 @@ def eos_test_one_interface(
 
     yield tr.PassTestCase(
         device=device, test_case=test_case, measurement=measurement.dict()
+    )
+
+
+def eos_test_one_svi(
+    device: Device, test_case: InterfaceTestCase, svi_oper_status: dict
+):
+    yield tr.PassTestCase(
+        device=device, test_case=test_case, measurement=svi_oper_status
     )
