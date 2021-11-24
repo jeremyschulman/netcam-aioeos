@@ -2,7 +2,9 @@
 # System Imports
 # -----------------------------------------------------------------------------
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator, AsyncGenerator, Set
+from itertools import chain
+from operator import attrgetter
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -10,10 +12,14 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, PositiveInt
 
-from netcad.device import Device
+from netcad.device import Device, DeviceInterface
 from netcad.netcam import tc_result_types as tr
 
-from netcad.testing_services.interfaces import InterfaceTestCases, InterfaceTestCase
+from netcad.testing_services.interfaces import (
+    InterfaceListTestCase,
+    InterfaceTestCases,
+    InterfaceTestCase,
+)
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -38,7 +44,7 @@ __all__ = ["eos_tc_interfaces", "eos_test_one_interface", "eos_test_one_svi"]
 _match_svi = re.compile(r"Vlan(\d+)").match
 
 
-async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
+async def eos_tc_interfaces(self, testcases: InterfaceTestCases) -> AsyncGenerator:
     """
     This async generator is responsible for implementing the "interfaces" test
     cases for EOS devices.
@@ -64,14 +70,34 @@ async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
     dut: DeviceUnderTestEOS = self
     device = dut.device
 
-    cli_show_ifaces_rsp, cli_show_vlans_rsp = await dut.eapi.cli(
-        commands=["show interfaces status", "show vlan brief"]
+    # read the data from the EOS device for both "show interfaces ..." and "show
+    # vlan ..." since we need both.
+
+    cli_sh_ifaces, cli_sh_vlan, cli_sh_ipinf = await dut.eapi.cli(
+        commands=[
+            "show interfaces status",
+            "show vlan brief",
+            "show ip interface brief",
+        ]
     )
 
-    map_if_oper_data: dict = cli_show_ifaces_rsp["interfaceStatuses"]
-    map_svi_oper_data: dict = cli_show_vlans_rsp["vlans"]
+    map_if_oper_data: dict = cli_sh_ifaces["interfaceStatuses"]
+    map_svi_oper_data: dict = cli_sh_vlan["vlans"]
+    map_ip_ifaces: dict = cli_sh_ipinf["interfaces"]
+
+    # -------------------------------------------------------------------------
+    # Check for the exclusive set of interfaces expected vs actual.
+    # -------------------------------------------------------------------------
+
+    for result in eos_check_interfaces_list(
+        device=device,
+        expd_interfaces=set(test_case.test_case_id() for test_case in testcases.tests),
+        msrd_interfaces=set(chain(map_if_oper_data, map_ip_ifaces)),
+    ):
+        yield result
 
     for test_case in testcases.tests:
+
         if_name = test_case.test_case_id()
 
         # ---------------------------------------------------------------------
@@ -81,13 +107,18 @@ async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
         # ---------------------------------------------------------------------
 
         if vlan_mo := _match_svi(if_name):
+
             # extract the VLAN ID value from the interface name; the lookup is a
             # int-as-string since that is how the data is encoded in the CLI
-            # response object.
+            # response object.  If the VLAN does not exist, or if the VLAN does
+            # exist but there is no Cpu interface, then the "interface Vlan<N>"
+            # does not exist on the device.
 
             vlan_id = vlan_mo.group(1)
+            svi_oper_status = map_svi_oper_data.get(vlan_id)
 
-            if not (svi_oper_status := map_svi_oper_data.get(vlan_id)):
+            if not (svi_oper_status or "Cpu" not in svi_oper_status["interfaces"]):
+                yield tr.FailNoExistsResult(device=device, test_case=test_case)
                 continue
 
             for result in eos_test_one_svi(
@@ -95,6 +126,7 @@ async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
             ):
                 yield result
 
+            # done with Vlan interface, go to next test-case
             continue
 
         # ---------------------------------------------------------------------
@@ -113,6 +145,48 @@ async def eos_tc_interfaces(self, testcases: InterfaceTestCases):
             iface_oper_status=iface_oper_status,
         ):
             yield result
+
+
+# -----------------------------------------------------------------------------
+#
+#                       PRIVATE CODE BEGINS
+#
+# -----------------------------------------------------------------------------
+
+
+def eos_check_interfaces_list(
+    device: Device, expd_interfaces: Set[str], msrd_interfaces: Set[str]
+) -> Generator:
+
+    tc = InterfaceListTestCase()
+    attr_name = attrgetter("name")
+    expd_sorted = list(map(attr_name, sorted(map(DeviceInterface, expd_interfaces))))
+
+    if missing_interfaces := expd_interfaces - msrd_interfaces:
+        msng_sorted = list(
+            map(attr_name, sorted(map(DeviceInterface, missing_interfaces)))
+        )
+
+        yield tr.FailExtraMembersResult(
+            device=device,
+            test_case=tc,
+            field="interfaces",
+            expected=expd_sorted,
+            extras=msng_sorted,
+        )
+
+    if extra_interfaces := msrd_interfaces - expd_interfaces:
+        exta_sorted = list(
+            map(attr_name, sorted(map(DeviceInterface, extra_interfaces)))
+        )
+
+        yield tr.FailMissingMembersResult(
+            device=device,
+            test_case=tc,
+            field="interfaces",
+            expected=expd_sorted,
+            missing=exta_sorted,
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -142,11 +216,6 @@ class EosInterfaceMeasurement(BaseModel):
             desc=cli_payload["description"],
             speed=cli_payload["bandwidth"] * BITS_TO_MBS,
         )
-
-
-# -----------------------------------------------------------------------------
-# EOS Test One Interface
-# -----------------------------------------------------------------------------
 
 
 def eos_test_one_interface(
@@ -241,25 +310,6 @@ def eos_test_one_svi(
     if expd_status != (msrd_status == "active"):
         yield tr.FailFieldMismatchResult(
             device=device, test_case=test_case, field="oper_up", measurement=msrd_status
-        )
-        fails += 1
-
-    # -------------------------------------------------------------------------
-    # check the existance of the "Cpu" as an interface in the VLAN interfaces
-    # list.  This presences indicates that "interface Vlan<N>" exists.
-    # -------------------------------------------------------------------------
-
-    msrd_used = "Cpu" in svi_oper_status["interfaces"]
-    expd_used = test_case.expected_results.used
-
-    if msrd_used != expd_used:
-        yield tr.FailFieldMismatchResult(
-            device=device,
-            test_case=test_case,
-            field="used",
-            measurement=dict(
-                error="missing", errmsg="Cpu is missing from VLAN interfaces list"
-            ),
         )
         fails += 1
 
