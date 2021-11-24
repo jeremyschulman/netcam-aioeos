@@ -92,6 +92,7 @@ async def eos_test_mlag_system_status(dut: "DeviceUnderTestEOS"):
         test_case=test_case,
         field="mlag_status",
         measurement=cli_mlagst_rsp,
+        expected={},
     )
 
 
