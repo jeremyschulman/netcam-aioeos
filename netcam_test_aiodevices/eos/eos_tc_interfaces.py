@@ -166,13 +166,12 @@ def eos_check_interfaces_list(
         msng_sorted = list(
             map(attr_name, sorted(map(DeviceInterface, missing_interfaces)))
         )
-
-        yield tr.FailExtraMembersResult(
+        yield tr.FailMissingMembersResult(
             device=device,
             test_case=tc,
             field="interfaces",
             expected=expd_sorted,
-            extras=msng_sorted,
+            missing=msng_sorted,
         )
 
     if extra_interfaces := msrd_interfaces - expd_interfaces:
@@ -180,12 +179,12 @@ def eos_check_interfaces_list(
             map(attr_name, sorted(map(DeviceInterface, extra_interfaces)))
         )
 
-        yield tr.FailMissingMembersResult(
+        yield tr.FailExtraMembersResult(
             device=device,
             test_case=tc,
             field="interfaces",
             expected=expd_sorted,
-            missing=exta_sorted,
+            extras=exta_sorted,
         )
 
 
