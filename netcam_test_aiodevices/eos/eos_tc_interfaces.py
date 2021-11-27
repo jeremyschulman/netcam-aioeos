@@ -130,6 +130,23 @@ async def eos_tc_interfaces(self, testcases: InterfaceTestCases) -> AsyncGenerat
             continue
 
         # ---------------------------------------------------------------------
+        # If the interface is a Loopback ...
+        # ---------------------------------------------------------------------
+
+        if if_name.startswith("Loopback"):
+            if not (lo_status := map_ip_ifaces.get(if_name)):
+                yield tr.FailNoExistsResult(device=device, test_case=test_case)
+                continue
+
+            for result in eos_test_one_loopback(
+                device=device, test_case=test_case, ifip_oper_status=lo_status
+            ):
+                yield result
+
+            # done with Loopback, go to next test-case
+            continue
+
+        # ---------------------------------------------------------------------
         # The interface is not an SVI, look into the "show interfaces ..."
         # output. if the interface does not exist on the device, then the test
         # fails, and we go onto the next text.
@@ -158,11 +175,14 @@ def eos_check_interfaces_list(
     device: Device, expd_interfaces: Set[str], msrd_interfaces: Set[str]
 ) -> Generator:
 
+    fails = 0
+
     tc = InterfaceListTestCase()
     attr_name = attrgetter("name")
     expd_sorted = list(map(attr_name, sorted(map(DeviceInterface, expd_interfaces))))
 
     if missing_interfaces := expd_interfaces - msrd_interfaces:
+        fails += 1
         msng_sorted = list(
             map(attr_name, sorted(map(DeviceInterface, missing_interfaces)))
         )
@@ -175,6 +195,7 @@ def eos_check_interfaces_list(
         )
 
     if extra_interfaces := msrd_interfaces - expd_interfaces:
+        fails += 1
         exta_sorted = list(
             map(attr_name, sorted(map(DeviceInterface, extra_interfaces)))
         )
@@ -186,6 +207,13 @@ def eos_check_interfaces_list(
             expected=expd_sorted,
             extras=exta_sorted,
         )
+
+    if fails:
+        return
+
+    yield tr.PassTestCase(
+        device=device, test_case=tc, measurement="OK: no extra or missing interfaces"
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -276,6 +304,14 @@ def eos_test_one_interface(
 
     yield tr.PassTestCase(
         device=device, test_case=test_case, measurement=measurement.dict()
+    )
+
+
+def eos_test_one_loopback(
+    device: Device, test_case: InterfaceTestCase, ifip_oper_status: dict
+):
+    yield tr.PassTestCase(
+        device=device, test_case=test_case, measurement=ifip_oper_status
     )
 
 
