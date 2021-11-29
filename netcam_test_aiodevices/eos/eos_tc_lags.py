@@ -20,7 +20,7 @@ from netcad.netcam import tc_result_types as trt
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_test_aiodevices.eos import DeviceUnderTestEOS
+    from netcam_test_aiodevices.eos import EOSDeviceUnderTest
 
 
 # -----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ __all__ = ["eos_test_lags", "eos_test_one_lag"]
 
 async def eos_test_lags(self, testcases: LagTestCases) -> AsyncGenerator:
 
-    dut: DeviceUnderTestEOS = self
+    dut: EOSDeviceUnderTest = self
     device = dut.device
 
     cli_lacp_resp = await dut.eapi.cli("show lacp interface")

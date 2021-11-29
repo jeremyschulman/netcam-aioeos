@@ -14,7 +14,7 @@ from netcad.device import Device
 # Private Imports
 # -----------------------------------------------------------------------------
 
-from netcam_test_aiodevices.eos import DeviceUnderTestEOS
+from netcam_test_aiodevices.eos import EOSDeviceUnderTest
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -30,7 +30,7 @@ __all__ = ["__version__", "get_dut"]
 
 __version__ = importlib_metadata.version(__name__)
 
-SUPPORTED_OS_NAMES = {"eos": DeviceUnderTestEOS}
+SUPPORTED_OS_NAMES = {"eos": EOSDeviceUnderTest}
 
 
 def get_dut(device: Device):

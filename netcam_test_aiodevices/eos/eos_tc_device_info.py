@@ -16,7 +16,7 @@ from netcad.netcam import PassTestCase, FailTestCase, InfoTestCase
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from .eos_dut import DeviceUnderTestEOS
+    from .eos_dut import EOSDeviceUnderTest
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -32,7 +32,7 @@ __all__ = ["eos_tc_device_info"]
 
 
 async def eos_tc_device_info(self, testcases: DeviceInformationTestCases):
-    dut: DeviceUnderTestEOS = self
+    dut: EOSDeviceUnderTest = self
     ver_info = dut.version_info
 
     # check the product model for a match.  The actual product model may be a

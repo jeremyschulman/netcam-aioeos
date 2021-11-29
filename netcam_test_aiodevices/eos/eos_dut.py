@@ -21,7 +21,7 @@ from netcad.netcam import SkipTestCases
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["DeviceUnderTestEOS"]
+__all__ = ["EOSDeviceUnderTest"]
 
 
 # -----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ class DeviceEAPIAuth(DeviceEAPI):
     )
 
 
-class DeviceUnderTestEOS(AsyncDeviceUnderTest):
+class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     """
     This class provides the Arista EOS device-under-test plugin for directly
     communicating with the device via the EAPI interface.  The underpinning

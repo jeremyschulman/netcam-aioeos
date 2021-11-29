@@ -23,7 +23,7 @@ from netcad.netcam import tc_result_types as trt
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_test_aiodevices.eos import DeviceUnderTestEOS
+    from netcam_test_aiodevices.eos import EOSDeviceUnderTest
 
 
 # -----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ async def eos_test_cabling(
     ------
     Netcad test-case items.
     """
-    dut: DeviceUnderTestEOS = self
+    dut: EOSDeviceUnderTest = self
 
     cli_lldp_rsp = await dut.eapi.cli("show lldp neighbors")
 

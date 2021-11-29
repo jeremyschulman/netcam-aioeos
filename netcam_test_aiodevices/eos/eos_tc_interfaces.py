@@ -26,7 +26,7 @@ from netcad.testing_services.interfaces import (
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_test_aiodevices.eos import DeviceUnderTestEOS
+    from netcam_test_aiodevices.eos import EOSDeviceUnderTest
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -67,7 +67,7 @@ async def eos_tc_interfaces(self, testcases: InterfaceTestCases) -> AsyncGenerat
     TestCasePass, TestCaseFailed
     """
 
-    dut: DeviceUnderTestEOS = self
+    dut: EOSDeviceUnderTest = self
     device = dut.device
 
     # read the data from the EOS device for both "show interfaces ..." and "show
