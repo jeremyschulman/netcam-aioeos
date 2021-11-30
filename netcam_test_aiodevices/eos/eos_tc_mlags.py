@@ -25,7 +25,7 @@ from netcad.netcam import tc_result_types as trt
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_test_aiodevices.eos import DeviceUnderTestEOS
+    from netcam_test_aiodevices.eos import EOSDeviceUnderTest
 
 
 # -----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ _re_mlag_id = re.compile(r"Port-Channel(\d+)")
 
 
 async def eos_test_mlags(self, testcases: MLagTestCases) -> AsyncGenerator:
-    dut: DeviceUnderTestEOS = self
+    dut: EOSDeviceUnderTest = self
     device = dut.device
 
     yield await eos_test_mlag_system_status(dut)
@@ -67,7 +67,7 @@ async def eos_test_mlags(self, testcases: MLagTestCases) -> AsyncGenerator:
             yield result
 
 
-async def eos_test_mlag_system_status(dut: "DeviceUnderTestEOS"):
+async def eos_test_mlag_system_status(dut: "EOSDeviceUnderTest"):
 
     cli_mlagst_rsp = await dut.eapi.cli("show mlag config-sanity")
 

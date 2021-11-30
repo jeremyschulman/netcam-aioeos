@@ -18,7 +18,7 @@ from netcad.netcam import tc_result_types as trt
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_test_aiodevices.eos import DeviceUnderTestEOS
+    from netcam_test_aiodevices.eos import EOSDeviceUnderTest
 
 
 # -----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ __all__ = ["eos_test_vlans", "eos_test_one_vlan"]
 
 async def eos_test_vlans(self, testcases: VlanTestCases) -> AsyncGenerator:
 
-    dut: DeviceUnderTestEOS = self
+    dut: EOSDeviceUnderTest = self
     device = dut.device
 
     cli_vlan_resp = await dut.eapi.cli("show vlan")
