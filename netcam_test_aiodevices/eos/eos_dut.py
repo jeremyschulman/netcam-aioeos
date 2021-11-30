@@ -127,3 +127,11 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     from .eos_tc_mlags import eos_test_mlags
 
     execute_testcases.register(eos_test_mlags)
+
+    # -------------------------------------------------------------------------
+    # Support the 'ipaddrs' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_ipaddrs import eos_test_ipaddrs
+
+    execute_testcases.register(eos_test_ipaddrs)
