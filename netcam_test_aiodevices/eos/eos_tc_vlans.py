@@ -3,6 +3,7 @@
 # -----------------------------------------------------------------------------
 
 from typing import TYPE_CHECKING, AsyncGenerator, Generator
+from operator import attrgetter
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -10,7 +11,7 @@ from typing import TYPE_CHECKING, AsyncGenerator, Generator
 
 from netcad.testing_services.vlans import VlanTestCases, VlanTestCase
 
-from netcad.device import Device
+from netcad.device import Device, DeviceInterface
 from netcad.netcam import tc_result_types as trt
 
 # -----------------------------------------------------------------------------
@@ -33,7 +34,7 @@ async def eos_test_vlans(self, testcases: VlanTestCases) -> AsyncGenerator:
     dut: EOSDeviceUnderTest = self
     device = dut.device
 
-    cli_vlan_resp = await dut.eapi.cli("show vlan")
+    cli_vlan_resp = await dut.eapi.cli("show vlan active-configuration")
 
     # vlan data is a dictionary, key is the VLAN ID in a string form.
     dev_vlans_info = cli_vlan_resp["vlans"]
@@ -100,6 +101,8 @@ def eos_test_one_vlan(
     # -------------------------------------------------------------------------
 
     expd_interfaces = set(test_case.expected_results.interfaces)
+    attr_name = attrgetter("name")
+    expd_sorted = list(map(attr_name, sorted(map(DeviceInterface, expd_interfaces))))
 
     # Map the EOS reported interfaces list into a set for comparitive
     # processing. Do not include any "peer" interfaces; these represent MLAG
@@ -113,22 +116,28 @@ def eos_test_one_vlan(
     )
 
     if missing_interfaces := expd_interfaces - msrd_interfaces:
+        missing_sorted = list(
+            map(attr_name, sorted(map(DeviceInterface, missing_interfaces)))
+        )
         yield trt.FailMissingMembersResult(
             device=device,
             test_case=test_case,
             field="interfaces",
-            expected=list(expd_interfaces),
-            missing=list(missing_interfaces),
+            expected=expd_sorted,
+            missing=missing_sorted,
         )
         fails += 1
 
     if extra_interfaces := msrd_interfaces - expd_interfaces:
+        extra_sorted = list(
+            map(attr_name, sorted(map(DeviceInterface, extra_interfaces)))
+        )
         yield trt.FailExtraMembersResult(
             device=device,
             test_case=test_case,
             field="interfaces",
-            expected=list(expd_interfaces),
-            extras=list(extra_interfaces),
+            expected=expd_sorted,
+            extras=extra_sorted,
         )
         fails += 1
 
