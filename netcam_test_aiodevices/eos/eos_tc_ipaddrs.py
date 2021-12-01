@@ -114,7 +114,8 @@ def eos_test_one_interface(
     # Ensure the IP interface value matches.
     # -------------------------------------------------------------------------
 
-    if msrd_if_ipaddr != test_case.expected_results.if_ipaddr:
+    expd_if_ipaddr = test_case.expected_results.if_ipaddr
+    if msrd_if_ipaddr != expd_if_ipaddr:
         yield trt.FailFieldMismatchResult(
             device=device,
             test_case=test_case,
@@ -131,7 +132,12 @@ def eos_test_one_interface(
 
     if (if_oper := msrd_data["lineProtocolStatus"]) != "up":
         yield trt.FailFieldMismatchResult(
-            device=device, test_case=test_case, field="if_oper", measurement=if_oper
+            device=device,
+            test_case=test_case,
+            field="if_oper",
+            expected="up",
+            measurement=if_oper,
+            error=f"interface for IP {expd_if_ipaddr} is not up: {if_oper}",
         )
         fails += 1
 
