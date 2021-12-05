@@ -8,9 +8,9 @@ from typing import TYPE_CHECKING, AsyncGenerator, Generator
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.testing_services.vlans import VlanTestCases, VlanTestCase
 from netcad.device import Device, DeviceInterface
 from netcad.netcam import tc_result_types as trt
+from netcad.vlan.vlan_testcases import VlanTestCases, VlanTestCase
 
 # -----------------------------------------------------------------------------
 # Private Imports
