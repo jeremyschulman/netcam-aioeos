@@ -10,7 +10,7 @@ from operator import attrgetter
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from pydantic import BaseModel, PositiveInt
+from pydantic import BaseModel
 
 from netcad.device import Device, DeviceInterface
 from netcad.netcam import tc_result_types as tr
@@ -232,7 +232,7 @@ class EosInterfaceMeasurement(BaseModel):
     used: bool
     oper_up: bool
     desc: str
-    speed: PositiveInt
+    speed: int
 
     @classmethod
     def from_cli(cls, cli_payload: dict):

@@ -58,7 +58,9 @@ async def eos_test_ipaddrs(self, testcases: IPInterfacesTestCases) -> AsyncGener
         if_names.append(if_name)
 
         if not (if_ip_data := dev_ips_data.get(if_name)):
-            yield trt.FailNoExistsResult(device=device, test_case=test_case)
+            yield trt.FailNoExistsResult(
+                device=device, test_case=test_case, field="if_ipaddr"
+            )
             continue
 
         tc_generators.append(
