@@ -10,7 +10,7 @@ from operator import attrgetter
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from pydantic import BaseModel, PositiveInt
+from pydantic import BaseModel
 
 from netcad.device import Device, DeviceInterface
 from netcad.netcam import tc_result_types as tr
@@ -232,7 +232,7 @@ class EosInterfaceMeasurement(BaseModel):
     used: bool
     oper_up: bool
     desc: str
-    speed: PositiveInt
+    speed: int
 
     @classmethod
     def from_cli(cls, cli_payload: dict):
@@ -292,7 +292,11 @@ def eos_test_one_interface(
         fails += 1
 
         yield tr.FailFieldMismatchResult(
-            device=device, test_case=test_case, measurement=msrd_val, field=field
+            device=device,
+            test_case=test_case,
+            measurement=msrd_val,
+            field=field,
+            expected=test_case.expected_results.dict(),
         )
 
     if fails:
