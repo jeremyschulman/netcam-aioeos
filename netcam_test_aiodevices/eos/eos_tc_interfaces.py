@@ -292,7 +292,11 @@ def eos_test_one_interface(
         fails += 1
 
         yield tr.FailFieldMismatchResult(
-            device=device, test_case=test_case, measurement=msrd_val, field=field
+            device=device,
+            test_case=test_case,
+            measurement=msrd_val,
+            field=field,
+            expected=test_case.expected_results.dict(),
         )
 
     if fails:
