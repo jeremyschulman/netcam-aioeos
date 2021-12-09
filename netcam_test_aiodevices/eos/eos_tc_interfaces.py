@@ -96,6 +96,10 @@ async def eos_tc_interfaces(self, testcases: InterfaceTestCases) -> AsyncGenerat
     ):
         yield result
 
+    # -------------------------------------------------------------------------
+    # Check each interface for health checks
+    # -------------------------------------------------------------------------
+
     for test_case in testcases.tests:
 
         if_name = test_case.test_case_id()
@@ -254,8 +258,29 @@ def eos_test_one_interface(
 
     measurement = EosInterfaceMeasurement.from_cli(iface_oper_status)
     should_oper_status = test_case.expected_results
+    if_flags = test_case.test_params.interface_flags or {}
+    is_reserved = if_flags.get("is_reserved", False)
 
     fails = 0
+
+    # -------------------------------------------------------------------------
+    # If the interface is marked as reserved, then report the current state in
+    # an INFO report and done with this test-case.
+    # -------------------------------------------------------------------------
+
+    if is_reserved:
+        yield tr.InfoTestCase(
+            device=device,
+            test_case=test_case,
+            field="is_reserved",
+            measurement=measurement.dict(),
+        )
+        return
+
+    # -------------------------------------------------------------------------
+    # Check the 'used' status.  Then if the interface is not being used, then no
+    # more checks are required.
+    # -------------------------------------------------------------------------
 
     if should_oper_status.used != measurement.used:
         fails += 1
@@ -265,8 +290,6 @@ def eos_test_one_interface(
             field="used",
             measurement=measurement.used,
         )
-
-    # if the interface is not being used, then no more checks are required.
 
     if not should_oper_status.used:
         return
@@ -314,6 +337,11 @@ def eos_test_one_interface(
 def eos_test_one_loopback(
     device: Device, test_case: InterfaceTestCase, ifip_oper_status: dict
 ):
+    """
+    If the loopback interface exists (previous checked), then no other field
+    checks are performed.  Yield this as a passing test-case and record the
+    measured values from the device.
+    """
     yield tr.PassTestCase(
         device=device, test_case=test_case, measurement=ifip_oper_status
     )
