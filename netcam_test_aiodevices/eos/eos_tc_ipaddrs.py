@@ -11,7 +11,7 @@ from itertools import chain
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.testing_services.ipaddrs import (
+from netcad.topology.tc_ipaddrs import (
     IPInterfacesTestCases,
     IPInterfaceTestCase,
     IPInterfaceExclusiveListTestCase,
@@ -171,6 +171,6 @@ def eos_test_exclusive_list(
             extras=sorted(extras),
         )
     else:
-        result = trt.PassTestCase(device=device, test_case=tc)
+        result = trt.PassTestCase(device=device, test_case=tc, measurement="exists")
 
     yield result

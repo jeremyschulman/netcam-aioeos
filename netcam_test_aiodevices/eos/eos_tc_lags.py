@@ -10,7 +10,7 @@ from itertools import chain
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.testing_services.lags import LagTestCases, LagTestCase
+from netcad.topology.tc_lags import LagTestCases, LagTestCase
 
 from netcad.device import Device, DeviceInterface
 from netcad.netcam import tc_result_types as trt

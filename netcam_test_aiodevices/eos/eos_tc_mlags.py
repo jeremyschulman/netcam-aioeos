@@ -11,12 +11,12 @@ import re
 
 from pydantic import BaseModel
 
-from netcad.testing_services.mlags import (
+from netcad.topology.tc_mlags import (
     MLagTestCases,
     MLagSystemTestParams,
     MLagSystemTestCase,
 )
-from netcad.testing_services.lags import LagTestCase
+from netcad.topology.tc_lags import LagTestCase
 from netcad.device import Device
 from netcad.netcam import tc_result_types as trt
 
