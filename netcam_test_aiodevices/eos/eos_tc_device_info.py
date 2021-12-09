@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 # Public Impors
 # -----------------------------------------------------------------------------
 
-from netcad.testing_services.device import DeviceInformationTestCases
+from netcad.topology.tc_device_info import DeviceInformationTestCases
 from netcad.netcam import PassTestCase, FailTestCase, InfoTestCase
 
 # -----------------------------------------------------------------------------

@@ -10,7 +10,7 @@ from itertools import chain
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.testing_services.transceivers import (
+from netcad.topology.tc_transceivers import (
     TransceiverTestCases,
     TransceiverTestCase,
     TransceiverListTestCase,

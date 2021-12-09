@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from netcad.device import Device, DeviceInterface
 from netcad.netcam import tc_result_types as tr
 
-from netcad.testing_services.interfaces import (
+from netcad.topology.tc_interfaces import (
     InterfaceListTestCase,
     InterfaceTestCases,
     InterfaceTestCase,

@@ -8,9 +8,11 @@ from typing import TYPE_CHECKING, AsyncGenerator, Generator
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.testing_services.cabling import (
+from netcad.topology.tc_cabling_nei import (
     InterfaceCablingTestCases,
     InterfaceCablingTestCase,
+)
+from netcad.topology.utils_cabling_nei import (
     nei_interface_match,
     nei_hostname_match,
 )

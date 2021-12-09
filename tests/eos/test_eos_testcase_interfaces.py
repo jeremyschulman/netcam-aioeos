@@ -14,7 +14,8 @@ import pytest
 
 from netcad.device import Device
 from netcad.testing_services import TestCasePass
-from netcad.testing_services import interfaces as if_tests
+from netcad.topology import interfaces as if_tests
+
 
 # -----------------------------------------------------------------------------
 #
@@ -78,7 +79,7 @@ async def test_dispatch_eos_testcases_interfaces(mock_device, monkeypatch):
     "singledispatchmethod" is working as expected.
     """
 
-    from netcad.testing_services.interfaces import InterfaceTestCases
+    from netcad.topology.interfaces import InterfaceTestCases
     from netcam_aio_devices.eos.eos_dut import DeviceUnderTestEOS
 
     # noinspection PyTypeChecker
