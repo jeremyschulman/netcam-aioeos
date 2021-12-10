@@ -65,7 +65,7 @@ async def eos_test_ipaddrs(self, testcases: IPInterfacesTestCases) -> AsyncGener
 
         tc_generators.append(
             eos_test_one_interface(
-                device=device, test_case=test_case, msrd_data=if_ip_data
+                dut, device=device, test_case=test_case, msrd_data=if_ip_data
             )
         )
 
@@ -86,14 +86,30 @@ async def eos_test_ipaddrs(self, testcases: IPInterfacesTestCases) -> AsyncGener
     )
 
     for result in chain.from_iterable(tc_generators):
-        yield result
+        if isinstance(result, trt.ResultsTestCase):
+            yield result
+            continue
+
+        if isinstance(result, AsyncGenerator):
+            async for dfd_result in result:
+                yield dfd_result
+
+
+# -----------------------------------------------------------------------------
 
 
 def eos_test_one_interface(
-    device: Device, test_case: IPInterfaceTestCase, msrd_data: dict
+    dut: "EOSDeviceUnderTest",
+    device: Device,
+    test_case: IPInterfaceTestCase,
+    msrd_data: dict,
 ) -> Generator:
 
     fails = 0
+
+    # get the interface name begin tested
+
+    if_name = test_case.test_case_id()
 
     # -------------------------------------------------------------------------
     # if there is any error accessing the expect interface IP address
@@ -132,7 +148,25 @@ def eos_test_one_interface(
     #       up condition check.
     # -------------------------------------------------------------------------
 
-    if (if_oper := msrd_data["lineProtocolStatus"]) != "up":
+    # check to see if the interface is disabled before we check to see if the IP
+    # address is in the up condition.
+
+    dut_interfaces = dut.device_info["interfaces"]
+    dut_iface = dut_interfaces[if_name]
+    iface_enabled = dut_iface["enabled"] is True
+
+    if iface_enabled and (if_oper := msrd_data["lineProtocolStatus"]) != "up":
+
+        # if the interface is an SVI, then we need to check to see if _all_ of
+        # the associated physical interfaces are either disabled or in a
+        # reseverd condition.
+
+        if if_name.startswith("Vlan"):
+            yield _check_vlan_assoc_interface(
+                dut, test_case, if_name=if_name, msrd_ipifaddr_oper=if_oper
+            )
+            return
+
         yield trt.FailFieldMismatchResult(
             device=device,
             test_case=test_case,
@@ -174,3 +208,72 @@ def eos_test_exclusive_list(
         result = trt.PassTestCase(device=device, test_case=tc, measurement="exists")
 
     yield result
+
+
+async def _check_vlan_assoc_interface(
+    dut: "EOSDeviceUnderTest", test_case, if_name: str, msrd_ipifaddr_oper
+):
+    """
+    This coroutine is used to check whether or not a VLAN SVI ip address is not
+    "up" due to the fact that the underlying interfaces are either disabled or
+    in a "reserved" design; meaning we do not care if they are up or down. If
+    the SVI is down because of this condition, the test case will "pass", and an
+    information record is yielded to inform the User.
+
+    Parameters
+    ----------
+    dut:
+        The device under test
+
+    test_case:
+        The specific test case
+
+    if_name:
+        The specific VLAN SVI name, "Vlan12" for example:
+
+    msrd_ipifaddr_oper:
+        The measured opertional state of the IP interface
+
+    Yields
+    ------
+    netcad test case results; one or more depending on the condition of SVI
+    interfaces.
+    """
+    vlan_id = if_name.split("Vlan")[-1]
+    cli_res = await dut.eapi.cli(f"show vlan id {vlan_id} configured-ports")
+    vlan_cfgd_ifnames = set(cli_res["vlans"][vlan_id]["interfaces"])
+    disrd_ifnames = set()
+    dut_ifs = dut.device_info["interfaces"]
+
+    for check_ifname in vlan_cfgd_ifnames:
+        dut_iface = dut_ifs[check_ifname]
+        if (dut_iface["enabled"] is False) or (
+            "is_reserved" in dut_iface["profile_flags"]
+        ):
+            disrd_ifnames.add(check_ifname)
+
+    if disrd_ifnames == vlan_cfgd_ifnames:
+        yield trt.InfoTestCase(
+            device=dut.device,
+            test_case=test_case,
+            field="if_oper",
+            measurement=dict(
+                if_oper=msrd_ipifaddr_oper,
+                interfaces=list(vlan_cfgd_ifnames),
+                message="interfaces are either disabled or in reserved state",
+            ),
+        )
+
+        yield trt.PassTestCase(
+            device=dut.device, test_case=test_case, measurement="exists"
+        )
+        return
+
+    yield trt.FailFieldMismatchResult(
+        device=dut.device,
+        test_case=test_case,
+        field="if_oper",
+        expected="up",
+        measurement=msrd_ipifaddr_oper,
+        error=f"interface for IP {test_case.expected_results.if_ipaddr} is not up: {msrd_ipifaddr_oper}",
+    )
