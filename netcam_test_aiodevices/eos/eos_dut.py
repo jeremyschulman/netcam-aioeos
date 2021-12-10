@@ -5,6 +5,7 @@
 from typing import Optional, AsyncGenerator
 import os
 from functools import singledispatchmethod
+from pathlib import Path
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -47,14 +48,16 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     details.
     """
 
-    def __init__(self, device: Device, **_kwargs):
+    def __init__(self, *, device: Device, testcases_dir: Path, **_kwargs):
         """DUT construction creates instance of EAPI transport"""
-        super().__init__(device=device)
+
+        super().__init__(device=device, testcases_dir=testcases_dir)
         self.eapi = DeviceEAPIAuth(host=device.name)
         self.version_info: Optional[dict] = None
 
     async def setup(self):
         """DUT setup process"""
+        await super().setup()
         self.version_info = await self.eapi.cli("show version")
 
     async def teardown(self):
@@ -70,6 +73,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
             device=self.device,
             test_case=testcases.tests[0],
             message=f'Missing: device {self.device.name} support for testcases of type "{cls_name}"',
+            measurement=None,
         )
 
     # -------------------------------------------------------------------------
