@@ -2,7 +2,7 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING, AsyncGenerator, Generator
+from typing import TYPE_CHECKING
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -27,10 +27,11 @@ if TYPE_CHECKING:
 __all__ = ["eos_test_vlans", "eos_test_one_vlan"]
 
 
-async def eos_test_vlans(self, testcases: VlanTestCases) -> AsyncGenerator:
+async def eos_test_vlans(self, testcases: VlanTestCases) -> trt.CollectionTestResults:
 
     dut: EOSDeviceUnderTest = self
     device = dut.device
+    results = list()
 
     # need the configured state, not the optional state since interfaces that
     # are "down" will not show up in the operational state. But the configured
@@ -50,32 +51,44 @@ async def eos_test_vlans(self, testcases: VlanTestCases) -> AsyncGenerator:
         cfg_interfaces = dev_vlans_cfg_info[vlan_id]["interfaces"]
         dev_vlans_info[vlan_id]["interfaces"].update(cfg_interfaces)
 
-    for each_test in testcases.tests:
+    for test_case in testcases.tests:
 
         # The test-case ID is the VLAN ID in string form.
-        vlan_id = each_test.test_case_id()
+        vlan_id = test_case.test_case_id()
 
-        for result in eos_test_one_vlan(
-            device=device,
-            test_case=each_test,
-            vlan_id=vlan_id,
-            vlan_status=dev_vlans_info.get(vlan_id),
-        ):
-            yield result
+        if not (vlan_status := dev_vlans_info.get(vlan_id)):
+            results.append(
+                trt.FailNoExistsResult(
+                    device=device,
+                    test_case=test_case,
+                )
+            )
+            continue
+
+        results.extend(
+            eos_test_one_vlan(
+                device=device,
+                test_case=test_case,
+                vlan_id=vlan_id,
+                vlan_status=vlan_status,
+            )
+        )
+
+    return results
+
+
+# -----------------------------------------------------------------------------
+#
+#                            PRIVATE CODE BEGINS
+#
+# -----------------------------------------------------------------------------
 
 
 def eos_test_one_vlan(
     device: Device, test_case: VlanTestCase, vlan_id: str, vlan_status: dict
-) -> Generator:
+) -> trt.CollectionTestResults:
 
-    if not vlan_status:
-        yield trt.FailNoExistsResult(
-            device=device,
-            test_case=test_case,
-        )
-        return
-
-    fails = 0
+    results = list()
 
     # -------------------------------------------------------------------------
     # check that the VLAN is active.
@@ -83,11 +96,13 @@ def eos_test_one_vlan(
 
     msrd_vlan_status = vlan_status["status"]
     if msrd_vlan_status != "active":
-        yield trt.FailFieldMismatchResult(
-            device=device,
-            test_case=test_case,
-            field="status",
-            measurement=msrd_vlan_status,
+        results.append(
+            trt.FailFieldMismatchResult(
+                device=device,
+                test_case=test_case,
+                field="status",
+                measurement=msrd_vlan_status,
+            )
         )
 
     # -------------------------------------------------------------------------
@@ -98,14 +113,15 @@ def eos_test_one_vlan(
     expd_vlan_name = test_case.expected_results.vlan.name
 
     if msrd_vlan_name != expd_vlan_name:
-        yield trt.FailFieldMismatchResult(
-            device=device,
-            test_case=test_case,
-            field="name",
-            expected=expd_vlan_name,
-            measurement=msrd_vlan_name,
+        results.append(
+            trt.FailFieldMismatchResult(
+                device=device,
+                test_case=test_case,
+                field="name",
+                expected=expd_vlan_name,
+                measurement=msrd_vlan_name,
+            )
         )
-        fails += 1
 
     # -------------------------------------------------------------------------
     # check the VLAN interface membership list.
@@ -126,38 +142,38 @@ def eos_test_one_vlan(
     )
 
     if missing_interfaces := expd_interfaces - msrd_interfaces:
-        yield trt.FailMissingMembersResult(
-            device=device,
-            test_case=test_case,
-            field="interfaces",
-            expected=expd_sorted,
-            missing=DeviceInterface.sorted_interface_names(missing_interfaces),
+        results.append(
+            trt.FailMissingMembersResult(
+                device=device,
+                test_case=test_case,
+                field="interfaces",
+                expected=expd_sorted,
+                missing=DeviceInterface.sorted_interface_names(missing_interfaces),
+            )
         )
-        fails += 1
 
     if extra_interfaces := msrd_interfaces - expd_interfaces:
-        yield trt.FailExtraMembersResult(
-            device=device,
-            test_case=test_case,
-            field="interfaces",
-            expected=expd_sorted,
-            extras=DeviceInterface.sorted_interface_names(extra_interfaces),
+        results.append(
+            trt.FailExtraMembersResult(
+                device=device,
+                test_case=test_case,
+                field="interfaces",
+                expected=expd_sorted,
+                extras=DeviceInterface.sorted_interface_names(extra_interfaces),
+            )
         )
-        fails += 1
 
-    if fails:
-        return
+    if not any(isinstance(res, trt.FailTestCase) for res in results):
+        results.append(
+            trt.PassTestCase(
+                device=device,
+                test_case=test_case,
+                measurement=dict(
+                    name=msrd_vlan_name,
+                    status=msrd_vlan_status,
+                    interfaces=DeviceInterface.sorted_interface_names(msrd_interfaces),
+                ),
+            )
+        )
 
-    # -------------------------------------------------------------------------
-    # Test case passed
-    # -------------------------------------------------------------------------
-
-    yield trt.PassTestCase(
-        device=device,
-        test_case=test_case,
-        measurement=dict(
-            name=msrd_vlan_name,
-            status=msrd_vlan_status,
-            interfaces=DeviceInterface.sorted_interface_names(msrd_interfaces),
-        ),
-    )
+    return results
