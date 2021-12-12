@@ -2,7 +2,7 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING, AsyncGenerator, Generator
+from typing import TYPE_CHECKING
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -43,7 +43,7 @@ __all__ = ["eos_test_cabling", "eos_test_one_interface"]
 
 async def eos_test_cabling(
     self, testcases: InterfaceCablingTestCases
-) -> AsyncGenerator:
+) -> trt.CollectionTestResults:
     """
     Support the "cabling" tests for Arista EOS devices.  These tests are
     implementeding by examing the LLDP neighborship status.
@@ -63,6 +63,8 @@ async def eos_test_cabling(
     Netcad test-case items.
     """
     dut: EOSDeviceUnderTest = self
+    device = dut.device
+    results = list()
 
     cli_lldp_rsp = await dut.eapi.cli("show lldp neighbors")
 
@@ -70,44 +72,29 @@ async def eos_test_cabling(
 
     dev_lldpnei_ifname = {nei["port"]: nei for nei in cli_lldp_rsp["lldpNeighbors"]}
 
-    for each_test in testcases.tests:
-        if_name = each_test.test_case_id()
+    for test_case in testcases.tests:
+        if_name = test_case.test_case_id()
 
-        for result in eos_test_one_interface(
-            device=dut.device,
-            test_case=each_test,
-            ifnei_status=dev_lldpnei_ifname.get(if_name),
-        ):
-            yield result
+        if not (port_nei := dev_lldpnei_ifname.get(if_name)):
+            results.append(trt.FailNoExistsResult(device=device, test_case=test_case))
+            continue
+
+        results.extend(
+            eos_test_one_interface(
+                device=dut.device,
+                test_case=test_case,
+                ifnei_status=port_nei,
+            )
+        )
+
+    return results
 
 
 def eos_test_one_interface(
     device: Device, test_case: InterfaceCablingTestCase, ifnei_status: dict
-) -> Generator:
-    """
-    Perform the actual tests for one interface.
+) -> trt.CollectionTestResults:
 
-    Parameters
-    ----------
-    device:
-        Netcad Device instance
-
-    test_case:
-        The specific interface test-case
-
-    ifnei_status:
-        The actual LLDP neighbor data from the EOS device.
-
-    Yields
-    ------
-    Netcad test-case results
-    """
-
-    if not ifnei_status:
-        yield trt.FailNoExistsResult(device=device, test_case=test_case)
-        return
-
-    fails = 0
+    results = list()
 
     expd_name = test_case.expected_results.device
     expd_port_id = test_case.expected_results.port_id
@@ -116,25 +103,30 @@ def eos_test_one_interface(
     msrd_port_id = ifnei_status["neighborPort"]
 
     if not nei_hostname_match(expd_name, msrd_name):
-        yield trt.FailFieldMismatchResult(
-            device=device, test_case=test_case, field="device", measurement=msrd_name
+        results.append(
+            trt.FailFieldMismatchResult(
+                device=device,
+                test_case=test_case,
+                field="device",
+                measurement=msrd_name,
+            )
         )
-        fails += 1
 
     if not nei_interface_match(expd_port_id, msrd_port_id):
-        yield trt.FailFieldMismatchResult(
-            device=device,
-            test_case=test_case,
-            field="port_id",
-            measurement=msrd_port_id,
+        results.append(
+            trt.FailFieldMismatchResult(
+                device=device,
+                test_case=test_case,
+                field="port_id",
+                measurement=msrd_port_id,
+            )
         )
-        fails += 1
 
-    if fails:
-        return
+    if not any(isinstance(res, trt.FailTestCase) for res in results):
+        results.append(
+            trt.PassTestCase(
+                device=device, test_case=test_case, measurement=ifnei_status
+            )
+        )
 
-    # -------------------------------------------------------------------------
-    # No failures, so test passes
-    # -------------------------------------------------------------------------
-
-    yield trt.PassTestCase(device=device, test_case=test_case, measurement=ifnei_status)
+    return results

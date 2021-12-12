@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, AsyncGenerator, Generator
 
 from netcad.device import Device, DeviceInterface
 from netcad.netcam import tc_result_types as trt
-from netcad.vlan.vlan_testcases import VlanTestCases, VlanTestCase
+from netcad.vlan.tc_vlans import VlanTestCases, VlanTestCase
 
 # -----------------------------------------------------------------------------
 # Private Imports

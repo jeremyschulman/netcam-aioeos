@@ -2,7 +2,7 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import Optional, AsyncGenerator
+from typing import Optional
 import os
 from functools import singledispatchmethod
 from pathlib import Path
@@ -10,13 +10,14 @@ from pathlib import Path
 # -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
+
 import httpx
 from aioeapi import Device as DeviceEAPI
 
 from netcad.device import Device
 from netcad.testing_services import TestCases
 from netcad.netcam.dut import AsyncDeviceUnderTest
-from netcad.netcam import SkipTestCases
+from netcad.netcam import CollectionTestResults
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -65,16 +66,10 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         await self.eapi.aclose()
 
     @singledispatchmethod
-    async def execute_testcases(self, testcases: TestCases) -> AsyncGenerator:
-        """dispatch the testcases to the registered methods"""
-        cls_name = testcases.__class__.__name__
-
-        yield SkipTestCases(
-            device=self.device,
-            test_case=testcases.tests[0],
-            message=f'Missing: device {self.device.name} support for testcases of type "{cls_name}"',
-            measurement=None,
-        )
+    async def execute_testcases(
+        self, testcases: TestCases
+    ) -> Optional[CollectionTestResults]:
+        return None
 
     # -------------------------------------------------------------------------
     # Support the 'device' testcases
@@ -88,9 +83,9 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'interfaces' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_interfaces import eos_tc_interfaces
-
-    execute_testcases.register(eos_tc_interfaces)
+    # from .eos_tc_interfaces import eos_tc_interfaces
+    #
+    # execute_testcases.register(eos_tc_interfaces)
 
     # -------------------------------------------------------------------------
     # Support the 'transceivers' testcases
@@ -112,25 +107,25 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'vlans' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_vlans import eos_test_vlans
-
-    execute_testcases.register(eos_test_vlans)
+    # from .eos_tc_vlans import eos_test_vlans
+    #
+    # execute_testcases.register(eos_test_vlans)
 
     # -------------------------------------------------------------------------
     # Support the 'lags' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_lags import eos_test_lags
-
-    execute_testcases.register(eos_test_lags)
+    # from .eos_tc_lags import eos_test_lags
+    #
+    # execute_testcases.register(eos_test_lags)
 
     # -------------------------------------------------------------------------
     # Support the 'mlags' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_mlags import eos_test_mlags
-
-    execute_testcases.register(eos_test_mlags)
+    # from .eos_tc_mlags import eos_test_mlags
+    #
+    # execute_testcases.register(eos_test_mlags)
 
     # -------------------------------------------------------------------------
     # Support the 'ipaddrs' testcases
