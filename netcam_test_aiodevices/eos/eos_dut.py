@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # System Imports
 # -----------------------------------------------------------------------------
-
+import asyncio
 from typing import Optional
 import os
 from functools import singledispatchmethod
@@ -55,6 +55,33 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         super().__init__(device=device, testcases_dir=testcases_dir)
         self.eapi = DeviceEAPIAuth(host=device.name)
         self.version_info: Optional[dict] = None
+        self._api_cache_lock = asyncio.Lock()
+        self._api_cache = dict()
+
+    # -------------------------------------------------------------------------
+    #
+    #                       EOS DUT Specific Methods
+    #
+    # -------------------------------------------------------------------------
+
+    async def api_cache_get(self, key: str, command: str, **kwargs):
+        async with self._api_cache_lock:
+            if not (has_data := self._api_cache.get(key)):
+                has_data = await self.eapi.cli(command, **kwargs)
+                self._api_cache[key] = has_data
+
+            return has_data
+
+    async def get_switchports(self):
+        return await self.api_cache_get(
+            key="switchports", command="show interfaces switchport"
+        )
+
+    # -------------------------------------------------------------------------
+    #
+    #                              DUT Methods
+    #
+    # -------------------------------------------------------------------------
 
     async def setup(self):
         """DUT setup process"""
@@ -70,6 +97,12 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         self, testcases: TestCases
     ) -> Optional[CollectionTestResults]:
         return None
+
+    # -------------------------------------------------------------------------
+    #
+    #                          DUT Testcase Executors
+    #
+    # -------------------------------------------------------------------------
 
     # -------------------------------------------------------------------------
     # Support the 'device' testcases
@@ -134,3 +167,11 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     from .eos_tc_ipaddrs import eos_test_ipaddrs
 
     execute_testcases.register(eos_test_ipaddrs)
+
+    # -------------------------------------------------------------------------
+    # Support the 'switchports' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_switchports import eos_tc_switchports
+
+    execute_testcases.register(eos_tc_switchports)
