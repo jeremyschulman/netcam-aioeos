@@ -18,7 +18,7 @@ from netcad.topology.utils_cabling_nei import (
 )
 
 from netcad.device import Device
-from netcad.netcam import tc_result_types as trt
+from netcad.netcam import any_failures, tc_result_types as trt
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -122,7 +122,7 @@ def eos_test_one_interface(
             )
         )
 
-    if not any(isinstance(res, trt.FailTestCase) for res in results):
+    if not any_failures(results):
         results.append(
             trt.PassTestCase(
                 device=device, test_case=test_case, measurement=ifnei_status

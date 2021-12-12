@@ -15,7 +15,7 @@ from netcad.topology.tc_transceivers import (
 )
 
 from netcad.device import Device, DeviceInterface
-from netcad.netcam import tc_result_types as trt
+from netcad.netcam import any_failures, tc_result_types as trt
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -150,7 +150,7 @@ def eos_test_exclusive_list(
             )
         )
 
-    if not any(isinstance(res, trt.FailTestCase) for res in results):
+    if not any_failures(results):
         results.append(
             trt.PassTestCase(
                 device=device,
@@ -198,7 +198,7 @@ def eos_test_one_interface(
             )
         )
 
-    if not any(isinstance(res, trt.FailTestCase) for res in results):
+    if not any_failures(results):
         results.append(
             trt.PassTestCase(
                 device=device,

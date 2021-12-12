@@ -83,9 +83,9 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'interfaces' testcases
     # -------------------------------------------------------------------------
 
-    # from .eos_tc_interfaces import eos_tc_interfaces
-    #
-    # execute_testcases.register(eos_tc_interfaces)
+    from .eos_tc_interfaces import eos_tc_interfaces
+
+    execute_testcases.register(eos_tc_interfaces)
 
     # -------------------------------------------------------------------------
     # Support the 'transceivers' testcases

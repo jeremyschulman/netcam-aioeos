@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 # -----------------------------------------------------------------------------
 
 from netcad.device import Device, DeviceInterface
-from netcad.netcam import tc_result_types as trt
+from netcad.netcam import any_failures, tc_result_types as trt
 from netcad.vlan.tc_vlans import VlanTestCases, VlanTestCase
 
 # -----------------------------------------------------------------------------
@@ -163,7 +163,7 @@ def eos_test_one_vlan(
             )
         )
 
-    if not any(isinstance(res, trt.FailTestCase) for res in results):
+    if not any_failures(results):
         results.append(
             trt.PassTestCase(
                 device=device,
