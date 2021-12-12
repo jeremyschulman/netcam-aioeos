@@ -1,8 +1,8 @@
 # -----------------------------------------------------------------------------
 # System Imports
 # -----------------------------------------------------------------------------
-
-from typing import Optional, AsyncGenerator
+import asyncio
+from typing import Optional
 import os
 from functools import singledispatchmethod
 from pathlib import Path
@@ -10,13 +10,14 @@ from pathlib import Path
 # -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
+
 import httpx
 from aioeapi import Device as DeviceEAPI
 
 from netcad.device import Device
 from netcad.testing_services import TestCases
 from netcad.netcam.dut import AsyncDeviceUnderTest
-from netcad.netcam import SkipTestCases
+from netcad.netcam import CollectionTestResults
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -54,6 +55,33 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         super().__init__(device=device, testcases_dir=testcases_dir)
         self.eapi = DeviceEAPIAuth(host=device.name)
         self.version_info: Optional[dict] = None
+        self._api_cache_lock = asyncio.Lock()
+        self._api_cache = dict()
+
+    # -------------------------------------------------------------------------
+    #
+    #                       EOS DUT Specific Methods
+    #
+    # -------------------------------------------------------------------------
+
+    async def api_cache_get(self, key: str, command: str, **kwargs):
+        async with self._api_cache_lock:
+            if not (has_data := self._api_cache.get(key)):
+                has_data = await self.eapi.cli(command, **kwargs)
+                self._api_cache[key] = has_data
+
+            return has_data
+
+    async def get_switchports(self):
+        return await self.api_cache_get(
+            key="switchports", command="show interfaces switchport"
+        )
+
+    # -------------------------------------------------------------------------
+    #
+    #                              DUT Methods
+    #
+    # -------------------------------------------------------------------------
 
     async def setup(self):
         """DUT setup process"""
@@ -65,16 +93,16 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         await self.eapi.aclose()
 
     @singledispatchmethod
-    async def execute_testcases(self, testcases: TestCases) -> AsyncGenerator:
-        """dispatch the testcases to the registered methods"""
-        cls_name = testcases.__class__.__name__
+    async def execute_testcases(
+        self, testcases: TestCases
+    ) -> Optional[CollectionTestResults]:
+        return None
 
-        yield SkipTestCases(
-            device=self.device,
-            test_case=testcases.tests[0],
-            message=f'Missing: device {self.device.name} support for testcases of type "{cls_name}"',
-            measurement=None,
-        )
+    # -------------------------------------------------------------------------
+    #
+    #                          DUT Testcase Executors
+    #
+    # -------------------------------------------------------------------------
 
     # -------------------------------------------------------------------------
     # Support the 'device' testcases
@@ -120,17 +148,17 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'lags' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_lags import eos_test_lags
-
-    execute_testcases.register(eos_test_lags)
+    # from .eos_tc_lags import eos_test_lags
+    #
+    # execute_testcases.register(eos_test_lags)
 
     # -------------------------------------------------------------------------
     # Support the 'mlags' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_mlags import eos_test_mlags
-
-    execute_testcases.register(eos_test_mlags)
+    # from .eos_tc_mlags import eos_test_mlags
+    #
+    # execute_testcases.register(eos_test_mlags)
 
     # -------------------------------------------------------------------------
     # Support the 'ipaddrs' testcases
@@ -139,3 +167,11 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     from .eos_tc_ipaddrs import eos_test_ipaddrs
 
     execute_testcases.register(eos_test_ipaddrs)
+
+    # -------------------------------------------------------------------------
+    # Support the 'switchports' testcases
+    # -------------------------------------------------------------------------
+
+    from .eos_tc_switchports import eos_tc_switchports
+
+    execute_testcases.register(eos_tc_switchports)

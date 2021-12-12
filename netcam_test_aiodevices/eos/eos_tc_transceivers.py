@@ -3,8 +3,6 @@
 # -----------------------------------------------------------------------------
 
 from typing import TYPE_CHECKING
-from itertools import chain
-
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -17,7 +15,7 @@ from netcad.topology.tc_transceivers import (
 )
 
 from netcad.device import Device, DeviceInterface
-from netcad.netcam import tc_result_types as trt
+from netcad.netcam import any_failures, tc_result_types as trt
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -42,7 +40,9 @@ __all__ = ["eos_test_transceivers"]
 # -----------------------------------------------------------------------------
 
 
-async def eos_test_transceivers(self, testcases: TransceiverTestCases):
+async def eos_test_transceivers(
+    self, testcases: TransceiverTestCases
+) -> trt.CollectionTestResults:
     """
     This method is imported into the ESO DUT class definition to support
     checking the status of the transceivers.
@@ -74,7 +74,7 @@ async def eos_test_transceivers(self, testcases: TransceiverTestCases):
 
     if_port_numbers = set()
 
-    tc_generators = list()
+    results = list()
 
     # first run through each of the per interface test cases ensuring that the
     # expected transceiver type and model are present.  While doing this keep
@@ -88,7 +88,7 @@ async def eos_test_transceivers(self, testcases: TransceiverTestCases):
         if_pri_port = dev_iface.port_numbers[0]
         if_port_numbers.add(if_pri_port)
 
-        tc_generators.append(
+        results.extend(
             eos_test_one_interface(
                 device=device,
                 test_case=each_test,
@@ -99,17 +99,13 @@ async def eos_test_transceivers(self, testcases: TransceiverTestCases):
 
     # next add the test coverage for the exclusive list.
 
-    tc_generators.append(
+    results.extend(
         eos_test_exclusive_list(
             device=device, expd_ports=if_port_numbers, msrd_ports=dev_inv_ifstatus
         )
     )
 
-    # finally process each of the test coverage routines; yielding each result
-    # individually.
-
-    for result in chain.from_iterable(tc_generators):
-        yield result
+    return results
 
 
 # -----------------------------------------------------------------------------
@@ -119,9 +115,11 @@ async def eos_test_transceivers(self, testcases: TransceiverTestCases):
 # -----------------------------------------------------------------------------
 
 
-def eos_test_exclusive_list(device: Device, expd_ports, msrd_ports):
+def eos_test_exclusive_list(
+    device: Device, expd_ports, msrd_ports
+) -> trt.CollectionTestResults:
 
-    fails = 0
+    results = list()
     tc = TransceiverListTestCase()
 
     used_msrd_ports = {
@@ -131,78 +129,82 @@ def eos_test_exclusive_list(device: Device, expd_ports, msrd_ports):
     }
 
     if missing := expd_ports - used_msrd_ports:
-        fails += 1
-        yield trt.FailMissingMembersResult(
-            device=device,
-            test_case=tc,
-            field="transceivers",
-            expected=sorted(expd_ports),
-            missing=sorted(missing),
+        results.append(
+            trt.FailMissingMembersResult(
+                device=device,
+                test_case=tc,
+                field="transceivers",
+                expected=sorted(expd_ports),
+                missing=sorted(missing),
+            )
         )
 
     if extras := used_msrd_ports - expd_ports:
-        fails += 1
-
-        yield trt.FailExtraMembersResult(
-            device=device,
-            test_case=tc,
-            field="transceivers",
-            expected=sorted(expd_ports),
-            extras=sorted(extras),
+        results.append(
+            trt.FailExtraMembersResult(
+                device=device,
+                test_case=tc,
+                field="transceivers",
+                expected=sorted(expd_ports),
+                extras=sorted(extras),
+            )
         )
 
-    if fails:
-        return
+    if not any_failures(results):
+        results.append(
+            trt.PassTestCase(
+                device=device,
+                test_case=TransceiverListTestCase(),
+                measurement="OK: no extra or missing transceivers",
+            )
+        )
 
-    # -------------------------------------------------------------------------
-    # Exclusive list test case passed
-    # -------------------------------------------------------------------------
-
-    yield trt.PassTestCase(
-        device=device,
-        test_case=TransceiverListTestCase(),
-        measurement="OK: no extra or missing transceivers",
-    )
+    return results
 
 
 def eos_test_one_interface(
     device: Device, test_case: TransceiverTestCase, ifaceinv: dict, ifacehw: dict
-):
+) -> trt.CollectionTestResults:
+
+    results = list()
 
     if not ifaceinv:
-        yield trt.FailNoExistsResult(
-            device=device,
-            test_case=test_case,
+        results.append(
+            trt.FailNoExistsResult(
+                device=device,
+                test_case=test_case,
+            )
         )
-        return
-
-    failed = 0
+        return results
 
     exp_model = test_case.expected_results.model
     msrd_model = ifaceinv["modelName"]
     if not eos_xcvr_model_matches(exp_model, msrd_model):
-        yield trt.FailFieldMismatchResult(
-            device=device, test_case=test_case, field="model", measurement=msrd_model
+        results.append(
+            trt.FailFieldMismatchResult(
+                device=device,
+                test_case=test_case,
+                field="model",
+                measurement=msrd_model,
+            )
         )
-        failed += 1
 
     expd_type = test_case.expected_results.type
     msrd_type = ifacehw["transceiverType"]
     if not eos_xcvr_type_matches(expd_type, msrd_type):
-        yield trt.FailFieldMismatchResult(
-            device=device, test_case=test_case, field="type", measurement=msrd_type
+        results.append(
+            trt.FailFieldMismatchResult(
+                device=device, test_case=test_case, field="type", measurement=msrd_type
+            )
         )
-        failed += 1
 
-    if failed:
-        return
+    if not any_failures(results):
+        results.append(
+            trt.PassTestCase(
+                device=device,
+                test_case=test_case,
+                measurement=dict(model=msrd_model, type=msrd_type),
+            )
+        )
 
-    # -------------------------------------------------------------------------
-    # Test Case Passes, provide info data as well.
-    # -------------------------------------------------------------------------
-
-    yield trt.PassTestCase(
-        device=device,
-        test_case=test_case,
-        measurement=dict(model=msrd_model, type=msrd_type),
-    )
+    return results

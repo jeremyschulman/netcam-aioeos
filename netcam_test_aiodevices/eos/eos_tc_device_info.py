@@ -9,7 +9,12 @@ from typing import TYPE_CHECKING
 # -----------------------------------------------------------------------------
 
 from netcad.topology.tc_device_info import DeviceInformationTestCases
-from netcad.netcam import PassTestCase, FailTestCase, InfoTestCase
+from netcad.netcam import (
+    PassTestCase,
+    FailTestCase,
+    InfoTestCase,
+    CollectionTestResults,
+)
 
 # -----------------------------------------------------------------------------
 # Private Improts
@@ -31,9 +36,12 @@ __all__ = ["eos_tc_device_info"]
 # -----------------------------------------------------------------------------
 
 
-async def eos_tc_device_info(self, testcases: DeviceInformationTestCases):
+async def eos_tc_device_info(
+    self, testcases: DeviceInformationTestCases
+) -> CollectionTestResults:
     dut: EOSDeviceUnderTest = self
     ver_info = dut.version_info
+    results = list()
 
     # check the product model for a match.  The actual product model may be a
     # "front" or "rear" designation.  We'll ignore those for comparison
@@ -46,25 +54,31 @@ async def eos_tc_device_info(self, testcases: DeviceInformationTestCases):
     has_product_model = ver_info["modelName"]
 
     if has_product_model[: len(exp_product_model)] == exp_product_model:
-        result = PassTestCase(
-            device=dut.device,
-            test_case=testcase,
-            measurement=has_product_model,
-            field="product_model",
+        results.append(
+            PassTestCase(
+                device=dut.device,
+                test_case=testcase,
+                measurement=has_product_model,
+                field="product_model",
+            )
         )
     else:
-        result = FailTestCase(
-            device=dut.device,
-            test_case=testcase,
-            measurement=has_product_model,
-            field="product_model",
-            error=f"Mismatch: product_model, expected {exp_product_model}, actual {has_product_model}",
+        results.append(
+            FailTestCase(
+                device=dut.device,
+                test_case=testcase,
+                measurement=has_product_model,
+                field="product_model",
+                error=f"Mismatch: product_model, expected {exp_product_model}, actual {has_product_model}",
+            )
         )
-
-    yield result
 
     # include an information block that provides the raw "show version" object content.
 
-    yield InfoTestCase(
-        device=dut.device, test_case=testcase, field="version", measurement=ver_info
+    results.append(
+        InfoTestCase(
+            device=dut.device, test_case=testcase, field="version", measurement=ver_info
+        )
     )
+
+    return results
