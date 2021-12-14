@@ -26,7 +26,7 @@ from netcad.topology.tc_interfaces import (
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_test_aiodevices.eos import EOSDeviceUnderTest
+    from netcam_aioeos.eos import EOSDeviceUnderTest
 
 # -----------------------------------------------------------------------------
 # Exports

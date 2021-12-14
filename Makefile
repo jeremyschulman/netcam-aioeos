@@ -2,7 +2,7 @@
 
 DIST_BASENAME := $(shell poetry version | tr ' ' '-')
 
-build: setup.py requirements.txt
+package: setup.py requirements.txt
 
 setup.py:
 	poetry build && \
