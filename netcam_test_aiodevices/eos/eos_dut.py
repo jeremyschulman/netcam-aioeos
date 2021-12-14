@@ -86,7 +86,13 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     async def setup(self):
         """DUT setup process"""
         await super().setup()
-        self.version_info = await self.eapi.cli("show version")
+
+        try:
+            self.version_info = await self.eapi.cli("show version")
+
+        except httpx.HTTPError as exc:
+            await self.teardown()
+            raise exc
 
     async def teardown(self):
         """DUT tearndown process"""

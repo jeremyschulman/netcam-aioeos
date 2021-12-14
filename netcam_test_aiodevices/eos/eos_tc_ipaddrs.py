@@ -160,9 +160,12 @@ async def eos_test_one_interface(
         # reseverd condition.
 
         if if_name.startswith("Vlan"):
-            await _check_vlan_assoc_interface(
+
+            svi_res = await _check_vlan_assoc_interface(
                 dut, test_case, if_name=if_name, msrd_ipifaddr_oper=if_oper
             )
+            results.extend(svi_res)
+
         else:
             results.append(
                 trt.FailFieldMismatchResult(
@@ -281,3 +284,5 @@ async def _check_vlan_assoc_interface(
             error=f"interface for IP {test_case.expected_results.if_ipaddr} is not up: {msrd_ipifaddr_oper}",
         )
     )
+
+    return results
