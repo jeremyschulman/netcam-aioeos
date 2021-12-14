@@ -23,7 +23,7 @@ from netcad.netcam import any_failures, tc_result_types as trt
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_test_aiodevices.eos import EOSDeviceUnderTest
+    from netcam_aioeos.eos import EOSDeviceUnderTest
 
 
 # -----------------------------------------------------------------------------

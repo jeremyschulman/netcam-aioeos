@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup
 
-packages = ["netcam_test_aiodevices", "netcam_test_aiodevices.eos"]
+packages = ["netcam_aioeos", "netcam_aioeos.eos"]
 
 package_data = {"": ["*"]}
 
 install_requires = ["aio-eapi>=0.2.1,<0.3.0", "interrogate>=1.5.0,<2.0.0"]
 
 setup_kwargs = {
-    "name": "netcam-test-aiodevices",
+    "name": "netcam-aioeos",
     "version": "0.1.0",
     "description": "",
     "long_description": None,

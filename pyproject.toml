@@ -1,11 +1,8 @@
 [tool.poetry]
-name = "netcam-test-aiodevices"
+name = "netcam-aioeos"
 version = "0.1.0"
 description = ""
 authors = ["Jeremy Schulman"]
-packages = [
-    {include = "netcam_test_aiodevices"}
-]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -25,9 +22,3 @@ build-backend = "poetry.core.masonry.api"
     color = true
     ignore-module = true
     exclude = ["tasks.py", "examples", "build", "venv"]
-
-
-[tool.pytest.ini_options]
-    filterwarnings = [
-        'ignore::pytest.PytestCollectionWarning:.*netcad.*'
-    ]

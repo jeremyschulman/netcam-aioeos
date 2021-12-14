@@ -17,7 +17,7 @@ from netcad.vlan.tc_vlans import VlanTestCases, VlanTestCase
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_test_aiodevices.eos import EOSDeviceUnderTest
+    from netcam_aioeos.eos import EOSDeviceUnderTest
 
 
 # -----------------------------------------------------------------------------
