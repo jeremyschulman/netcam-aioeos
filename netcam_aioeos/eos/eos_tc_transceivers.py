@@ -2,7 +2,7 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Set
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -81,11 +81,32 @@ async def eos_test_transceivers(
     # track of the interfaces port-numbers so that we can compare them to the
     # eclusive list.
 
+    rsvd_ports_set = set()
+
     for each_test in testcases.tests:
 
         if_name = each_test.test_case_id()
         dev_iface: DeviceInterface = device.interfaces[if_name]
+
         if_pri_port = dev_iface.port_numbers[0]
+        ifaceinv = (dev_inv_ifstatus.get(str(if_pri_port)),)
+        ifacehw = (dev_ifhw_ifstatus.get(if_name),)
+
+        if dev_iface.profile.is_reserved:
+            results.append(
+                trt.InfoTestCase(
+                    device=device,
+                    test_case=each_test,
+                    measurement=dict(
+                        message="interface is in reserved state",
+                        hardware=ifaceinv,  # from the show inventory command
+                        status=ifacehw,  # from the show interfaces ... hardware command
+                    ),
+                )
+            )
+            rsvd_ports_set.add(if_pri_port)
+            continue
+
         if_port_numbers.add(if_pri_port)
 
         results.extend(
@@ -101,7 +122,10 @@ async def eos_test_transceivers(
 
     results.extend(
         eos_test_exclusive_list(
-            device=device, expd_ports=if_port_numbers, msrd_ports=dev_inv_ifstatus
+            device=device,
+            expd_ports=if_port_numbers,
+            msrd_ports=dev_inv_ifstatus,
+            rsvd_ports=rsvd_ports_set,
         )
     )
 
@@ -116,7 +140,7 @@ async def eos_test_transceivers(
 
 
 def eos_test_exclusive_list(
-    device: Device, expd_ports, msrd_ports
+    device: Device, expd_ports, msrd_ports, rsvd_ports: Set
 ) -> trt.CollectionTestResults:
 
     results = list()
@@ -127,6 +151,11 @@ def eos_test_exclusive_list(
         for po_num, po_data in msrd_ports.items()
         if po_data.get("modelName")
     }
+
+    # remove the reserved ports form the used list so that we do not consider
+    # them as part of the exclusive list testing.
+
+    used_msrd_ports -= rsvd_ports
 
     if missing := expd_ports - used_msrd_ports:
         results.append(
