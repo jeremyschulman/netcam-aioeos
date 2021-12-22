@@ -130,7 +130,21 @@ async def eos_test_one_interface(
     # -------------------------------------------------------------------------
 
     expd_if_ipaddr = test_case.expected_results.if_ipaddr
-    if msrd_if_ipaddr != expd_if_ipaddr:
+
+    # if the IP address is marked as "is_reserved" it means that an external
+    # entity configured the IP address, and this check will only record the
+    # value as an INFO check result.
+
+    if expd_if_ipaddr == "is_reserved":
+        results.append(
+            trt.InfoTestCase(
+                device=device,
+                test_case=test_case,
+                field="if_ipaddr",
+                measurement=msrd_if_ipaddr,
+            )
+        )
+    elif msrd_if_ipaddr != expd_if_ipaddr:
         results.append(
             trt.FailFieldMismatchResult(
                 device=device,
