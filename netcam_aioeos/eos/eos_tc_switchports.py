@@ -155,6 +155,12 @@ def _check_trunk_switchport(
     e_tr_alwd_vstr = range_string(e_tr_allowed_vids)
     m_tr_alwd_vstr = msrd_status["trunkAllowedVlans"]
 
+    # if there no expected allowed vlans on this trunk, then set the expected
+    # value to "NONE" since that is what EOS reports in this case.
+
+    if not e_tr_alwd_vstr:
+        e_tr_alwd_vstr = "NONE"
+
     if e_tr_alwd_vstr != m_tr_alwd_vstr:
         results.append(
             tr.FailFieldMismatchResult(

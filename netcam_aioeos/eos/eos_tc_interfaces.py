@@ -127,7 +127,13 @@ async def eos_tc_interfaces(
             vlan_id = vlan_mo.group(1)
             svi_oper_status = map_svi_oper_data.get(vlan_id)
 
-            if not (svi_oper_status or "Cpu" not in svi_oper_status["interfaces"]):
+            if not svi_oper_status:
+                results.append(
+                    tr.FailNoExistsResult(device=device, test_case=test_case)
+                )
+                continue
+
+            elif not (svi_oper_status or "Cpu" not in svi_oper_status["interfaces"]):
                 results.append(
                     tr.FailNoExistsResult(device=device, test_case=test_case)
                 )
