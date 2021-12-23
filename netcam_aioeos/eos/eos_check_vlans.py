@@ -2,7 +2,8 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Set
+from operator import attrgetter
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -29,7 +30,7 @@ __all__ = ["eos_check_vlans", "eos_check_one_vlan"]
 
 
 async def eos_check_vlans(
-    self, testcases: VlanCheckCollection
+    self, vlan_checks: VlanCheckCollection
 ) -> trt.CheckResultsCollection:
 
     dut: EOSDeviceUnderTest = self
@@ -50,11 +51,18 @@ async def eos_check_vlans(
 
     dev_vlans_info = cli_vlan_resp["vlans"]
     dev_vlans_cfg_info = cli_vlan_cfg_resp["vlans"]
+
+    msrd_active_vlan_ids = {
+        int(vlan_id)
+        for vlan_id, vlan_st in dev_vlans_info.items()
+        if vlan_st["status"] == "active"
+    }
+
     for vlan_id, vlan_data in dev_vlans_cfg_info.items():
         cfg_interfaces = dev_vlans_cfg_info[vlan_id]["interfaces"]
         dev_vlans_info[vlan_id]["interfaces"].update(cfg_interfaces)
 
-    for check in testcases.checks:
+    for check in vlan_checks.checks:
 
         # The test-case ID is the VLAN ID in string form.
         vlan_id = check.check_id()
@@ -74,6 +82,17 @@ async def eos_check_vlans(
             )
         )
 
+    results.extend(
+        eos_check_vlan_exl_list(
+            device=device,
+            check=vlan_checks.exclusive,
+            expd_vlan_ids=set(
+                map(attrgetter("vlan_id"), vlan_checks.exclusive.expected_results.vlans)
+            ),
+            msrd_vlan_ids=msrd_active_vlan_ids,
+        )
+    )
+
     return results
 
 
@@ -82,6 +101,36 @@ async def eos_check_vlans(
 #                            PRIVATE CODE BEGINS
 #
 # -----------------------------------------------------------------------------
+
+
+def eos_check_vlan_exl_list(
+    device: Device,
+    check,
+    expd_vlan_ids: Set,
+    msrd_vlan_ids: Set,
+) -> trt.CheckResultsCollection:
+    """
+    This function checks to see if there are any VLANs measured on the device
+    that are not in the expected exclusive list.  We do not need to check for
+    missing VLANs since expected per-vlan checks have already been performed.
+    """
+
+    if extras := msrd_vlan_ids - expd_vlan_ids:
+        return [
+            trt.CheckFailExtraMembers(
+                device=device,
+                check=check,
+                field=check.check_id(),
+                expected=sorted(expd_vlan_ids),
+                extras=sorted(extras),
+            )
+        ]
+
+    return [
+        trt.CheckPassResult(
+            device=device, check=check, measurement=sorted(msrd_vlan_ids)
+        )
+    ]
 
 
 def eos_check_one_vlan(

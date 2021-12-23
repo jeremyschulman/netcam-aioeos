@@ -143,7 +143,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'vlans' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_vlans import eos_check_vlans
+    from .eos_check_vlans import eos_check_vlans
 
     execute_testcases.register(eos_check_vlans)
 
