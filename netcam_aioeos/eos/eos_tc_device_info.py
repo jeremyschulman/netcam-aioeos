@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 # -----------------------------------------------------------------------------
 
 from netcad.topology.check_device_info import DeviceInformationCheckCollection
-from netcad.netcam import (
+from netcad.checks import (
     CheckPassResult,
     CheckFailResult,
     CheckInfoLog,

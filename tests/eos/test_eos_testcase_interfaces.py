@@ -123,7 +123,7 @@ async def test_dispatch_eos_testcases_interfaces(mock_device, monkeypatch):
     # actual method implementing the tests; the fake_meth should be called
     # however as a result of the above monkeypatch.
 
-    async for _ in dut.execute_design_checks(if_testcases):
+    async for _ in dut.execute_device_checks(if_testcases):
         pass
 
     # check that the fake method mocking the "interface" method was invoked

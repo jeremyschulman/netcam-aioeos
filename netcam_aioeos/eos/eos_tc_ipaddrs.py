@@ -16,7 +16,8 @@ from netcad.topology.check_ipaddrs import (
 )
 
 from netcad.device import Device
-from netcad.netcam import any_failures, tc_result_types as trt
+from netcad.netcam import any_failures
+from netcad.checks import check_result_types as trt
 
 # -----------------------------------------------------------------------------
 # Private Imports

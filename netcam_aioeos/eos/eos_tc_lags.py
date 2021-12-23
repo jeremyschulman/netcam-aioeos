@@ -13,7 +13,7 @@ from itertools import chain
 from netcad.topology.check_lags import LagCheckCollection, LagCheck
 
 from netcad.device import Device, DeviceInterface
-from netcad.netcam import tc_result_types as trt
+from netcad.checks import check_result_types as trt
 
 # -----------------------------------------------------------------------------
 # Private Imports

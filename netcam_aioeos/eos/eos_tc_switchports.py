@@ -8,7 +8,8 @@ from typing import TYPE_CHECKING
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.netcam import any_failures, tc_result_types as tr
+from netcad.netcam import any_failures
+from netcad.checks import check_result_types as tr
 from netcad.helpers import range_string
 
 from netcad.vlan.check_switchports import (
