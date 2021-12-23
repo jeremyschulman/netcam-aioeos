@@ -10,10 +10,10 @@ from itertools import chain
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.topology.tc_lags import LagTestCases, LagTestCase
+from netcad.topology.check_lags import LagCheckCollection, LagCheck
 
 from netcad.device import Device, DeviceInterface
-from netcad.netcam import tc_result_types as trt
+from netcad.checks import check_result_types as trt
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -27,10 +27,10 @@ if TYPE_CHECKING:
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_test_lags", "eos_test_one_lag"]
+__all__ = ["eos_test_lags", "eos_check_one_lag"]
 
 
-async def eos_test_lags(self, testcases: LagTestCases) -> AsyncGenerator:
+async def eos_test_lags(self, testcases: LagCheckCollection) -> AsyncGenerator:
 
     dut: EOSDeviceUnderTest = self
     device = dut.device
@@ -40,27 +40,25 @@ async def eos_test_lags(self, testcases: LagTestCases) -> AsyncGenerator:
     # The EOS data is a dictionary key is port-channel interface name.
     dev_lacp_data = cli_lacp_resp["portChannels"]
 
-    for each_test in testcases.tests:
+    for check in testcases.checks:
 
         # The test case ID is the port-channel interface name.
-        if_name = each_test.test_case_id()
+        if_name = check.check_id()
 
         # If the expected LAG does not exist raise that failure and continue
         # with the next interface.
 
         if not (lag_status := dev_lacp_data.get(if_name)):
-            yield trt.FailNoExistsResult(device=device, test_case=each_test)
+            yield trt.CheckFailNoExists(device=device, check=check)
             continue
 
-        for result in eos_test_one_lag(
-            device=device, test_case=each_test, lag_status=lag_status
+        for result in eos_check_one_lag(
+            device=device, check=check, lag_status=lag_status
         ):
             yield result
 
 
-def eos_test_one_lag(
-    device: Device, test_case: LagTestCase, lag_status: dict
-) -> Generator:
+def eos_check_one_lag(device: Device, check: LagCheck, lag_status: dict) -> Generator:
 
     fails = 0
 
@@ -76,7 +74,7 @@ def eos_test_one_lag(
     #       implement that logic.
 
     expd_interfaces = set(
-        lagif.interface for lagif in test_case.expected_results.interfaces
+        lagif.interface for lagif in check.expected_results.interfaces
     )
 
     # -------------------------------------------------------------------------
@@ -96,9 +94,9 @@ def eos_test_one_lag(
 
     if bundle_status:
         nonb_interfacees = list(chain.from_iterable(bundle_status.values()))
-        yield trt.FailMissingMembersResult(
+        yield trt.CheckFailMissingMembers(
             device=device,
-            test_case=test_case,
+            check=check,
             expected=list(expd_interfaces),
             missing=nonb_interfacees,
         )
@@ -111,9 +109,9 @@ def eos_test_one_lag(
     msrd_interfaces = set(po_interfaces)
 
     if missing_interfaces := expd_interfaces - msrd_interfaces:
-        yield trt.FailMissingMembersResult(
+        yield trt.CheckFailMissingMembers(
             device=device,
-            test_case=test_case,
+            check=check,
             field="interfaces",
             expected=list(expd_interfaces),
             missing=list(missing_interfaces),
@@ -121,9 +119,9 @@ def eos_test_one_lag(
         fails += 1
 
     if extra_interfaces := msrd_interfaces - expd_interfaces:
-        yield trt.FailExtraMembersResult(
+        yield trt.CheckFailExtraMembers(
             device=device,
-            test_case=test_case,
+            check=check,
             field="interfaces",
             expected=list(expd_interfaces),
             extras=list(extra_interfaces),
@@ -138,4 +136,4 @@ def eos_test_one_lag(
     # -------------------------------------------------------------------------
 
     if_list = [iface.name for iface in sorted(map(DeviceInterface, msrd_interfaces))]
-    yield trt.PassTestCase(device=device, test_case=test_case, measurement=if_list)
+    yield trt.CheckPassResult(device=device, check=check, measurement=if_list)

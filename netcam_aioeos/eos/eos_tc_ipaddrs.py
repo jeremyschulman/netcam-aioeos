@@ -9,14 +9,15 @@ from typing import Generator, Sequence
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.topology.tc_ipaddrs import (
-    IPInterfacesTestCases,
-    IPInterfaceTestCase,
-    IPInterfaceExclusiveListTestCase,
+from netcad.topology.check_ipaddrs import (
+    IpInterfacesCheckCollection,
+    IpInterfaceCheck,
+    IpInterfaceCheckExclusiveList,
 )
 
 from netcad.device import Device
-from netcad.netcam import any_failures, tc_result_types as trt
+from netcad.netcam import any_failures
+from netcad.checks import check_result_types as trt
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -41,8 +42,8 @@ __all__ = ["eos_test_ipaddrs"]
 
 
 async def eos_test_ipaddrs(
-    self, testcases: IPInterfacesTestCases
-) -> trt.CollectionTestResults:
+    self, testcases: IpInterfacesCheckCollection
+) -> trt.CheckResultsCollection:
 
     dut: EOSDeviceUnderTest = self
     device = dut.device
@@ -52,20 +53,18 @@ async def eos_test_ipaddrs(
     results = list()
     if_names = list()
 
-    for test_case in testcases.tests:
-        if_name = test_case.test_case_id()
+    for check in testcases.checks:
+        if_name = check.check_id()
         if_names.append(if_name)
 
         if not (if_ip_data := dev_ips_data.get(if_name)):
             results.append(
-                trt.FailNoExistsResult(
-                    device=device, test_case=test_case, field="if_ipaddr"
-                )
+                trt.CheckFailNoExists(device=device, check=check, field="if_ipaddr")
             )
             continue
 
         one_results = await eos_test_one_interface(
-            dut, device=device, test_case=test_case, msrd_data=if_ip_data
+            dut, device=device, check=check, msrd_data=if_ip_data
         )
 
         results.extend(one_results)
@@ -95,15 +94,15 @@ async def eos_test_ipaddrs(
 async def eos_test_one_interface(
     dut: "EOSDeviceUnderTest",
     device: Device,
-    test_case: IPInterfaceTestCase,
+    check: IpInterfaceCheck,
     msrd_data: dict,
-) -> trt.CollectionTestResults:
+) -> trt.CheckResultsCollection:
 
     results = list()
 
     # get the interface name begin tested
 
-    if_name = test_case.test_case_id()
+    if_name = check.check_id()
 
     # -------------------------------------------------------------------------
     # if there is any error accessing the expect interface IP address
@@ -116,9 +115,9 @@ async def eos_test_one_interface(
 
     except KeyError:
         results.append(
-            trt.FailFieldMismatchResult(
+            trt.CheckFailFieldMismatch(
                 device=device,
-                test_case=test_case,
+                check=check,
                 field="measurement",
                 measurement=msrd_data,
             )
@@ -129,7 +128,7 @@ async def eos_test_one_interface(
     # Ensure the IP interface value matches.
     # -------------------------------------------------------------------------
 
-    expd_if_ipaddr = test_case.expected_results.if_ipaddr
+    expd_if_ipaddr = check.expected_results.if_ipaddr
 
     # if the IP address is marked as "is_reserved" it means that an external
     # entity configured the IP address, and this check will only record the
@@ -137,18 +136,18 @@ async def eos_test_one_interface(
 
     if expd_if_ipaddr == "is_reserved":
         results.append(
-            trt.InfoTestCase(
+            trt.CheckInfoLog(
                 device=device,
-                test_case=test_case,
+                check=check,
                 field="if_ipaddr",
                 measurement=msrd_if_ipaddr,
             )
         )
     elif msrd_if_ipaddr != expd_if_ipaddr:
         results.append(
-            trt.FailFieldMismatchResult(
+            trt.CheckFailFieldMismatch(
                 device=device,
-                test_case=test_case,
+                check=check,
                 field="if_ipaddr",
                 measurement=msrd_if_ipaddr,
             )
@@ -176,15 +175,15 @@ async def eos_test_one_interface(
         if if_name.startswith("Vlan"):
 
             svi_res = await _check_vlan_assoc_interface(
-                dut, test_case, if_name=if_name, msrd_ipifaddr_oper=if_oper
+                dut, check, if_name=if_name, msrd_ipifaddr_oper=if_oper
             )
             results.extend(svi_res)
 
         else:
             results.append(
-                trt.FailFieldMismatchResult(
+                trt.CheckFailFieldMismatch(
                     device=device,
-                    test_case=test_case,
+                    check=check,
                     field="if_oper",
                     expected="up",
                     measurement=if_oper,
@@ -194,7 +193,7 @@ async def eos_test_one_interface(
 
     if not any_failures(results):
         results.append(
-            trt.PassTestCase(device=device, test_case=test_case, measurement=msrd_data)
+            trt.CheckPassResult(device=device, check=check, measurement=msrd_data)
         )
 
     return results
@@ -207,25 +206,25 @@ def eos_test_exclusive_list(
     # the previous per-interface checks for any missing; therefore we only need
     # to check for any extra interfaces found on the device.
 
-    tc = IPInterfaceExclusiveListTestCase()
+    tc = IpInterfaceCheckExclusiveList()
 
     if extras := set(msrd_if_names) - set(expd_if_names):
-        result = trt.FailExtraMembersResult(
+        result = trt.CheckFailExtraMembers(
             device=device,
-            test_case=tc,
+            check=tc,
             field="ip-interfaces",
             expected=sorted(expd_if_names),
             extras=sorted(extras),
         )
     else:
-        result = trt.PassTestCase(device=device, test_case=tc, measurement="exists")
+        result = trt.CheckPassResult(device=device, check=tc, measurement="exists")
 
     yield result
 
 
 async def _check_vlan_assoc_interface(
-    dut: "EOSDeviceUnderTest", test_case, if_name: str, msrd_ipifaddr_oper
-) -> trt.CollectionTestResults:
+    dut: "EOSDeviceUnderTest", check, if_name: str, msrd_ipifaddr_oper
+) -> trt.CheckResultsCollection:
     """
     This coroutine is used to check whether or not a VLAN SVI ip address is not
     "up" due to the fact that the underlying interfaces are either disabled or
@@ -238,7 +237,7 @@ async def _check_vlan_assoc_interface(
     dut:
         The device under test
 
-    test_case:
+    check:
         The specific test case
 
     if_name:
@@ -269,9 +268,9 @@ async def _check_vlan_assoc_interface(
 
     if disrd_ifnames == vlan_cfgd_ifnames:
         results.append(
-            trt.InfoTestCase(
+            trt.CheckInfoLog(
                 device=dut.device,
-                test_case=test_case,
+                check=check,
                 field="if_oper",
                 measurement=dict(
                     if_oper=msrd_ipifaddr_oper,
@@ -282,20 +281,18 @@ async def _check_vlan_assoc_interface(
         )
 
         results.append(
-            trt.PassTestCase(
-                device=dut.device, test_case=test_case, measurement="exists"
-            )
+            trt.CheckPassResult(device=dut.device, check=check, measurement="exists")
         )
         return results
 
     results.append(
-        trt.FailFieldMismatchResult(
+        trt.CheckFailFieldMismatch(
             device=dut.device,
-            test_case=test_case,
+            check=check,
             field="if_oper",
             expected="up",
             measurement=msrd_ipifaddr_oper,
-            error=f"interface for IP {test_case.expected_results.if_ipaddr} is not up: {msrd_ipifaddr_oper}",
+            error=f"interface for IP {check.expected_results.if_ipaddr} is not up: {msrd_ipifaddr_oper}",
         )
     )
 

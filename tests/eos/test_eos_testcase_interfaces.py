@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from netcad.device import Device
-from netcad.testing_services import TestCasePass
+from netcad.checks import TestCasePass
 from netcad.topology import interfaces as if_tests
 
 
@@ -48,9 +48,9 @@ async def test_eos_pass_testcases_interface(mock_device: Device):
 
     if_name = "Ethernet3"
 
-    test_case = if_tests.InterfaceTestCase(
-        test_params=if_tests.InterfaceTestParams(interface=if_name),
-        expected_results=if_tests.InterfaceTestUsedExpectations(
+    test_case = if_tests.InterfaceCheck(
+        check_params=if_tests.InterfaceCheckParams(interface=if_name),
+        expected_results=if_tests.InterfaceCheckUsedExpectations(
             used=True, desc="sw2112-et49/50", speed=10_000, oper_up=True
         ),
     )
@@ -123,7 +123,7 @@ async def test_dispatch_eos_testcases_interfaces(mock_device, monkeypatch):
     # actual method implementing the tests; the fake_meth should be called
     # however as a result of the above monkeypatch.
 
-    async for _ in dut.execute_testcases(if_testcases):
+    async for _ in dut.execute_device_checks(if_testcases):
         pass
 
     # check that the fake method mocking the "interface" method was invoked

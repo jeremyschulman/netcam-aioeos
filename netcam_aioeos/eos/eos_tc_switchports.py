@@ -8,11 +8,12 @@ from typing import TYPE_CHECKING
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.netcam import any_failures, tc_result_types as tr
+from netcad.netcam import any_failures
+from netcad.checks import check_result_types as tr
 from netcad.helpers import range_string
 
-from netcad.vlan.tc_switchports import (
-    SwitchportTestCases,
+from netcad.vlan.check_switchports import (
+    SwitchportCheckCollection,
     SwitchportAccessExpectation,
     SwitchportTrunkExpectation,
 )
@@ -39,8 +40,8 @@ __all__ = ["eos_tc_switchports"]
 
 
 async def eos_tc_switchports(
-    self, testcases: SwitchportTestCases
-) -> tr.CollectionTestResults:
+    self, testcases: SwitchportCheckCollection
+) -> tr.CheckResultsCollection:
 
     dut: EOSDeviceUnderTest = self
     device = dut.device
@@ -49,16 +50,16 @@ async def eos_tc_switchports(
     cli_data = await dut.get_switchports()
     map_msrd_swichports = cli_data["switchports"]
 
-    for test_case in testcases.tests:
+    for test_case in testcases.checks:
         expd_status = test_case.expected_results
 
-        if_name = test_case.test_case_id()
+        if_name = test_case.check_id()
 
         # if the interface from the design does not exist on the device, then
         # report this error and go to next test-case.
 
         if not (msrd_port := map_msrd_swichports.get(if_name)):
-            results.append(tr.FailNoExistsResult(device=device, test_case=test_case))
+            results.append(tr.CheckFailNoExists(device=device, check=test_case))
             continue
 
         msrd_swpinfo = msrd_port["switchportInfo"]
@@ -68,9 +69,9 @@ async def eos_tc_switchports(
 
         if expd_mode != msrd_mode:
             results.append(
-                tr.FailFieldMismatchResult(
+                tr.CheckFailFieldMismatch(
                     device=device,
-                    test_case=test_case,
+                    check=test_case,
                     field="switchport_mode",
                     measurement=msrd_mode,
                 )
@@ -86,8 +87,8 @@ async def eos_tc_switchports(
 
         if not any_failures(mode_results):
             mode_results.append(
-                tr.PassTestCase(
-                    device=device, test_case=test_case, measurement=msrd_swpinfo
+                tr.CheckPassResult(
+                    device=device, check=test_case, measurement=msrd_swpinfo
                 )
             )
 
@@ -98,7 +99,7 @@ async def eos_tc_switchports(
 
 def _check_access_switchport(
     dut, test_case, expd_status: SwitchportAccessExpectation, msrd_status: dict
-) -> tr.CollectionTestResults:
+) -> tr.CheckResultsCollection:
 
     results = list()
 
@@ -109,9 +110,9 @@ def _check_access_switchport(
 
     if e_vl_id != m_vl_id:
         results.append(
-            tr.FailFieldMismatchResult(
+            tr.CheckFailFieldMismatch(
                 device=dut.device,
-                test_case=test_case,
+                check=test_case,
                 field="vlan",
                 expected=e_vl_id,
                 measurement=m_vl_id,
@@ -123,7 +124,7 @@ def _check_access_switchport(
 
 def _check_trunk_switchport(
     dut, test_case, expd_status: SwitchportTrunkExpectation, msrd_status: dict
-) -> tr.CollectionTestResults:
+) -> tr.CheckResultsCollection:
 
     results = list()
     device = dut.device
@@ -133,9 +134,9 @@ def _check_trunk_switchport(
 
     if e_nvl_id and (e_nvl_id != m_nvl_id):
         results.append(
-            tr.FailFieldMismatchResult(
+            tr.CheckFailFieldMismatch(
                 device=device,
-                test_case=test_case,
+                check=test_case,
                 field="native_vlan",
                 expected=e_nvl_id,
                 measurement=m_nvl_id,
@@ -163,9 +164,9 @@ def _check_trunk_switchport(
 
     if e_tr_alwd_vstr != m_tr_alwd_vstr:
         results.append(
-            tr.FailFieldMismatchResult(
+            tr.CheckFailFieldMismatch(
                 device=device,
-                test_case=test_case,
+                check=test_case,
                 field="trunk_allowed_vlans",
                 expected=e_tr_alwd_vstr,
                 measurement=m_tr_alwd_vstr,
