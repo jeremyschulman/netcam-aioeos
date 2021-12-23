@@ -11,12 +11,12 @@ import re
 
 from pydantic import BaseModel
 
-from netcad.topology.tc_mlags import (
-    MLagTestCases,
-    MLagSystemTestParams,
-    MLagSystemTestCase,
+from netcad.topology.check_mlags import (
+    MLagCheckCollection,
+    MLagSystemCheckParams,
+    MLagSystemCheck,
 )
-from netcad.topology.tc_lags import LagTestCase
+from netcad.topology.check_lags import LagCheck
 from netcad.device import Device
 from netcad.netcam import tc_result_types as trt
 
@@ -32,12 +32,12 @@ if TYPE_CHECKING:
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_test_mlags", "eos_test_one_mlag"]
+__all__ = ["eos_check_mlags", "eos_test_one_mlag"]
 
 _re_mlag_id = re.compile(r"Port-Channel(\d+)")
 
 
-async def eos_test_mlags(self, testcases: MLagTestCases) -> AsyncGenerator:
+async def eos_check_mlags(self, testcases: MLagCheckCollection) -> AsyncGenerator:
     dut: EOSDeviceUnderTest = self
     device = dut.device
 
@@ -49,20 +49,20 @@ async def eos_test_mlags(self, testcases: MLagTestCases) -> AsyncGenerator:
 
     dev_mlags_data = cli_mlagifs_resp["interfaces"]
 
-    for each_test in testcases.tests:
+    for check in testcases.checks:
         # The test-case ID is the port-channel interface name
 
         # TODO: for now, need to change the test-case generated to be the MLAG
         #       ID value, not the port-channel interface name.
 
-        mlag_id = _re_mlag_id.match(each_test.test_case_id()).group(1)
+        mlag_id = _re_mlag_id.match(check.check_id()).group(1)
 
         if not (mlag_data := dev_mlags_data.get(mlag_id)):
-            yield trt.FailNoExistsResult(device=device, test_case=each_test)
+            yield trt.CheckFailNoExists(device=device, check=check)
             continue
 
         for result in eos_test_one_mlag(
-            device=device, test_case=each_test, mlag_status=mlag_data
+            device=device, check=check, mlag_status=mlag_data
         ):
             yield result
 
@@ -71,8 +71,8 @@ async def eos_test_mlag_system_status(dut: "EOSDeviceUnderTest"):
 
     cli_mlagst_rsp = await dut.eapi.cli("show mlag config-sanity")
 
-    test_case = MLagSystemTestCase(
-        test_params=MLagSystemTestParams(), expected_results=BaseModel()
+    test_case = MLagSystemCheck(
+        check_params=MLagSystemCheckParams(), expected_results=BaseModel()
     )
 
     if all(
@@ -83,22 +83,18 @@ async def eos_test_mlag_system_status(dut: "EOSDeviceUnderTest"):
             len(cli_mlagst_rsp["globalConfiguration"]) == 0,
         )
     ):
-        return trt.PassTestCase(
-            device=dut.device, test_case=test_case, measurement="OK"
-        )
+        return trt.CheckPassResult(device=dut.device, check=test_case, measurement="OK")
 
-    return trt.FailFieldMismatchResult(
+    return trt.CheckFailFieldMismatch(
         device=dut.device,
-        test_case=test_case,
+        check=test_case,
         field="mlag_status",
         measurement=cli_mlagst_rsp,
         expected={},
     )
 
 
-def eos_test_one_mlag(
-    device: Device, test_case: LagTestCase, mlag_status: dict
-) -> Generator:
+def eos_test_one_mlag(device: Device, check: LagCheck, mlag_status: dict) -> Generator:
 
     fails = 0
 
@@ -108,9 +104,9 @@ def eos_test_one_mlag(
 
     expd_status = "active-full"
     if (msrd_status := mlag_status["status"]) != expd_status:
-        yield trt.FailFieldMismatchResult(
+        yield trt.CheckFailFieldMismatch(
             device=device,
-            test_case=test_case,
+            check=check,
             field="status",
             measurement=msrd_status,
             expected=expd_status,
@@ -122,16 +118,16 @@ def eos_test_one_mlag(
     # -------------------------------------------------------------------------
 
     expd_interfaces = sorted(
-        (member.interface for member in test_case.expected_results.interfaces)
+        (member.interface for member in check.expected_results.interfaces)
     )
     msrd_interfaces = sorted(
         (mlag_status["localInterface"], mlag_status["peerInterface"])
     )
 
     if expd_interfaces != msrd_interfaces:
-        yield trt.FailFieldMismatchResult(
+        yield trt.CheckFailFieldMismatch(
             device=device,
-            test_case=test_case,
+            check=check,
             field="interfaces",
             expected=expd_interfaces,
             measurement=msrd_interfaces,
@@ -145,6 +141,4 @@ def eos_test_one_mlag(
     # Test case passed
     # -------------------------------------------------------------------------
 
-    yield trt.PassTestCase(
-        device=device, test_case=test_case, measurement=msrd_interfaces
-    )
+    yield trt.CheckPassResult(device=device, check=check, measurement=msrd_interfaces)

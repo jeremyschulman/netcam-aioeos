@@ -8,10 +8,10 @@ from typing import TYPE_CHECKING, Set
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.topology.tc_transceivers import (
-    TransceiverTestCases,
-    TransceiverTestCase,
-    TransceiverListTestCase,
+from netcad.topology.check_transceivers import (
+    TransceiverCheckCollection,
+    TransceiverCheck,
+    TransceiverCheckExclusiveList,
 )
 
 from netcad.device import Device, DeviceInterface
@@ -41,8 +41,8 @@ __all__ = ["eos_test_transceivers"]
 
 
 async def eos_test_transceivers(
-    self, testcases: TransceiverTestCases
-) -> trt.CollectionTestResults:
+    self, testcases: TransceiverCheckCollection
+) -> trt.CheckResultsCollection:
     """
     This method is imported into the ESO DUT class definition to support
     checking the status of the transceivers.
@@ -83,9 +83,9 @@ async def eos_test_transceivers(
 
     rsvd_ports_set = set()
 
-    for each_test in testcases.tests:
+    for each_test in testcases.checks:
 
-        if_name = each_test.test_case_id()
+        if_name = each_test.check_id()
         dev_iface: DeviceInterface = device.interfaces[if_name]
 
         if_pri_port = dev_iface.port_numbers[0]
@@ -94,9 +94,9 @@ async def eos_test_transceivers(
 
         if dev_iface.profile.is_reserved:
             results.append(
-                trt.InfoTestCase(
+                trt.CheckInfoLog(
                     device=device,
-                    test_case=each_test,
+                    check=each_test,
                     measurement=dict(
                         message="interface is in reserved state",
                         hardware=ifaceinv,  # from the show inventory command
@@ -112,7 +112,7 @@ async def eos_test_transceivers(
         results.extend(
             eos_test_one_interface(
                 device=device,
-                test_case=each_test,
+                check_type=each_test,
                 ifaceinv=dev_inv_ifstatus.get(str(if_pri_port)),
                 ifacehw=dev_ifhw_ifstatus.get(if_name),
             )
@@ -141,10 +141,10 @@ async def eos_test_transceivers(
 
 def eos_test_exclusive_list(
     device: Device, expd_ports, msrd_ports, rsvd_ports: Set
-) -> trt.CollectionTestResults:
+) -> trt.CheckResultsCollection:
 
     results = list()
-    tc = TransceiverListTestCase()
+    tc = TransceiverCheckExclusiveList()
 
     used_msrd_ports = {
         int(po_num)
@@ -159,9 +159,9 @@ def eos_test_exclusive_list(
 
     if missing := expd_ports - used_msrd_ports:
         results.append(
-            trt.FailMissingMembersResult(
+            trt.CheckFailMissingMembers(
                 device=device,
-                test_case=tc,
+                check=tc,
                 field="transceivers",
                 expected=sorted(expd_ports),
                 missing=sorted(missing),
@@ -170,9 +170,9 @@ def eos_test_exclusive_list(
 
     if extras := used_msrd_ports - expd_ports:
         results.append(
-            trt.FailExtraMembersResult(
+            trt.CheckFailExtraMembers(
                 device=device,
-                test_case=tc,
+                check=tc,
                 field="transceivers",
                 expected=sorted(expd_ports),
                 extras=sorted(extras),
@@ -181,9 +181,9 @@ def eos_test_exclusive_list(
 
     if not any_failures(results):
         results.append(
-            trt.PassTestCase(
+            trt.CheckPassResult(
                 device=device,
-                test_case=TransceiverListTestCase(),
+                check=TransceiverCheckExclusiveList(),
                 measurement="OK: no extra or missing transceivers",
             )
         )
@@ -192,16 +192,16 @@ def eos_test_exclusive_list(
 
 
 def eos_test_one_interface(
-    device: Device, test_case: TransceiverTestCase, ifaceinv: dict, ifacehw: dict
-) -> trt.CollectionTestResults:
+    device: Device, test_case: TransceiverCheck, ifaceinv: dict, ifacehw: dict
+) -> trt.CheckResultsCollection:
 
     results = list()
 
     if not ifaceinv:
         results.append(
-            trt.FailNoExistsResult(
+            trt.CheckFailNoExists(
                 device=device,
-                test_case=test_case,
+                check_type=test_case,
             )
         )
         return results
@@ -210,9 +210,9 @@ def eos_test_one_interface(
     msrd_model = ifaceinv["modelName"]
     if not eos_xcvr_model_matches(exp_model, msrd_model):
         results.append(
-            trt.FailFieldMismatchResult(
+            trt.CheckFailFieldMismatch(
                 device=device,
-                test_case=test_case,
+                check_type=test_case,
                 field="model",
                 measurement=msrd_model,
             )
@@ -222,16 +222,16 @@ def eos_test_one_interface(
     msrd_type = ifacehw["transceiverType"]
     if not eos_xcvr_type_matches(expd_type, msrd_type):
         results.append(
-            trt.FailFieldMismatchResult(
-                device=device, test_case=test_case, field="type", measurement=msrd_type
+            trt.CheckFailFieldMismatch(
+                device=device, check_type=test_case, field="type", measurement=msrd_type
             )
         )
 
     if not any_failures(results):
         results.append(
-            trt.PassTestCase(
+            trt.CheckPassResult(
                 device=device,
-                test_case=test_case,
+                check_type=test_case,
                 measurement=dict(model=msrd_model, type=msrd_type),
             )
         )

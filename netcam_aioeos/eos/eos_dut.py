@@ -3,7 +3,6 @@
 # -----------------------------------------------------------------------------
 import asyncio
 from typing import Optional
-import os
 from functools import singledispatchmethod
 from pathlib import Path
 
@@ -15,9 +14,15 @@ import httpx
 from aioeapi import Device as DeviceEAPI
 
 from netcad.device import Device
-from netcad.testing_services import TestCases
+from netcad.checks import CheckCollection
 from netcad.netcam.dut import AsyncDeviceUnderTest
-from netcad.netcam import CollectionTestResults
+from netcad.netcam import CheckResultsCollection
+
+# -----------------------------------------------------------------------------
+# Privae Imports
+# -----------------------------------------------------------------------------
+
+from ..eos_config import g_eos
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -33,14 +38,6 @@ __all__ = ["EOSDeviceUnderTest"]
 # -----------------------------------------------------------------------------
 
 
-class DeviceEAPIAuth(DeviceEAPI):
-    """define a class that uses environment variables for EAPI auth acccess."""
-
-    auth = httpx.BasicAuth(
-        username=os.environ["NETWORK_USERNAME"], password=os.environ["NETWORK_PASSWORD"]
-    )
-
-
 class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     """
     This class provides the Arista EOS device-under-test plugin for directly
@@ -53,7 +50,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         """DUT construction creates instance of EAPI transport"""
 
         super().__init__(device=device, testcases_dir=testcases_dir)
-        self.eapi = DeviceEAPIAuth(host=device.name)
+        self.eapi = DeviceEAPI(host=device.name, auth=g_eos.basic_auth)
         self.version_info: Optional[dict] = None
         self._api_cache_lock = asyncio.Lock()
         self._api_cache = dict()
@@ -100,8 +97,8 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
 
     @singledispatchmethod
     async def execute_testcases(
-        self, testcases: TestCases
-    ) -> Optional[CollectionTestResults]:
+        self, testcases: CheckCollection
+    ) -> Optional[CheckResultsCollection]:
         return None
 
     # -------------------------------------------------------------------------
@@ -146,9 +143,9 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'vlans' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_vlans import eos_test_vlans
+    from .eos_tc_vlans import eos_check_vlans
 
-    execute_testcases.register(eos_test_vlans)
+    execute_testcases.register(eos_check_vlans)
 
     # -------------------------------------------------------------------------
     # Support the 'lags' testcases
