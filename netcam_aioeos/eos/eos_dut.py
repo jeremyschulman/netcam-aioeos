@@ -1,6 +1,7 @@
 # -----------------------------------------------------------------------------
 # System Imports
 # -----------------------------------------------------------------------------
+
 import asyncio
 from typing import Optional
 from functools import singledispatchmethod
@@ -84,12 +85,22 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         """DUT setup process"""
         await super().setup()
 
+        if not await self.eapi.check_connection():
+            raise RuntimeError(
+                f"Unable to connect to EOS device: {self.device.name}: "
+                "Device offline or eAPI is not enabled, check config."
+            )
+
         try:
             self.version_info = await self.eapi.cli("show version")
 
         except httpx.HTTPError as exc:
+            rt_exc = RuntimeError(
+                f"Unable to connect to EOS device {self.device.name}: {str(exc)}"
+            )
+            rt_exc.__traceback__ = exc.__traceback__
             await self.teardown()
-            raise exc
+            raise rt_exc
 
     async def teardown(self):
         """DUT tearndown process"""
