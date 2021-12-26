@@ -12,6 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+# =============================================================================
+# This file contains the EOS "Device Under Test" class definition.  This is
+# where the specific check-executors are wired into the class to support the
+# various design-service checks.
+# =============================================================================
+
 # -----------------------------------------------------------------------------
 # System Imports
 # -----------------------------------------------------------------------------
@@ -77,6 +83,40 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # -------------------------------------------------------------------------
 
     async def api_cache_get(self, key: str, command: str, **kwargs):
+        """
+        This function is used by other class methods that want to abstract the
+        collection function of a given eAPI routine so that the results of that
+        call are cached and avaialble for other check executors.  This method
+        should not be called outside other methods of this DUT class, but this
+        is not a hard constraint.
+
+        For example, if the result of "show interface switchport" is going to be
+        used by multiple check executors, then there would exist a method in
+        this class called `get_switchports` that uses this `api_cache_get`
+        method.
+
+        Parameters
+        ----------
+        key: str
+            The cache-key string that is used to uniquely identify the contents
+            of the cache.  For example 'switchports' may be the cache key to cache
+            the results of the 'show interfaces switchport' command.
+
+        command: str
+            The actual EOS CLI command used to obtain the eAPI results.
+
+        Other Parameters
+        ----------------
+        Any keyword-args supported by the underlying eAPI Device driver; for
+        example `ofmt` can be used to change the output format from the default
+        of dict to text.  Refer to the aio-eapi package for further details.
+
+        Returns
+        -------
+        Either the cached data corresponding to the key if exists in the cache,
+        or the newly retrieved data from the device; which is then cached for
+        future use.
+        """
         async with self._api_cache_lock:
             if not (has_data := self._api_cache.get(key)):
                 has_data = await self.eapi.cli(command, **kwargs)
@@ -84,7 +124,10 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
 
             return has_data
 
-    async def get_switchports(self):
+    async def get_switchports(self) -> dict:
+        """
+        Return the device operational status of interface switchports.
+        """
         return await self.api_cache_get(
             key="switchports", command="show interfaces switchport"
         )
@@ -121,59 +164,64 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         await self.eapi.aclose()
 
     @singledispatchmethod
-    async def execute_testcases(
-        self, testcases: CheckCollection
+    async def execute_checks(
+        self, checks: CheckCollection
     ) -> Optional[CheckResultsCollection]:
-        return None
+        """
+        This method is only called when the DUT does not support a specific
+        design-service check.  This function *MUST* exist so that the supported
+        checks can be "wired into" this class using the dispatch register mechanism.
+        """
+        return super().execute_checks()
 
     # -------------------------------------------------------------------------
     #
-    #                          DUT Testcase Executors
+    #                          DUT Check Executors
     #
     # -------------------------------------------------------------------------
 
     # -------------------------------------------------------------------------
-    # Support the 'device' testcases
+    # Support the 'topology device' check
     # -------------------------------------------------------------------------
 
     from netcam_aioeos.topology.eos_check_device_info import eos_tc_device_info
 
-    execute_testcases.register(eos_tc_device_info)
+    execute_checks.register(eos_tc_device_info)
 
     # -------------------------------------------------------------------------
-    # Support the 'interfaces' testcases
+    # Support the 'topology interfaces' checks
     # -------------------------------------------------------------------------
 
     from netcam_aioeos.topology.eos_check_interfaces import eos_tc_interfaces
 
-    execute_testcases.register(eos_tc_interfaces)
+    execute_checks.register(eos_tc_interfaces)
 
     # -------------------------------------------------------------------------
-    # Support the 'transceivers' testcases
+    # Support the 'topology transceivers' checks
     # -------------------------------------------------------------------------
 
     from netcam_aioeos.topology.eos_check_transceivers import eos_test_transceivers
 
-    execute_testcases.register(eos_test_transceivers)
+    execute_checks.register(eos_test_transceivers)
 
     # -------------------------------------------------------------------------
-    # Support the 'cabling' testcases
+    # Support the 'topology cabling' checks
     # -------------------------------------------------------------------------
 
     from netcam_aioeos.topology.eos_check_cabling import eos_test_cabling
 
-    execute_testcases.register(eos_test_cabling)
+    execute_checks.register(eos_test_cabling)
 
     # -------------------------------------------------------------------------
-    # Support the 'vlans' testcases
+    # Support the 'vlans vlans' checks
     # -------------------------------------------------------------------------
 
     from netcam_aioeos.vlans.eos_check_vlans import eos_check_vlans
 
-    execute_testcases.register(eos_check_vlans)
+    execute_checks.register(eos_check_vlans)
 
     # -------------------------------------------------------------------------
-    # Support the 'lags' testcases
+    # Support the 'topology lags' checks
     # -------------------------------------------------------------------------
 
     # from .eos_tc_lags import eos_test_lags
@@ -189,17 +237,17 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # execute_testcases.register(eos_test_mlags)
 
     # -------------------------------------------------------------------------
-    # Support the 'ipaddrs' testcases
+    # Support the 'topology ipaddrs' checks
     # -------------------------------------------------------------------------
 
     from netcam_aioeos.topology.eos_check_ipaddrs import eos_test_ipaddrs
 
-    execute_testcases.register(eos_test_ipaddrs)
+    execute_checks.register(eos_test_ipaddrs)
 
     # -------------------------------------------------------------------------
-    # Support the 'switchports' testcases
+    # Support the 'vlan switchports' checks
     # -------------------------------------------------------------------------
 
-    from netcam_aioeos.vlans.eos_check_switchports import eos_tc_switchports
+    from netcam_aioeos.vlans.eos_check_switchports import eos_check_switchports
 
-    execute_testcases.register(eos_tc_switchports)
+    execute_checks.register(eos_check_switchports)

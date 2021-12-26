@@ -90,7 +90,7 @@ async def eos_check_vlans(
 
     for check in vlan_checks.checks:
 
-        # The test-case ID is the VLAN ID in string form.
+        # The check ID is the VLAN ID in string form.
         vlan_id = check.check_id()
 
         if not (vlan_status := dev_vlans_info.get(vlan_id)):

@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_tc_switchports"]
+__all__ = ["eos_check_switchports"]
 
 
 # -----------------------------------------------------------------------------
@@ -53,8 +53,8 @@ __all__ = ["eos_tc_switchports"]
 # -----------------------------------------------------------------------------
 
 
-async def eos_tc_switchports(
-    self, testcases: SwitchportCheckCollection
+async def eos_check_switchports(
+    self, switchport_checks: SwitchportCheckCollection
 ) -> tr.CheckResultsCollection:
 
     dut: EOSDeviceUnderTest = self
@@ -64,16 +64,16 @@ async def eos_tc_switchports(
     cli_data = await dut.get_switchports()
     map_msrd_swichports = cli_data["switchports"]
 
-    for test_case in testcases.checks:
-        expd_status = test_case.expected_results
+    for check in switchport_checks.checks:
+        expd_status = check.expected_results
 
-        if_name = test_case.check_id()
+        if_name = check.check_id()
 
         # if the interface from the design does not exist on the device, then
-        # report this error and go to next test-case.
+        # report this error and go to next check.
 
         if not (msrd_port := map_msrd_swichports.get(if_name)):
-            results.append(tr.CheckFailNoExists(device=device, check=test_case))
+            results.append(tr.CheckFailNoExists(device=device, check=check))
             continue
 
         msrd_swpinfo = msrd_port["switchportInfo"]
@@ -85,7 +85,7 @@ async def eos_tc_switchports(
             results.append(
                 tr.CheckFailFieldMismatch(
                     device=device,
-                    check=test_case,
+                    check=check,
                     field="switchport_mode",
                     measurement=msrd_mode,
                 )
@@ -97,13 +97,11 @@ async def eos_tc_switchports(
             "trunk": _check_trunk_switchport,
         }.get(expd_mode)
 
-        mode_results = mode_handler(dut, test_case, expd_status, msrd_swpinfo)
+        mode_results = mode_handler(dut, check, expd_status, msrd_swpinfo)
 
         if not any_failures(mode_results):
             mode_results.append(
-                tr.CheckPassResult(
-                    device=device, check=test_case, measurement=msrd_swpinfo
-                )
+                tr.CheckPassResult(device=device, check=check, measurement=msrd_swpinfo)
             )
 
         results.extend(mode_results)
@@ -112,7 +110,7 @@ async def eos_tc_switchports(
 
 
 def _check_access_switchport(
-    dut, test_case, expd_status: SwitchportAccessExpectation, msrd_status: dict
+    dut, check, expd_status: SwitchportAccessExpectation, msrd_status: dict
 ) -> tr.CheckResultsCollection:
 
     results = list()
@@ -126,7 +124,7 @@ def _check_access_switchport(
         results.append(
             tr.CheckFailFieldMismatch(
                 device=dut.device,
-                check=test_case,
+                check=check,
                 field="vlan",
                 expected=e_vl_id,
                 measurement=m_vl_id,
@@ -137,7 +135,7 @@ def _check_access_switchport(
 
 
 def _check_trunk_switchport(
-    dut, test_case, expd_status: SwitchportTrunkExpectation, msrd_status: dict
+    dut, check, expd_status: SwitchportTrunkExpectation, msrd_status: dict
 ) -> tr.CheckResultsCollection:
 
     results = list()
@@ -150,7 +148,7 @@ def _check_trunk_switchport(
         results.append(
             tr.CheckFailFieldMismatch(
                 device=device,
-                check=test_case,
+                check=check,
                 field="native_vlan",
                 expected=e_nvl_id,
                 measurement=m_nvl_id,
@@ -180,7 +178,7 @@ def _check_trunk_switchport(
         results.append(
             tr.CheckFailFieldMismatch(
                 device=device,
-                check=test_case,
+                check=check,
                 field="trunk_allowed_vlans",
                 expected=e_tr_alwd_vstr,
                 measurement=m_tr_alwd_vstr,
