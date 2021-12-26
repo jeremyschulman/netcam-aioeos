@@ -66,8 +66,8 @@ async def eos_check_device_info(
     # "front" or "rear" designation.  We'll ignore those for comparison
     # purposes.
 
-    testcase = device_checks.checks[0]
-    exp_values = testcase.expected_results
+    check = device_checks.checks[0]
+    exp_values = check.expected_results
 
     exp_product_model = exp_values.product_model
     has_product_model = ver_info["modelName"]
@@ -76,7 +76,7 @@ async def eos_check_device_info(
         results.append(
             CheckPassResult(
                 device=dut.device,
-                check=testcase,
+                check=check,
                 measurement=has_product_model,
                 field="product_model",
             )
@@ -85,7 +85,7 @@ async def eos_check_device_info(
         results.append(
             CheckFailResult(
                 device=dut.device,
-                check=testcase,
+                check=check,
                 measurement=has_product_model,
                 field="product_model",
                 error=f"Mismatch: product_model, expected {exp_product_model}, actual {has_product_model}",
@@ -96,7 +96,7 @@ async def eos_check_device_info(
 
     results.append(
         CheckInfoLog(
-            device=dut.device, check=testcase, field="version", measurement=ver_info
+            device=dut.device, check=check, field="version", measurement=ver_info
         )
     )
 

@@ -57,7 +57,7 @@ from .eos_xcvr_matching import eos_xcvr_model_matches, eos_xcvr_type_matches
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_test_transceivers"]
+__all__ = ["eos_check_transceivers"]
 
 
 # -----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ __all__ = ["eos_test_transceivers"]
 # -----------------------------------------------------------------------------
 
 
-async def eos_test_transceivers(
+async def eos_check_transceivers(
     self, testcases: TransceiverCheckCollection
 ) -> trt.CheckResultsCollection:
     """
@@ -169,6 +169,11 @@ async def eos_test_transceivers(
 def eos_test_exclusive_list(
     device: Device, expd_ports, msrd_ports, rsvd_ports: Set
 ) -> trt.CheckResultsCollection:
+    """
+    Check to ensure that the list of transceivers found on the device matches the exclusive list.
+    This check helps to find "unused" optics; or report them so that a Designer can account for them
+    in the design-notes.
+    """
 
     results = list()
     tc = TransceiverCheckExclusiveList()
@@ -221,6 +226,10 @@ def eos_test_exclusive_list(
 def eos_test_one_interface(
     device: Device, check: TransceiverCheck, ifaceinv: dict, ifacehw: dict
 ) -> trt.CheckResultsCollection:
+    """
+    This function validates that a specific interface is using the specific
+    transceiver as defined in the design.
+    """
 
     results = list()
 

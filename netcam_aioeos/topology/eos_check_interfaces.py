@@ -59,7 +59,7 @@ if TYPE_CHECKING:
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_tc_interfaces", "eos_test_one_interface", "eos_check_one_svi"]
+__all__ = ["eos_check_interfaces", "eos_check_one_interface", "eos_check_one_svi"]
 
 
 # -----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ __all__ = ["eos_tc_interfaces", "eos_test_one_interface", "eos_check_one_svi"]
 _match_svi = re.compile(r"Vlan(\d+)").match
 
 
-async def eos_tc_interfaces(
+async def eos_check_interfaces(
     self, testcases: InterfaceCheckCollection
 ) -> tr.CheckResultsCollection:
     """
@@ -197,7 +197,7 @@ async def eos_tc_interfaces(
             results.append(tr.CheckFailNoExists(device=device, check=check))
 
         results.extend(
-            eos_test_one_interface(
+            eos_check_one_interface(
                 device=device,
                 check=check,
                 iface_oper_status=iface_oper_status,
@@ -217,7 +217,10 @@ async def eos_tc_interfaces(
 def eos_check_interfaces_list(
     device: Device, expd_interfaces: Set[str], msrd_interfaces: Set[str]
 ) -> tr.CheckResultsCollection:
-
+    """
+    This check validates the exclusive list of interfaces found on the device
+    against the expected list in the design.
+    """
     tc = InterfaceCheckExclusiveList()
     attr_name = attrgetter("name")
     expd_sorted = list(map(attr_name, sorted(map(DeviceInterface, expd_interfaces))))
@@ -293,9 +296,13 @@ class EosInterfaceMeasurement(BaseModel):
         )
 
 
-def eos_test_one_interface(
+def eos_check_one_interface(
     device: Device, check: InterfaceCheck, iface_oper_status: dict
 ) -> tr.CheckResultsCollection:
+    """
+    Validates a specific physical interface against the expectations in the
+    design.
+    """
 
     # transform the CLI data into a measurment instance for consistent
     # comparison with the expected values.
@@ -394,7 +401,10 @@ def eos_check_one_loopback(
 def eos_check_one_svi(
     device: Device, check: InterfaceCheck, svi_oper_status: dict
 ) -> tr.CheckResultsCollection:
-
+    """
+    Checks the device state for a VLAN interface against the expected values in
+    the design.
+    """
     results = list()
 
     # -------------------------------------------------------------------------

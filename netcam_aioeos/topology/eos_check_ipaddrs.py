@@ -70,6 +70,10 @@ __all__ = ["eos_test_ipaddrs"]
 async def eos_test_ipaddrs(
     self, testcases: IpInterfacesCheckCollection
 ) -> trt.CheckResultsCollection:
+    """
+    This check executor validates the IP addresses used on the device against
+    those that are defined in the design.
+    """
 
     dut: EOSDeviceUnderTest = self
     device = dut.device
@@ -123,7 +127,10 @@ async def eos_test_one_interface(
     check: IpInterfaceCheck,
     msrd_data: dict,
 ) -> trt.CheckResultsCollection:
-
+    """
+    This function validates a specific interface use of an IP address against
+    the design expectations.
+    """
     results = list()
 
     # get the interface name begin tested
@@ -228,6 +235,10 @@ async def eos_test_one_interface(
 def eos_test_exclusive_list(
     device: Device, expd_if_names: Sequence[str], msrd_if_names: Sequence[str]
 ) -> Generator:
+    """
+    This check determines if there are any extra IP Interfaces defined on the
+    device that are not expected per the design.
+    """
 
     # the previous per-interface checks for any missing; therefore we only need
     # to check for any extra interfaces found on the device.

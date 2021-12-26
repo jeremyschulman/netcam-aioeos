@@ -53,10 +53,14 @@ if TYPE_CHECKING:
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_test_lags", "eos_check_one_lag"]
+__all__ = ["eos_check_lags", "eos_check_one_lag"]
 
 
-async def eos_test_lags(self, testcases: LagCheckCollection) -> AsyncGenerator:
+async def eos_check_lags(self, testcases: LagCheckCollection) -> AsyncGenerator:
+    """
+    This chcek-executor validates that the LAGs on the device match those as
+    defined in the design.
+    """
 
     dut: EOSDeviceUnderTest = self
     device = dut.device
@@ -85,7 +89,9 @@ async def eos_test_lags(self, testcases: LagCheckCollection) -> AsyncGenerator:
 
 
 def eos_check_one_lag(device: Device, check: LagCheck, lag_status: dict) -> Generator:
-
+    """
+    Validates the checks for one specific LAG on the device.
+    """
     fails = 0
 
     po_interfaces = lag_status["interfaces"]

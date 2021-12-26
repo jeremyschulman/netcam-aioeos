@@ -64,6 +64,11 @@ _re_mlag_id = re.compile(r"Port-Channel(\d+)")
 
 
 async def eos_check_mlags(self, testcases: MLagCheckCollection) -> AsyncGenerator:
+    """
+    This check-executor validates the operational status of the MLAGs running on
+    the device against the expected values in the design.
+    """
+
     dut: EOSDeviceUnderTest = self
     device = dut.device
 
@@ -94,6 +99,10 @@ async def eos_check_mlags(self, testcases: MLagCheckCollection) -> AsyncGenerato
 
 
 async def eos_test_mlag_system_status(dut: "EOSDeviceUnderTest"):
+    """
+    This check executes the MLAG configuration santify check and reports any
+    failures.
+    """
 
     cli_mlagst_rsp = await dut.eapi.cli("show mlag config-sanity")
 
@@ -121,6 +130,10 @@ async def eos_test_mlag_system_status(dut: "EOSDeviceUnderTest"):
 
 
 def eos_test_one_mlag(device: Device, check: LagCheck, mlag_status: dict) -> Generator:
+    """
+    This check validates the status of a specific MLAG interface against the
+    expected values in the design.
+    """
 
     fails = 0
 

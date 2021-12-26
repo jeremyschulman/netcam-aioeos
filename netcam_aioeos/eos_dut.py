@@ -204,17 +204,17 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'topology interfaces' checks
     # -------------------------------------------------------------------------
 
-    from netcam_aioeos.topology.eos_check_interfaces import eos_tc_interfaces
+    from netcam_aioeos.topology.eos_check_interfaces import eos_check_interfaces
 
-    execute_checks.register(eos_tc_interfaces)
+    execute_checks.register(eos_check_interfaces)
 
     # -------------------------------------------------------------------------
     # Support the 'topology transceivers' checks
     # -------------------------------------------------------------------------
 
-    from netcam_aioeos.topology.eos_check_transceivers import eos_test_transceivers
+    from netcam_aioeos.topology.eos_check_transceivers import eos_check_transceivers
 
-    execute_checks.register(eos_test_transceivers)
+    execute_checks.register(eos_check_transceivers)
 
     # -------------------------------------------------------------------------
     # Support the 'topology cabling' checks
