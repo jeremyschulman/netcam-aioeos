@@ -1,3 +1,29 @@
+#  Copyright 2021 Jeremy Schulman
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 # -----------------------------------------------------------------------------
 # System Imports
 # -----------------------------------------------------------------------------
@@ -19,7 +45,7 @@ from netcad.vlan.check_vlans import VlanCheckCollection, VlanCheck
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_aioeos.eos import EOSDeviceUnderTest
+    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 
 # -----------------------------------------------------------------------------
@@ -32,6 +58,13 @@ __all__ = ["eos_check_vlans", "eos_check_one_vlan"]
 async def eos_check_vlans(
     self, vlan_checks: VlanCheckCollection
 ) -> trt.CheckResultsCollection:
+    """
+    This check executor validates tha the device has the VLANs expected by the
+    design.  These checks include validating the VLANs exist as they should in
+    the design (for example VLAN-10 is "Printers" and not "VideoSystesms").
+    This exector also validates the exclusive list of VLANs to ensure the device
+    is not configured with any unexpected VLANs.
+    """
 
     dut: EOSDeviceUnderTest = self
     device = dut.device
@@ -64,7 +97,7 @@ async def eos_check_vlans(
 
     for check in vlan_checks.checks:
 
-        # The test-case ID is the VLAN ID in string form.
+        # The check ID is the VLAN ID in string form.
         vlan_id = check.check_id()
 
         if not (vlan_status := dev_vlans_info.get(vlan_id)):
@@ -136,6 +169,9 @@ def eos_check_vlan_exl_list(
 def eos_check_one_vlan(
     device: Device, check: VlanCheck, vlan_id: str, vlan_status: dict
 ) -> trt.CheckResultsCollection:
+    """
+    Checks a specific VLAN to ensure that it exists on the device as expected.
+    """
 
     results = list()
 

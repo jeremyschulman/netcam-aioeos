@@ -1,6 +1,6 @@
 [[package]]
 name = "aio-eapi"
-version = "0.2.1"
+version = "0.2.2"
 description = "Arista EOS API asyncio client"
 category = "main"
 optional = false
@@ -285,8 +285,8 @@ content-hash = "0f5b19a75a338f7998c9d66454ec75b1f45d89c082f5b8929b3f894f129f6139
 
 [metadata.files]
 aio-eapi = [
-    {file = "aio-eapi-0.2.1.tar.gz", hash = "sha256:d1125807dea4c8076ef570328f21d31d4f8c8997a7f347c6b9d2dd56fdbc36ed"},
-    {file = "aio_eapi-0.2.1-py3-none-any.whl", hash = "sha256:b4561484d6e23a75fed26f171cc5d997fab9710e4af50b74eba9e2e5de25609e"},
+    {file = "aio-eapi-0.2.2.tar.gz", hash = "sha256:2a3be485ddff06dcd3b275d54512c3359630653f0a9c1ca976d8b95eef41bbc4"},
+    {file = "aio_eapi-0.2.2-py3-none-any.whl", hash = "sha256:a2609c75bc3b97974b29cf2ca003a9e7ee632e7d34c4d5f77ed9a5f9f658d67c"},
 ]
 anyio = [
     {file = "anyio-3.3.4-py3-none-any.whl", hash = "sha256:4fd09a25ab7fa01d34512b7249e366cd10358cdafc95022c7ff8c8f8a5026d66"},

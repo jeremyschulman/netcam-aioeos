@@ -1,3 +1,17 @@
+#  Copyright 2021 Jeremy Schulman
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 # -----------------------------------------------------------------------------
 # System Impors
 # -----------------------------------------------------------------------------
@@ -21,13 +35,13 @@ from netcad.checks import (
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from .eos_dut import EOSDeviceUnderTest
+    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 # -----------------------------------------------------------------------------
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_tc_device_info"]
+__all__ = ["eos_check_device_info"]
 
 # -----------------------------------------------------------------------------
 #
@@ -36,9 +50,14 @@ __all__ = ["eos_tc_device_info"]
 # -----------------------------------------------------------------------------
 
 
-async def eos_tc_device_info(
-    self, testcases: DeviceInformationCheckCollection
+async def eos_check_device_info(
+    self, device_checks: DeviceInformationCheckCollection
 ) -> CheckResultsCollection:
+    """
+    The check executor to validate the device information.  Presently this
+    function validates the product-model value.  It also captures the results
+    of the 'show version' into a check-inforamation.
+    """
     dut: EOSDeviceUnderTest = self
     ver_info = dut.version_info
     results = list()
@@ -47,8 +66,8 @@ async def eos_tc_device_info(
     # "front" or "rear" designation.  We'll ignore those for comparison
     # purposes.
 
-    testcase = testcases.checks[0]
-    exp_values = testcase.expected_results
+    check = device_checks.checks[0]
+    exp_values = check.expected_results
 
     exp_product_model = exp_values.product_model
     has_product_model = ver_info["modelName"]
@@ -57,7 +76,7 @@ async def eos_tc_device_info(
         results.append(
             CheckPassResult(
                 device=dut.device,
-                check=testcase,
+                check=check,
                 measurement=has_product_model,
                 field="product_model",
             )
@@ -66,7 +85,7 @@ async def eos_tc_device_info(
         results.append(
             CheckFailResult(
                 device=dut.device,
-                check=testcase,
+                check=check,
                 measurement=has_product_model,
                 field="product_model",
                 error=f"Mismatch: product_model, expected {exp_product_model}, actual {has_product_model}",
@@ -77,7 +96,7 @@ async def eos_tc_device_info(
 
     results.append(
         CheckInfoLog(
-            device=dut.device, check=testcase, field="version", measurement=ver_info
+            device=dut.device, check=check, field="version", measurement=ver_info
         )
     )
 
