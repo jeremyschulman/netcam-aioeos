@@ -1,3 +1,17 @@
+#  Copyright 2021 Jeremy Schulman
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 # -----------------------------------------------------------------------------
 # System Imports
 # -----------------------------------------------------------------------------
@@ -23,7 +37,7 @@ from netcad.netcam import CheckResultsCollection
 # Privae Imports
 # -----------------------------------------------------------------------------
 
-from ..eos_config import g_eos
+from netcam_aioeos.eos_config import g_eos
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -122,7 +136,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'device' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_device_info import eos_tc_device_info
+    from netcam_aioeos.topology.eos_check_device_info import eos_tc_device_info
 
     execute_testcases.register(eos_tc_device_info)
 
@@ -130,7 +144,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'interfaces' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_interfaces import eos_tc_interfaces
+    from netcam_aioeos.topology.eos_check_interfaces import eos_tc_interfaces
 
     execute_testcases.register(eos_tc_interfaces)
 
@@ -138,7 +152,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'transceivers' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_transceivers import eos_test_transceivers
+    from netcam_aioeos.topology.eos_check_transceivers import eos_test_transceivers
 
     execute_testcases.register(eos_test_transceivers)
 
@@ -146,7 +160,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'cabling' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_cabling import eos_test_cabling
+    from netcam_aioeos.topology.eos_check_cabling import eos_test_cabling
 
     execute_testcases.register(eos_test_cabling)
 
@@ -154,7 +168,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'vlans' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_check_vlans import eos_check_vlans
+    from netcam_aioeos.vlans.eos_check_vlans import eos_check_vlans
 
     execute_testcases.register(eos_check_vlans)
 
@@ -178,7 +192,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'ipaddrs' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_ipaddrs import eos_test_ipaddrs
+    from netcam_aioeos.topology.eos_check_ipaddrs import eos_test_ipaddrs
 
     execute_testcases.register(eos_test_ipaddrs)
 
@@ -186,6 +200,6 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     # Support the 'switchports' testcases
     # -------------------------------------------------------------------------
 
-    from .eos_tc_switchports import eos_tc_switchports
+    from netcam_aioeos.vlans.eos_check_switchports import eos_tc_switchports
 
     execute_testcases.register(eos_tc_switchports)

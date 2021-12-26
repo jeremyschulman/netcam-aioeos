@@ -1,3 +1,29 @@
+#  Copyright 2021 Jeremy Schulman
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 # -----------------------------------------------------------------------------
 # System Imports
 # -----------------------------------------------------------------------------
@@ -23,7 +49,7 @@ from netcad.checks import check_result_types as trt
 # -----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    from netcam_aioeos.eos import EOSDeviceUnderTest
+    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 from .eos_xcvr_matching import eos_xcvr_model_matches, eos_xcvr_type_matches
 
@@ -84,9 +110,9 @@ async def eos_test_transceivers(
 
     rsvd_ports_set = set()
 
-    for each_test in testcases.checks:
+    for check in testcases.checks:
 
-        if_name = each_test.check_id()
+        if_name = check.check_id()
         dev_iface: DeviceInterface = device.interfaces[if_name]
 
         if_pri_port = dev_iface.port_numbers[0]
@@ -97,7 +123,7 @@ async def eos_test_transceivers(
             results.append(
                 trt.CheckInfoLog(
                     device=device,
-                    check=each_test,
+                    check=check,
                     measurement=dict(
                         message="interface is in reserved state",
                         hardware=ifaceinv,  # from the show inventory command
@@ -113,7 +139,7 @@ async def eos_test_transceivers(
         results.extend(
             eos_test_one_interface(
                 device=device,
-                check_type=each_test,
+                check=check,
                 ifaceinv=dev_inv_ifstatus.get(str(if_pri_port)),
                 ifacehw=dev_ifhw_ifstatus.get(if_name),
             )
@@ -193,7 +219,7 @@ def eos_test_exclusive_list(
 
 
 def eos_test_one_interface(
-    device: Device, test_case: TransceiverCheck, ifaceinv: dict, ifacehw: dict
+    device: Device, check: TransceiverCheck, ifaceinv: dict, ifacehw: dict
 ) -> trt.CheckResultsCollection:
 
     results = list()
@@ -202,29 +228,29 @@ def eos_test_one_interface(
         results.append(
             trt.CheckFailNoExists(
                 device=device,
-                check_type=test_case,
+                check=check,
             )
         )
         return results
 
-    exp_model = test_case.expected_results.model
+    exp_model = check.expected_results.model
     msrd_model = ifaceinv["modelName"]
     if not eos_xcvr_model_matches(exp_model, msrd_model):
         results.append(
             trt.CheckFailFieldMismatch(
                 device=device,
-                check_type=test_case,
+                check=check,
                 field="model",
                 measurement=msrd_model,
             )
         )
 
-    expd_type = test_case.expected_results.type
+    expd_type = check.expected_results.type
     msrd_type = ifacehw["transceiverType"]
     if not eos_xcvr_type_matches(expd_type, msrd_type):
         results.append(
             trt.CheckFailFieldMismatch(
-                device=device, check_type=test_case, field="type", measurement=msrd_type
+                device=device, check=check, field="type", measurement=msrd_type
             )
         )
 
@@ -232,7 +258,7 @@ def eos_test_one_interface(
         results.append(
             trt.CheckPassResult(
                 device=device,
-                check_type=test_case,
+                check=check,
                 measurement=dict(model=msrd_model, type=msrd_type),
             )
         )
