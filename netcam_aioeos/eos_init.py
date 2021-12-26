@@ -16,6 +16,17 @@ from .eos_config import init_config
 
 
 def plugin_init(config: dict):
+    """
+    This function is the required netcam plugin 'hook' that is called during the
+    netcam tool initialization process.  The primary purpose of this function is
+    to pass along the User defined configuration from the `netcad.toml` file.
+
+    Parameters
+    ----------
+    config: dict
+        The configuration for this plugin as declared in the User `netcad.toml`
+        configuration file.
+    """
     if not config:
         return
 

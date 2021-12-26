@@ -43,11 +43,45 @@ ARISTA_TYPE_ALIAS = {
 
 @lru_cache()
 def get_config_transciver_model(model: str) -> Optional[str]:
+    """
+    Function used to take a given transceiver model value and perform a lookup
+    into the User `netcad.toml` configuration under [transceivers.models] so
+    that specific models can be mapped into the Designer expect model values.
+
+    Parameters
+    ----------
+    model: str
+        The transceiver model as retrieved from the device.
+
+    Returns
+    -------
+    The mapped model name, if the model value exists in their `netcad.toml`
+    configuration file; None otherwise.
+    """
     config = netcad_globals.g_config.get("transceivers", {}).get("models")
     return None if not config else config.get(model)
 
 
 def eos_xcvr_model_matches(expected: str, measured: str) -> bool:
+    """
+    Used to validate if the expecte transceiver model name matches the measured
+    value from the device.  This function will perform a lookup into the Users
+    netcad.toml configuration for mapping specific hardware models to the
+    Designer defined values.  This function also takes into account the "-AR"
+    suffic nuance used by Arista branded transceivers.
+
+    Parameters
+    ----------
+    expected: str
+        The expected transceiver model, from the design files.
+
+    measured: str
+        The actual transceiver model value as obtained from the device.
+
+    Returns
+    -------
+    True if the expected and measured "are the same", False otherwise.
+    """
 
     # do not take the lenth value in consideration.
 
@@ -67,6 +101,7 @@ def eos_xcvr_model_matches(expected: str, measured: str) -> bool:
 
 
 def eos_xcvr_type_matches(expected: str, measured: str) -> bool:
+    """helper function for handling the Arista branded '-AR' models"""
 
     if type_alias := ARISTA_TYPE_ALIAS.get(measured):
         measured = type_alias

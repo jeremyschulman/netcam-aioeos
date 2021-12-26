@@ -120,7 +120,9 @@ async def eos_test_cabling(
 def eos_test_one_interface(
     device: Device, check: InterfaceCablingCheck, ifnei_status: dict
 ) -> trt.CheckResultsCollection:
-
+    """
+    Validates the LLDP information for a specific interface.
+    """
     results = list()
 
     expd_name = check.expected_results.device

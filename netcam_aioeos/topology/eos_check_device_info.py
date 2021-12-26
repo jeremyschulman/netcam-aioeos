@@ -41,7 +41,7 @@ if TYPE_CHECKING:
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_tc_device_info"]
+__all__ = ["eos_check_device_info"]
 
 # -----------------------------------------------------------------------------
 #
@@ -50,9 +50,14 @@ __all__ = ["eos_tc_device_info"]
 # -----------------------------------------------------------------------------
 
 
-async def eos_tc_device_info(
-    self, testcases: DeviceInformationCheckCollection
+async def eos_check_device_info(
+    self, device_checks: DeviceInformationCheckCollection
 ) -> CheckResultsCollection:
+    """
+    The check executor to validate the device information.  Presently this
+    function validates the product-model value.  It also captures the results
+    of the 'show version' into a check-inforamation.
+    """
     dut: EOSDeviceUnderTest = self
     ver_info = dut.version_info
     results = list()
@@ -61,7 +66,7 @@ async def eos_tc_device_info(
     # "front" or "rear" designation.  We'll ignore those for comparison
     # purposes.
 
-    testcase = testcases.checks[0]
+    testcase = device_checks.checks[0]
     exp_values = testcase.expected_results
 
     exp_product_model = exp_values.product_model
