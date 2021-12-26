@@ -25,7 +25,6 @@
 import asyncio
 from typing import Optional
 from functools import singledispatchmethod
-from pathlib import Path
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -65,14 +64,27 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     communicating with the device via the EAPI interface.  The underpinning
     transport is using asyncio.  Refer to the `aioeapi` distribution for further
     details.
+
+    Attributes
+    ----------
+    eapi: aioeapi.Device
+        The asyncio driver instance used to communicate with the EOS eAPI.
+
+    version_info: dict
+        The results of 'show version' that is extracted from the device during
+        the `setup` process.
     """
 
-    def __init__(self, *, device: Device, testcases_dir: Path, **_kwargs):
+    def __init__(self, *, device: Device, **_kwargs):
         """DUT construction creates instance of EAPI transport"""
 
-        super().__init__(device=device, testcases_dir=testcases_dir)
+        super().__init__(device=device)
         self.eapi = DeviceEAPI(host=device.name, auth=g_eos.basic_auth)
         self.version_info: Optional[dict] = None
+
+        # inialize the DUT cache mechanism; used exclusvely by the
+        # `api_cache_get` method.
+
         self._api_cache_lock = asyncio.Lock()
         self._api_cache = dict()
 

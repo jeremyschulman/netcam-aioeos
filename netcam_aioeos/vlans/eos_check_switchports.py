@@ -56,6 +56,24 @@ __all__ = ["eos_check_switchports"]
 async def eos_check_switchports(
     self, switchport_checks: SwitchportCheckCollection
 ) -> tr.CheckResultsCollection:
+    """
+    This check executor validates the device operational status of the interface
+    switchports.
+
+    Parameters
+    ----------
+    self:
+        The DUT instance for the specific device being checked.
+
+    switchport_checks: SwitchportCheckCollection
+        The collection of checks created by the netcad tool for the
+        vlans.switchports case.
+
+    Returns
+    -------
+    A collection of check-results that will be logged and reported to the User
+    during check execution and showing results.
+    """
 
     dut: EOSDeviceUnderTest = self
     device = dut.device
@@ -63,6 +81,9 @@ async def eos_check_switchports(
 
     cli_data = await dut.get_switchports()
     map_msrd_swichports = cli_data["switchports"]
+
+    # each check represents one interface to validate.  Loop through each of the
+    # checks to ensure that the expected switchport use is as expected.
 
     for check in switchport_checks.checks:
         expd_status = check.expected_results
@@ -78,6 +99,8 @@ async def eos_check_switchports(
 
         msrd_swpinfo = msrd_port["switchportInfo"]
 
+        # verify the expected switchport mode (access / trunk)
+
         msrd_mode = msrd_swpinfo["mode"]
         expd_mode = expd_status.switchport_mode
 
@@ -91,6 +114,9 @@ async def eos_check_switchports(
                 )
             )
             continue
+
+        # validate the interface switchport status depending on if it is access
+        # or trunk.
 
         mode_handler = {
             "access": _check_access_switchport,
@@ -106,12 +132,17 @@ async def eos_check_switchports(
 
         results.extend(mode_results)
 
+    # return the collection of results for all switchport interfaces
     return results
 
 
 def _check_access_switchport(
     dut, check, expd_status: SwitchportAccessExpectation, msrd_status: dict
 ) -> tr.CheckResultsCollection:
+    """
+    This function validates that the access port is reporting as expected.  This
+    primary check here is ensuring the access VLAN-ID matches.
+    """
 
     results = list()
 
@@ -137,6 +168,10 @@ def _check_access_switchport(
 def _check_trunk_switchport(
     dut, check, expd_status: SwitchportTrunkExpectation, msrd_status: dict
 ) -> tr.CheckResultsCollection:
+    """
+    This function validates a trunk switchport against the expected values.
+    These checks include matching on the native-vlan and trunk-allowed-vlans.
+    """
 
     results = list()
     device = dut.device

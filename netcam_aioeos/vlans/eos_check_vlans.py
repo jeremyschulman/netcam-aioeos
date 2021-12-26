@@ -58,6 +58,13 @@ __all__ = ["eos_check_vlans", "eos_check_one_vlan"]
 async def eos_check_vlans(
     self, vlan_checks: VlanCheckCollection
 ) -> trt.CheckResultsCollection:
+    """
+    This check executor validates tha the device has the VLANs expected by the
+    design.  These checks include validating the VLANs exist as they should in
+    the design (for example VLAN-10 is "Printers" and not "VideoSystesms").
+    This exector also validates the exclusive list of VLANs to ensure the device
+    is not configured with any unexpected VLANs.
+    """
 
     dut: EOSDeviceUnderTest = self
     device = dut.device
@@ -162,6 +169,9 @@ def eos_check_vlan_exl_list(
 def eos_check_one_vlan(
     device: Device, check: VlanCheck, vlan_id: str, vlan_status: dict
 ) -> trt.CheckResultsCollection:
+    """
+    Checks a specific VLAN to ensure that it exists on the device as expected.
+    """
 
     results = list()
 

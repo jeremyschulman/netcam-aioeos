@@ -47,11 +47,33 @@ DEFAULT_ENV_PASSWORD = "NETWORK_PASSWORD"
 
 
 class EosGlobals:
+    """
+    Define a class to encapsulate the global variables used by this plugin.
+
+    Attributes
+    ----------
+    basic_auth: httpx.BasicAuth
+        The authorization value that will be used to access the EOS devices via
+        eAPI. This username-password auth combination is prepared once during
+        initialization so that we do not need to duplicate the calls for each
+        DUT.  Note that this approach does (currently) preclude the use of
+        per-device authorizations.  TODO: feature.
+
+    config: dict
+        This is the plugin configuration dictionary as declared in the User
+        `netcad.toml` configuration file.
+    """
+
     def __init__(self):
+        """
+        Init globals to None.  These values will be setup during the plugin_init
+        invocation.
+        """
         self.basic_auth: Optional[httpx.BasicAuth] = None
         self.config: Optional[EosConfig] = None
 
 
+# the global variables used by this plugin
 g_eos = EosGlobals()
 
 
