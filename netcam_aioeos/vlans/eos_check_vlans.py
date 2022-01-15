@@ -38,7 +38,7 @@ from operator import attrgetter
 from netcad.device import Device, DeviceInterface
 from netcad.netcam import any_failures
 from netcad.checks import check_result_types as trt
-from netcad.vlan.check_vlans import VlanCheckCollection, VlanCheck
+from netcad.vlans.checks.check_vlans import VlanCheckCollection, VlanCheck
 
 # -----------------------------------------------------------------------------
 # Private Imports

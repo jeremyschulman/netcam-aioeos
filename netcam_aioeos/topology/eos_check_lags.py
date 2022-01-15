@@ -36,7 +36,7 @@ from itertools import chain
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.topology.check_lags import LagCheckCollection, LagCheck
+from netcad.topology.checks.check_lags import LagCheckCollection, LagCheck
 
 from netcad.device import Device, DeviceInterface
 from netcad.checks import check_result_types as trt

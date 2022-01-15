@@ -42,7 +42,7 @@ from netcad.device import Device, DeviceInterface
 from netcad.netcam import any_failures
 from netcad.checks import check_result_types as tr
 
-from netcad.topology.check_interfaces import (
+from netcad.topology.checks.check_interfaces import (
     InterfaceCheckExclusiveList,
     InterfaceCheckCollection,
     InterfaceCheck,
