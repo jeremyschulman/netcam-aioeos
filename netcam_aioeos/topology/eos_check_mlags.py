@@ -37,12 +37,12 @@ import re
 
 from pydantic import BaseModel
 
-from netcad.topology.check_mlags import (
+from netcad.topology.checks.check_mlags import (
     MLagCheckCollection,
     MLagSystemCheckParams,
     MLagSystemCheck,
 )
-from netcad.topology.check_lags import LagCheck
+from netcad.topology.checks.check_lags import LagCheck
 from netcad.device import Device
 from netcad.checks import check_result_types as trt
 

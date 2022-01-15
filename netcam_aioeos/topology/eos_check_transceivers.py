@@ -34,7 +34,7 @@ from typing import TYPE_CHECKING, Set
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.topology.check_transceivers import (
+from netcad.topology.checks.check_transceivers import (
     TransceiverCheckCollection,
     TransceiverCheck,
     TransceiverCheckExclusiveList,
