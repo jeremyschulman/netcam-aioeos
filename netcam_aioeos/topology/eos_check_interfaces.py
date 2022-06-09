@@ -11,26 +11,15 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+
 
 # -----------------------------------------------------------------------------
 # System Imports
 # -----------------------------------------------------------------------------
+
 import re
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING, Set, List, Iterable
 from itertools import chain
-from operator import attrgetter
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -214,6 +203,16 @@ async def eos_check_interfaces(
 # -----------------------------------------------------------------------------
 
 
+def sorted_by_name(device: Device, if_name_list: Iterable[str]) -> List[str]:
+    return [
+        iface.name
+        for iface in (
+            DeviceInterface(if_name, interfaces=device.interfaces)
+            for if_name in if_name_list
+        )
+    ]
+
+
 def eos_check_interfaces_list(
     device: Device, expd_interfaces: Set[str], msrd_interfaces: Set[str]
 ) -> tr.CheckResultsCollection:
@@ -222,36 +221,31 @@ def eos_check_interfaces_list(
     against the expected list in the design.
     """
     tc = InterfaceCheckExclusiveList()
-    attr_name = attrgetter("name")
-    expd_sorted = list(map(attr_name, sorted(map(DeviceInterface, expd_interfaces))))
+
+    expd_sorted_names = sorted_by_name(device, expd_interfaces)
+
     results = list()
 
     if missing_interfaces := expd_interfaces - msrd_interfaces:
-        msng_sorted = list(
-            map(attr_name, sorted(map(DeviceInterface, missing_interfaces)))
-        )
+
         results.append(
             tr.CheckFailMissingMembers(
                 device=device,
                 check=tc,
                 field="interfaces",
-                expected=expd_sorted,
-                missing=msng_sorted,
+                expected=expd_sorted_names,
+                missing=sorted_by_name(device, missing_interfaces),
             )
         )
 
     if extra_interfaces := msrd_interfaces - expd_interfaces:
-        exta_sorted = list(
-            map(attr_name, sorted(map(DeviceInterface, extra_interfaces)))
-        )
-
         results.append(
             tr.CheckFailExtraMembers(
                 device=device,
                 check=tc,
                 field="interfaces",
-                expected=expd_sorted,
-                extras=exta_sorted,
+                expected=expd_sorted_names,
+                extras=sorted_by_name(device, extra_interfaces),
             )
         )
 
@@ -271,7 +265,7 @@ def eos_check_interfaces_list(
 # EOS Measurement dataclass
 # -----------------------------------------------------------------------------
 
-BITS_TO_MBS = 10 ** -6
+BITS_TO_MBS = 10**-6
 
 
 class EosInterfaceMeasurement(BaseModel):

@@ -7,11 +7,11 @@ authors = ["Jeremy Schulman"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-aio-eapi = "^0.2.1"
-interrogate = "^1.5.0"
+aio-eapi = "*"
+interrogate = "*"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

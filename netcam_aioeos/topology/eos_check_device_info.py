@@ -72,7 +72,10 @@ async def eos_check_device_info(
     exp_product_model = exp_values.product_model
     has_product_model = ver_info["modelName"]
 
-    if has_product_model[: len(exp_product_model)] == exp_product_model:
+    check_len = min(len(has_product_model), len(exp_product_model))
+    match = has_product_model[:check_len] == exp_product_model[:check_len]
+
+    if match:
         results.append(
             CheckPassResult(
                 device=dut.device,
