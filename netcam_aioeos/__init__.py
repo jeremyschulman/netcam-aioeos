@@ -26,4 +26,4 @@ from .eos_get_dut import plugin_get_dut
 from .eos_init import plugin_init
 
 plugin_version = importlib_metadata.version(__name__)
-plugin_description = "NetCadCam plugin for Arista EOS systems (asyncio)"
+plugin_description = "Arista EOS systems (asyncio)"
