@@ -15,7 +15,7 @@
 from .eos_config import init_config
 
 
-def plugin_init(config: dict):
+def plugin_init(plugin_def: dict):
     """
     This function is the required netcam plugin 'hook' that is called during the
     netcam tool initialization process.  The primary purpose of this function is
@@ -23,11 +23,20 @@ def plugin_init(config: dict):
 
     Parameters
     ----------
-    config: dict
-        The configuration for this plugin as declared in the User `netcad.toml`
+    plugin_def: dict
+        The plugin definition as declared in the User `netcad.toml`
         configuration file.
     """
-    if not config:
+
+    if not (svcs := plugin_def.get("services")):
+        raise RuntimeError(
+            f'netcam plugin {plugin_def["name"]} missing services definition'
+        )
+
+    # TODO: need to plugin-load these services dynamically!
+    _ = svcs
+
+    if not (config := plugin_def.get("config")):
         return
 
     init_config(config)

@@ -28,4 +28,3 @@ repos:
     hooks:
     -   id: black
         args: ["."]
-a
