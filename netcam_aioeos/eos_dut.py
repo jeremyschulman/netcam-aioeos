@@ -42,7 +42,7 @@ from netcad.netcam import CheckResultsCollection
 # Privae Imports
 # -----------------------------------------------------------------------------
 
-from netcam_aioeos.eos_config import g_eos
+from .eos_config import g_eos
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -79,6 +79,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         """DUT construction creates instance of EAPI transport"""
 
         super().__init__(device=device)
+
         self.eapi = DeviceEAPI(host=device.name, auth=g_eos.basic_auth)
         self.version_info: Optional[dict] = None
 
@@ -185,81 +186,3 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         checks can be "wired into" this class using the dispatch register mechanism.
         """
         return super().execute_checks()
-
-    # -------------------------------------------------------------------------
-    #
-    #                          DUT Check Executors
-    #
-    # -------------------------------------------------------------------------
-
-    # -------------------------------------------------------------------------
-    # Support the 'topology device' check
-    # -------------------------------------------------------------------------
-
-    from netcam_aioeos.topology.eos_check_device_info import eos_check_device_info
-
-    execute_checks.register(eos_check_device_info)
-
-    # -------------------------------------------------------------------------
-    # Support the 'topology interfaces' checks
-    # -------------------------------------------------------------------------
-
-    from netcam_aioeos.topology.eos_check_interfaces import eos_check_interfaces
-
-    execute_checks.register(eos_check_interfaces)
-
-    # -------------------------------------------------------------------------
-    # Support the 'topology transceivers' checks
-    # -------------------------------------------------------------------------
-
-    from netcam_aioeos.topology.eos_check_transceivers import eos_check_transceivers
-
-    execute_checks.register(eos_check_transceivers)
-
-    # -------------------------------------------------------------------------
-    # Support the 'topology cabling' checks
-    # -------------------------------------------------------------------------
-
-    from netcam_aioeos.topology.eos_check_cabling import eos_test_cabling
-
-    execute_checks.register(eos_test_cabling)
-
-    # -------------------------------------------------------------------------
-    # Support the 'vlans vlans' checks
-    # -------------------------------------------------------------------------
-
-    from netcam_aioeos.vlans.eos_check_vlans import eos_check_vlans
-
-    execute_checks.register(eos_check_vlans)
-
-    # -------------------------------------------------------------------------
-    # Support the 'topology lags' checks
-    # -------------------------------------------------------------------------
-
-    # from .eos_tc_lags import eos_test_lags
-    #
-    # execute_testcases.register(eos_test_lags)
-
-    # -------------------------------------------------------------------------
-    # Support the 'mlags' testcases
-    # -------------------------------------------------------------------------
-
-    # from .eos_tc_mlags import eos_test_mlags
-    #
-    # execute_testcases.register(eos_test_mlags)
-
-    # -------------------------------------------------------------------------
-    # Support the 'topology ipaddrs' checks
-    # -------------------------------------------------------------------------
-
-    from netcam_aioeos.topology.eos_check_ipaddrs import eos_test_ipaddrs
-
-    execute_checks.register(eos_test_ipaddrs)
-
-    # -------------------------------------------------------------------------
-    # Support the 'vlan switchports' checks
-    # -------------------------------------------------------------------------
-
-    from netcam_aioeos.vlans.eos_check_switchports import eos_check_switchports
-
-    execute_checks.register(eos_check_switchports)

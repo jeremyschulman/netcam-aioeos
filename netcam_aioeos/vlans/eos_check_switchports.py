@@ -154,7 +154,7 @@ def _check_access_switchport(
     if e_vl_id != m_vl_id:
         results.append(
             tr.CheckFailFieldMismatch(
-                device=dut.device,
+                device=dut.routers,
                 check=check,
                 field="vlan",
                 expected=e_vl_id,
@@ -174,7 +174,7 @@ def _check_trunk_switchport(
     """
 
     results = list()
-    device = dut.device
+    device = dut.routers
 
     e_nvl_id = expd_status.native_vlan.vlan_id if expd_status.native_vlan else None
     m_nvl_id = msrd_status["trunkingNativeVlanId"]
