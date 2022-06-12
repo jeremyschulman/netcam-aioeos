@@ -1,1 +1,2 @@
-from .eos_checks_bgp_peering import EosBgpPeeringServiceChecker
+from . import eos_checks_bgp_routers
+from . import eos_checks_bgp_peering

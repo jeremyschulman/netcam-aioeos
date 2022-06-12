@@ -3,8 +3,8 @@
 # -----------------------------------------------------------------------------
 
 from netcad.bgp_peering.checks import (
-    BgpNeighborsCheckCollection,
-    BgpNeighborCheck,
+    BgpRoutersCheckCollection,
+    BgpRouterCheck,
 )
 
 from netcad.checks import check_result_types as trt
@@ -14,7 +14,7 @@ from netcad.checks import check_result_types as trt
 # -----------------------------------------------------------------------------
 
 from netcam_aioeos.eos_dut import EOSDeviceUnderTest
-from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME, EOS_MAP_BGP_STATES
+from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME
 
 # -----------------------------------------------------------------------------
 #
@@ -23,10 +23,10 @@ from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME, EOS_MAP_BGP_STATES
 # -----------------------------------------------------------------------------
 
 
-class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
+class EosBgpRouterChecker(EOSDeviceUnderTest):
     @EOSDeviceUnderTest.execute_checks.register
     async def check_neeighbors(
-        self, check_collection: BgpNeighborsCheckCollection
+        self, check_collection: BgpRoutersCheckCollection
     ) -> trt.CheckResultsCollection:
 
         results: trt.CheckResultsCollection = list()
@@ -36,9 +36,9 @@ class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
             key="bgp-summary", command="show ip bgp summary"
         )
 
-        for nei_check in checks:
-            _check_bgp_neighbor(
-                dut=self, check=nei_check, dev_data=dev_data, results=results
+        for rtr_chk in checks:
+            _check_router_vrf(
+                dut=self, check=rtr_chk, dev_data=dev_data, results=results
             )
 
         return results
@@ -51,54 +51,43 @@ class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
 # -----------------------------------------------------------------------------
 
 
-def _check_bgp_neighbor(
+def _check_router_vrf(
     dut: EOSDeviceUnderTest,
-    check: BgpNeighborCheck,
+    check: BgpRouterCheck,
     dev_data: dict,
     results: trt.CheckResultsCollection,
 ) -> bool:
+
+    dev_data = dev_data["vrfs"][check.check_params.vrf or EOS_DEFAULT_VRF_NAME]
+
+    expected = check.expected_results
     check_pass = True
 
-    params = check.check_params
-    expected = check.expected_results
-
-    rtr_data = dev_data["vrfs"][params.vrf or EOS_DEFAULT_VRF_NAME]
-    rtr_neis = rtr_data.get("peers", {})
-
-    # if the neighbor for the expected remote IP does not exist, then record
-    # that result, and we are done checking this neighbor.
-
-    if not (nei_data := rtr_neis.get(params.nei_ip)):
-        results.append(trt.CheckFailNoExists(device=dut.device, check=check))
-        return False
-
-    # next check for peer ASN matching.
-
-    if (remote_asn := nei_data["asn"]) != expected.remote_asn:
-        check_pass = False
+    # from the device, routerId is a string
+    if (rtr_id := dev_data.get("routerId", "")) != expected.router_id:
         results.append(
             trt.CheckFailFieldMismatch(
-                device=dut.device, check=check, field="asn", measurement=remote_asn
+                check=check, device=dut.device, field="router_id", measurement=rtr_id
             )
         )
-
-    # check for matching expected BGP state
-    peer_state = EOS_MAP_BGP_STATES[nei_data["peerState"]]
-
-    if peer_state != expected.state:
         check_pass = False
+
+    # from the device, asn is an int
+
+    if (dev_asn := dev_data.get("asn", -1)) != expected.asn:
         results.append(
             trt.CheckFailFieldMismatch(
-                device=dut.device, check=check, field="state", measurement=peer_state
+                check=check, device=dut.device, field="asn", measurement=dev_asn
             )
         )
+        check_pass = False
 
     if check_pass:
         results.append(
             trt.CheckPassResult(
                 device=dut.device,
                 check=check,
-                measurement=nei_data,
+                measurement=dict(routerId=rtr_id, asn=dev_asn),
             )
         )
 
