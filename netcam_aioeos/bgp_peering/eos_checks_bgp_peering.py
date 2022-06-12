@@ -13,10 +13,7 @@ from netcad.bgp_peering.checks import (
     BgpRouterCheck,
     BgpNeighborCheck,
 )
-
 from netcad.bgp_peering.bgp_nei_state import BgpNeighborState
-
-
 from netcad.checks import check_result_types as trt
 
 # -----------------------------------------------------------------------------
@@ -25,27 +22,16 @@ from netcad.checks import check_result_types as trt
 
 from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
-DEFAULT_VRF_NAME = "default"
-
-# This mapping table is used to map the EOS Device string value reported in the
-# "show" command to the BGP neighbor state Enum defined in the check expected
-# value.
-
-EOS_MAP_BGP_STATES: MappingProxyType[str, BgpNeighborState] = MappingProxyType(
-    {
-        "Idle": BgpNeighborState.IDLE,
-        "Connect": BgpNeighborState.CONNECT,
-        "Active": BgpNeighborState.ACTIVE,
-        "OpenSent": BgpNeighborState.OPEN_SENT,
-        "OpenConfirm": BgpNeighborState.OPEN_CONFIRM,
-        "Established": BgpNeighborState.ESTABLISHED,
-    }
-)
+# -----------------------------------------------------------------------------
+#
+#                                 CODE BEGINS
+#
+# -----------------------------------------------------------------------------
 
 
 class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
     @EOSDeviceUnderTest.execute_checks.register
-    async def check_neeighbors(  # noqa
+    async def check_neeighbors(
         self, check_collection: BgpNeighborsCheckCollection
     ) -> trt.CheckResultsCollection:
 
@@ -65,6 +51,30 @@ class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
             )
 
         return results
+
+
+# -----------------------------------------------------------------------------
+#
+#                                 PRIVATE CODE BEGINS
+#
+# -----------------------------------------------------------------------------
+
+DEFAULT_VRF_NAME = "default"
+
+# This mapping table is used to map the EOS Device string value reported in the
+# "show" command to the BGP neighbor state Enum defined in the check expected
+# value.
+
+EOS_MAP_BGP_STATES: MappingProxyType[str, BgpNeighborState] = MappingProxyType(
+    {
+        "Idle": BgpNeighborState.IDLE,
+        "Connect": BgpNeighborState.CONNECT,
+        "Active": BgpNeighborState.ACTIVE,
+        "OpenSent": BgpNeighborState.OPEN_SENT,
+        "OpenConfirm": BgpNeighborState.OPEN_CONFIRM,
+        "Established": BgpNeighborState.ESTABLISHED,
+    }
+)
 
 
 def _check_device_vrf(
