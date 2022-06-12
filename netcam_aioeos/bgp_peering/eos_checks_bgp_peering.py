@@ -10,7 +10,7 @@ from types import MappingProxyType
 
 from netcad.bgp_peering.checks import (
     BgpNeighborsCheckCollection,
-    BgpDeviceCheck,
+    BgpRouterCheck,
     BgpNeighborCheck,
 )
 
@@ -54,13 +54,10 @@ class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
 
         dev_data = await self.eapi.cli("show ip bgp summary")
 
-        # TODO: right now, only vrf=default is supported.
-        #       need to enhance the module to support multiple VRFs, but this
-        #       is not an immediate need
-
-        _check_device_vrf(
-            dut=self, check=checks.device, dev_data=dev_data, results=results
-        )
+        for rtr_chk in checks.routers:
+            _check_device_vrf(
+                dut=self, check=rtr_chk, dev_data=dev_data, results=results
+            )
 
         for nei_check in checks.neighbors:
             _check_bgp_neighbor(
@@ -72,12 +69,13 @@ class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
 
 def _check_device_vrf(
     dut: EOSDeviceUnderTest,
-    check: BgpDeviceCheck,
+    check: BgpRouterCheck,
     dev_data: dict,
     results: trt.CheckResultsCollection,
 ) -> bool:
 
-    dev_data = dev_data["vrfs"][DEFAULT_VRF_NAME]
+    dev_data = dev_data["vrfs"][check.check_params.vrf or DEFAULT_VRF_NAME]
+
     expected = check.expected_results
     check_pass = True
 
