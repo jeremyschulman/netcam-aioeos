@@ -24,7 +24,7 @@
 
 import asyncio
 from typing import Optional
-from functools import singledispatchmethod, singledispatch
+from functools import singledispatchmethod
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -33,10 +33,8 @@ from functools import singledispatchmethod, singledispatch
 import httpx
 from aioeapi import Device as DeviceEAPI
 
-from netcad.logger import get_logger
 from netcad.device import Device
 from netcad.checks import CheckCollection
-from netcad.design import DesignService
 from netcad.netcam.dut import AsyncDeviceUnderTest
 from netcad.netcam import CheckResultsCollection
 
@@ -84,25 +82,6 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
 
         self.eapi = DeviceEAPI(host=device.name, auth=g_eos.basic_auth)
         self.version_info: Optional[dict] = None
-
-        # TODO: this entire block needs to be abstrated into the DUT
-        #       class so that all subclasses, like here, do not need to write
-        #       this code.
-
-        for svc_name, svc_design in device.services.items():
-            svc_design_type = type(svc_design)
-
-            if not (
-                svc_checker_cls := self.service_checker.registry.get(svc_design_type)
-            ):
-                get_logger().error(
-                    "Plugin: EOS does not support design service: "
-                    f"{svc_name}: {svc_design_type.__name__}, skipping."
-                )
-                continue
-
-            # create an instance of the service checker class
-            svc_checker_cls(dut=self, name=str(svc_name))
 
         # inialize the DUT cache mechanism; used exclusvely by the
         # `api_cache_get` method.
@@ -207,8 +186,3 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         checks can be "wired into" this class using the dispatch register mechanism.
         """
         return super().execute_checks()
-
-    @staticmethod
-    @singledispatch
-    def service_checker(service_type: DesignService):
-        pass
