@@ -28,14 +28,6 @@ def plugin_init(plugin_def: dict):
         configuration file.
     """
 
-    if not (svcs := plugin_def.get("services")):
-        raise RuntimeError(
-            f'netcam plugin {plugin_def["name"]} missing services definition'
-        )
-
-    # TODO: need to plugin-load these services dynamically!
-    _ = svcs
-
     if not (config := plugin_def.get("config")):
         return
 
