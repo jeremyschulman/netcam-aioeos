@@ -41,7 +41,7 @@ class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
         dev_data = await self.eapi.cli("show ip bgp summary")
 
         for rtr_chk in checks.routers:
-            _check_device_vrf(
+            _check_router_vrf(
                 dut=self, check=rtr_chk, dev_data=dev_data, results=results
             )
 
@@ -77,7 +77,7 @@ EOS_MAP_BGP_STATES: MappingProxyType[str, BgpNeighborState] = MappingProxyType(
 )
 
 
-def _check_device_vrf(
+def _check_router_vrf(
     dut: EOSDeviceUnderTest,
     check: BgpRouterCheck,
     dev_data: dict,
