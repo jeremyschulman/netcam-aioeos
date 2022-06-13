@@ -13,12 +13,6 @@
 #  limitations under the License.
 
 # -----------------------------------------------------------------------------
-# System Impors
-# -----------------------------------------------------------------------------
-
-from typing import TYPE_CHECKING
-
-# -----------------------------------------------------------------------------
 # Public Impors
 # -----------------------------------------------------------------------------
 
@@ -34,14 +28,13 @@ from netcad.checks import (
 # Private Improts
 # -----------------------------------------------------------------------------
 
-if TYPE_CHECKING:
-    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
+from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 # -----------------------------------------------------------------------------
-# Exports
+# Exports (None)
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_check_device_info"]
+__all__ = ()
 
 # -----------------------------------------------------------------------------
 #
@@ -50,6 +43,7 @@ __all__ = ["eos_check_device_info"]
 # -----------------------------------------------------------------------------
 
 
+@EOSDeviceUnderTest.execute_checks.register
 async def eos_check_device_info(
     self, device_checks: DeviceInformationCheckCollection
 ) -> CheckResultsCollection:

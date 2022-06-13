@@ -17,7 +17,6 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING
 from typing import Generator, Sequence
 
 # -----------------------------------------------------------------------------
@@ -38,8 +37,7 @@ from netcad.checks import check_result_types as trt
 # Private Imports
 # -----------------------------------------------------------------------------
 
-if TYPE_CHECKING:
-    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
+from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 
 # -----------------------------------------------------------------------------
@@ -56,6 +54,7 @@ __all__ = ["eos_test_ipaddrs"]
 # -----------------------------------------------------------------------------
 
 
+@EOSDeviceUnderTest.execute_checks.register
 async def eos_test_ipaddrs(
     self, testcases: IpInterfacesCheckCollection
 ) -> trt.CheckResultsCollection:

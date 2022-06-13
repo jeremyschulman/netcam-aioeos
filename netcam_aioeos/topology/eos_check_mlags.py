@@ -28,7 +28,7 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING, AsyncGenerator, Generator
+from typing import AsyncGenerator, Generator
 import re
 
 # -----------------------------------------------------------------------------
@@ -50,8 +50,7 @@ from netcad.checks import check_result_types as trt
 # Private Imports
 # -----------------------------------------------------------------------------
 
-if TYPE_CHECKING:
-    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
+from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 
 # -----------------------------------------------------------------------------
@@ -63,6 +62,7 @@ __all__ = ["eos_check_mlags", "eos_test_one_mlag"]
 _re_mlag_id = re.compile(r"Port-Channel(\d+)")
 
 
+@EOSDeviceUnderTest.execute_checks.register
 async def eos_check_mlags(self, testcases: MLagCheckCollection) -> AsyncGenerator:
     """
     This check-executor validates the operational status of the MLAGs running on

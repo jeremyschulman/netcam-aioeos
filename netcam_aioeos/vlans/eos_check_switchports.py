@@ -13,12 +13,6 @@
 #  limitations under the License.
 
 # -----------------------------------------------------------------------------
-# System Imports
-# -----------------------------------------------------------------------------
-
-from typing import TYPE_CHECKING
-
-# -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
 
@@ -32,8 +26,7 @@ from netcad.vlans.checks.check_switchports import (
     SwitchportTrunkExpectation,
 )
 
-if TYPE_CHECKING:
-    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
+from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -53,6 +46,7 @@ __all__ = ["eos_check_switchports"]
 # -----------------------------------------------------------------------------
 
 
+@EOSDeviceUnderTest.execute_checks.register
 async def eos_check_switchports(
     self, switchport_checks: SwitchportCheckCollection
 ) -> tr.CheckResultsCollection:

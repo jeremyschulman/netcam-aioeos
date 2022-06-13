@@ -17,7 +17,7 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING, Set
+from typing import Set
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -37,9 +37,7 @@ from netcad.checks import check_result_types as trt
 # Private Imports
 # -----------------------------------------------------------------------------
 
-if TYPE_CHECKING:
-    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
-
+from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 from .eos_xcvr_matching import eos_xcvr_model_matches, eos_xcvr_type_matches
 
 # -----------------------------------------------------------------------------
@@ -56,6 +54,7 @@ __all__ = ["eos_check_transceivers"]
 # -----------------------------------------------------------------------------
 
 
+@EOSDeviceUnderTest.execute_checks.register
 async def eos_check_transceivers(
     self, testcases: TransceiverCheckCollection
 ) -> trt.CheckResultsCollection:

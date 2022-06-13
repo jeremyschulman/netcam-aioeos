@@ -18,7 +18,7 @@
 # -----------------------------------------------------------------------------
 
 import re
-from typing import TYPE_CHECKING, Set, List, Iterable
+from typing import Set, List, Iterable
 from itertools import chain
 
 # -----------------------------------------------------------------------------
@@ -41,8 +41,7 @@ from netcad.topology.checks.check_interfaces import (
 # Private Imports
 # -----------------------------------------------------------------------------
 
-if TYPE_CHECKING:
-    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
+from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -60,6 +59,7 @@ __all__ = ["eos_check_interfaces", "eos_check_one_interface", "eos_check_one_svi
 _match_svi = re.compile(r"Vlan(\d+)").match
 
 
+@EOSDeviceUnderTest.execute_checks.register
 async def eos_check_interfaces(
     self, testcases: InterfaceCheckCollection
 ) -> tr.CheckResultsCollection:
