@@ -222,6 +222,9 @@ def eos_test_one_interface(
 
     results = list()
 
+    # if there is no entry for this interface, then the transceiver does not
+    # exist.
+
     if not ifaceinv:
         results.append(
             trt.CheckFailNoExists(
@@ -231,8 +234,18 @@ def eos_test_one_interface(
         )
         return results
 
+    # if there is no model value, then the transceiver does not exist.
+
     exp_model = check.expected_results.model
-    msrd_model = ifaceinv["modelName"]
+    if not (msrd_model := ifaceinv["modelName"]):
+        results.append(
+            trt.CheckFailNoExists(
+                device=device,
+                check=check,
+            )
+        )
+        return results
+
     if not eos_xcvr_model_matches(exp_model, msrd_model):
         results.append(
             trt.CheckFailFieldMismatch(
