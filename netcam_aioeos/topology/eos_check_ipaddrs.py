@@ -24,9 +24,10 @@ from typing import Generator, Sequence
 # -----------------------------------------------------------------------------
 
 from netcad.topology.checks.check_ipaddrs import (
-    IpInterfacesCheckCollection,
-    IpInterfaceCheck,
-    IpInterfaceCheckExclusiveList,
+    IPInterfacesCheckCollection,
+    IPInterfaceCheck,
+    IPInterfaceCheckExclusiveList,
+    IPInterfaceList,
 )
 
 from netcad.device import Device
@@ -56,7 +57,7 @@ __all__ = ["eos_test_ipaddrs"]
 
 @EOSDeviceUnderTest.execute_checks.register
 async def eos_test_ipaddrs(
-    self, testcases: IpInterfacesCheckCollection
+    self, collection: IPInterfacesCheckCollection
 ) -> trt.CheckResultsCollection:
     """
     This check executor validates the IP addresses used on the device against
@@ -71,7 +72,7 @@ async def eos_test_ipaddrs(
     results = list()
     if_names = list()
 
-    for check in testcases.checks:
+    for check in collection.checks:
         if_name = check.check_id()
         if_names.append(if_name)
 
@@ -91,17 +92,18 @@ async def eos_test_ipaddrs(
     # conditional is checked by examining the interface IP address mask length
     # against zero.
 
-    results.extend(
-        eos_test_exclusive_list(
-            device=device,
-            expd_if_names=if_names,
-            msrd_if_names=[
-                if_ip_data["name"]
-                for if_ip_data in dev_ips_data.values()
-                if if_ip_data["interfaceAddress"]["ipAddr"]["maskLen"] != 0
-            ],
+    if collection.exclusive:
+        results.extend(
+            eos_test_exclusive_list(
+                device=device,
+                expd_if_names=if_names,
+                msrd_if_names=[
+                    if_ip_data["name"]
+                    for if_ip_data in dev_ips_data.values()
+                    if if_ip_data["interfaceAddress"]["ipAddr"]["maskLen"] != 0
+                ],
+            )
         )
-    )
 
     return results
 
@@ -112,7 +114,7 @@ async def eos_test_ipaddrs(
 async def eos_test_one_interface(
     dut: "EOSDeviceUnderTest",
     device: Device,
-    check: IpInterfaceCheck,
+    check: IPInterfaceCheck,
     msrd_data: dict,
 ) -> trt.CheckResultsCollection:
     """
@@ -231,13 +233,15 @@ def eos_test_exclusive_list(
     # the previous per-interface checks for any missing; therefore we only need
     # to check for any extra interfaces found on the device.
 
-    tc = IpInterfaceCheckExclusiveList()
+    tc = IPInterfaceCheckExclusiveList(
+        expected_results=IPInterfaceList(if_names=list(expd_if_names))
+    )
 
     if extras := set(msrd_if_names) - set(expd_if_names):
         result = trt.CheckFailExtraMembers(
             device=device,
             check=tc,
-            field="ip-interfaces",
+            field="interfaces",
             expected=sorted(expd_if_names),
             extras=sorted(extras),
         )
@@ -251,7 +255,7 @@ async def _check_vlan_assoc_interface(
     dut: "EOSDeviceUnderTest", check, if_name: str, msrd_ipifaddr_oper
 ) -> trt.CheckResultsCollection:
     """
-    This coroutine is used to check whether or not a VLAN SVI ip address is not
+    This coroutine is used to check whether a VLAN SVI ip address is not
     "up" due to the fact that the underlying interfaces are either disabled or
     in a "reserved" design; meaning we do not care if they are up or down. If
     the SVI is down because of this condition, the test case will "pass", and an
