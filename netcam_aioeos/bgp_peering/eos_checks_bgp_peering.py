@@ -24,6 +24,16 @@ from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME, EOS_MAP_BGP_STATES
 
 
 class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
+    """
+    This class definition is used to bind the BGP Neighbor check collection to
+    the EOS DUT during runtime.
+
+    Notes
+    -----
+    This class is not actually part of the EOS DUT inheritence MRO, so any
+    "helper" functions must be defined outside the class definition.
+    """
+
     @EOSDeviceUnderTest.execute_checks.register
     async def check_neeighbors(
         self, check_collection: BgpNeighborsCheckCollection
@@ -57,6 +67,36 @@ def _check_bgp_neighbor(
     dev_data: dict,
     results: trt.CheckResultsCollection,
 ) -> bool:
+    """
+    This function checks one BGP neighbor.  A check is considered to pass if and
+    only if:
+
+        (1) The neighbor exists
+        (2) The neighbor ASN matches expected value
+        (3) The BGP state matches expected value
+
+    Notes
+    -----
+    The `results` argument is appended with check results items.
+
+    Parameters
+    ----------
+    dut: EOSDeviceUnderTest
+        The instance of the DUT
+
+    check: BgpNeighborCheck
+        The instance of the specific BGP neighbor check
+
+    dev_data: dict
+        The EOS device output data for the show command.
+
+    results: trt.CheckResultsCollection
+        The accumulation of check results.
+
+    Returns
+    -------
+    True if the check passes, False otherwise.
+    """
     check_pass = True
 
     params = check.check_params
@@ -83,6 +123,7 @@ def _check_bgp_neighbor(
         )
 
     # check for matching expected BGP state
+
     peer_state = EOS_MAP_BGP_STATES[nei_data["peerState"]]
 
     if peer_state != expected.state:
@@ -93,13 +134,15 @@ def _check_bgp_neighbor(
             )
         )
 
-    if check_pass:
-        results.append(
-            trt.CheckPassResult(
-                device=dut.device,
-                check=check,
-                measurement=nei_data,
-            )
-        )
+    if not check_pass:
+        return False
 
-    return check_pass
+    results.append(
+        trt.CheckPassResult(
+            device=dut.device,
+            check=check,
+            measurement=nei_data,
+        )
+    )
+
+    return True
