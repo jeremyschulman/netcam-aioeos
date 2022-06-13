@@ -1,19 +1,12 @@
 # -----------------------------------------------------------------------------
-# System Imports
-# -----------------------------------------------------------------------------
-
-from types import MappingProxyType
-
-# -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
 
 from netcad.bgp_peering.checks import (
     BgpNeighborsCheckCollection,
-    BgpRouterCheck,
     BgpNeighborCheck,
 )
-from netcad.bgp_peering.bgp_nei_state import BgpNeighborState
+
 from netcad.checks import check_result_types as trt
 
 # -----------------------------------------------------------------------------
@@ -21,6 +14,7 @@ from netcad.checks import check_result_types as trt
 # -----------------------------------------------------------------------------
 
 from netcam_aioeos.eos_dut import EOSDeviceUnderTest
+from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME, EOS_MAP_BGP_STATES
 
 # -----------------------------------------------------------------------------
 #
@@ -30,6 +24,16 @@ from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 
 class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
+    """
+    This class definition is used to bind the BGP Neighbor check collection to
+    the EOS DUT during runtime.
+
+    Notes
+    -----
+    This class is not actually part of the EOS DUT inheritence MRO, so any
+    "helper" functions must be defined outside the class definition.
+    """
+
     @EOSDeviceUnderTest.execute_checks.register
     async def check_neeighbors(
         self, check_collection: BgpNeighborsCheckCollection
@@ -38,14 +42,11 @@ class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
         results: trt.CheckResultsCollection = list()
         checks = check_collection.checks
 
-        dev_data = await self.eapi.cli("show ip bgp summary")
+        dev_data = await self.api_cache_get(
+            key="bgp-summary", command="show ip bgp summary"
+        )
 
-        for rtr_chk in checks.routers:
-            _check_router_vrf(
-                dut=self, check=rtr_chk, dev_data=dev_data, results=results
-            )
-
-        for nei_check in checks.neighbors:
+        for nei_check in checks:
             _check_bgp_neighbor(
                 dut=self, check=nei_check, dev_data=dev_data, results=results
             )
@@ -59,66 +60,6 @@ class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
 #
 # -----------------------------------------------------------------------------
 
-DEFAULT_VRF_NAME = "default"
-
-# This mapping table is used to map the EOS Device string value reported in the
-# "show" command to the BGP neighbor state Enum defined in the check expected
-# value.
-
-EOS_MAP_BGP_STATES: MappingProxyType[str, BgpNeighborState] = MappingProxyType(
-    {
-        "Idle": BgpNeighborState.IDLE,
-        "Connect": BgpNeighborState.CONNECT,
-        "Active": BgpNeighborState.ACTIVE,
-        "OpenSent": BgpNeighborState.OPEN_SENT,
-        "OpenConfirm": BgpNeighborState.OPEN_CONFIRM,
-        "Established": BgpNeighborState.ESTABLISHED,
-    }
-)
-
-
-def _check_router_vrf(
-    dut: EOSDeviceUnderTest,
-    check: BgpRouterCheck,
-    dev_data: dict,
-    results: trt.CheckResultsCollection,
-) -> bool:
-
-    dev_data = dev_data["vrfs"][check.check_params.vrf or DEFAULT_VRF_NAME]
-
-    expected = check.expected_results
-    check_pass = True
-
-    # from the device, routerId is a string
-    if (rtr_id := dev_data.get("routerId", "")) != expected.router_id:
-        results.append(
-            trt.CheckFailFieldMismatch(
-                check=check, device=dut.device, field="router_id", measurement=rtr_id
-            )
-        )
-        check_pass = False
-
-    # from the device, asn is an int
-
-    if (dev_asn := dev_data.get("asn", -1)) != expected.asn:
-        results.append(
-            trt.CheckFailFieldMismatch(
-                check=check, device=dut.device, field="asn", measurement=dev_asn
-            )
-        )
-        check_pass = False
-
-    if check_pass:
-        results.append(
-            trt.CheckPassResult(
-                device=dut.device,
-                check=check,
-                measurement=dict(routerId=rtr_id, asn=dev_asn),
-            )
-        )
-
-    return check_pass
-
 
 def _check_bgp_neighbor(
     dut: EOSDeviceUnderTest,
@@ -126,12 +67,42 @@ def _check_bgp_neighbor(
     dev_data: dict,
     results: trt.CheckResultsCollection,
 ) -> bool:
+    """
+    This function checks one BGP neighbor.  A check is considered to pass if and
+    only if:
+
+        (1) The neighbor exists
+        (2) The neighbor ASN matches expected value
+        (3) The BGP state matches expected value
+
+    Notes
+    -----
+    The `results` argument is appended with check results items.
+
+    Parameters
+    ----------
+    dut: EOSDeviceUnderTest
+        The instance of the DUT
+
+    check: BgpNeighborCheck
+        The instance of the specific BGP neighbor check
+
+    dev_data: dict
+        The EOS device output data for the show command.
+
+    results: trt.CheckResultsCollection
+        The accumulation of check results.
+
+    Returns
+    -------
+    True if the check passes, False otherwise.
+    """
     check_pass = True
 
     params = check.check_params
     expected = check.expected_results
 
-    rtr_data = dev_data["vrfs"][params.vrf or DEFAULT_VRF_NAME]
+    rtr_data = dev_data["vrfs"][params.vrf or EOS_DEFAULT_VRF_NAME]
     rtr_neis = rtr_data.get("peers", {})
 
     # if the neighbor for the expected remote IP does not exist, then record
@@ -152,6 +123,7 @@ def _check_bgp_neighbor(
         )
 
     # check for matching expected BGP state
+
     peer_state = EOS_MAP_BGP_STATES[nei_data["peerState"]]
 
     if peer_state != expected.state:
@@ -162,13 +134,15 @@ def _check_bgp_neighbor(
             )
         )
 
-    if check_pass:
-        results.append(
-            trt.CheckPassResult(
-                device=dut.device,
-                check=check,
-                measurement=nei_data,
-            )
-        )
+    if not check_pass:
+        return False
 
-    return check_pass
+    results.append(
+        trt.CheckPassResult(
+            device=dut.device,
+            check=check,
+            measurement=nei_data,
+        )
+    )
+
+    return True
