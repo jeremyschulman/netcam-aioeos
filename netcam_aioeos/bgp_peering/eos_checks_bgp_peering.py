@@ -23,35 +23,23 @@ from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME, EOS_MAP_BGP_STATES
 # -----------------------------------------------------------------------------
 
 
-class EosBgpPeeringServiceChecker(EOSDeviceUnderTest):
-    """
-    This class definition is used to bind the BGP Neighbor check collection to
-    the EOS DUT during runtime.
+@EOSDeviceUnderTest.execute_checks.register
+async def check_neeighbors(
+    self, check_collection: BgpNeighborsCheckCollection
+) -> trt.CheckResultsCollection:
+    dut: EOSDeviceUnderTest = self
 
-    Notes
-    -----
-    This class is not actually part of the EOS DUT inheritence MRO, so any
-    "helper" functions must be defined outside the class definition.
-    """
+    results: trt.CheckResultsCollection = list()
+    checks = check_collection.checks
 
-    @EOSDeviceUnderTest.execute_checks.register
-    async def check_neeighbors(
-        self, check_collection: BgpNeighborsCheckCollection
-    ) -> trt.CheckResultsCollection:
+    dev_data = await dut.api_cache_get(key="bgp-summary", command="show ip bgp summary")
 
-        results: trt.CheckResultsCollection = list()
-        checks = check_collection.checks
-
-        dev_data = await self.api_cache_get(
-            key="bgp-summary", command="show ip bgp summary"
+    for nei_check in checks:
+        _check_bgp_neighbor(
+            dut=dut, check=nei_check, dev_data=dev_data, results=results
         )
 
-        for nei_check in checks:
-            _check_bgp_neighbor(
-                dut=self, check=nei_check, dev_data=dev_data, results=results
-            )
-
-        return results
+    return results
 
 
 # -----------------------------------------------------------------------------
