@@ -23,25 +23,36 @@ from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME
 # -----------------------------------------------------------------------------
 
 
-class EosBgpRouterChecker(EOSDeviceUnderTest):
-    @EOSDeviceUnderTest.execute_checks.register
-    async def check_neeighbors(
-        self, check_collection: BgpRoutersCheckCollection
-    ) -> trt.CheckResultsCollection:
+@EOSDeviceUnderTest.execute_checks.register
+async def check_bgp_neighbors(
+    self, check_bgp_routers: BgpRoutersCheckCollection
+) -> trt.CheckResultsCollection:
+    """
+    This function is responsible for validating the EOS device IP BGP neighbors
+    are operationally correct.
 
-        results: trt.CheckResultsCollection = list()
-        checks = check_collection.checks
+    Parameters
+    ----------
+    self: EOSDeviceUnderTest
+        *** DO NOT TYPEHINT because registration will fail if you do ***
 
-        dev_data = await self.api_cache_get(
-            key="bgp-summary", command="show ip bgp summary"
-        )
+    check_bgp_routers: BgpRoutersCheckCollection
+        The checks associated for BGP Routers defined on the device
 
-        for rtr_chk in checks:
-            _check_router_vrf(
-                dut=self, check=rtr_chk, dev_data=dev_data, results=results
-            )
+    Returns
+    -------
+    trt.CheckResultsCollection - The results of the checks
+    """
+    results: trt.CheckResultsCollection = list()
+    checks = check_bgp_routers.checks
+    dut: EOSDeviceUnderTest = self
 
-        return results
+    dev_data = await dut.api_cache_get(key="bgp-summary", command="show ip bgp summary")
+
+    for rtr_chk in checks:
+        _check_router_vrf(dut=dut, check=rtr_chk, dev_data=dev_data, results=results)
+
+    return results
 
 
 # -----------------------------------------------------------------------------

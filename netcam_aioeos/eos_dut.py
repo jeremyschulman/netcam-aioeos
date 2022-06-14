@@ -95,7 +95,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
     #
     # -------------------------------------------------------------------------
 
-    async def api_cache_get(self, key: str, command: str, **kwargs):
+    async def api_cache_get(self, key: str, command: str, **kwargs) -> dict | str:
         """
         This function is used by other class methods that want to abstract the
         collection function of a given eAPI routine so that the results of that

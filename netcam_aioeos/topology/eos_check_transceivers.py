@@ -17,7 +17,7 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import TYPE_CHECKING, Set
+from typing import Set
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -37,9 +37,7 @@ from netcad.checks import check_result_types as trt
 # Private Imports
 # -----------------------------------------------------------------------------
 
-if TYPE_CHECKING:
-    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
-
+from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 from .eos_xcvr_matching import eos_xcvr_model_matches, eos_xcvr_type_matches
 
 # -----------------------------------------------------------------------------
@@ -56,8 +54,9 @@ __all__ = ["eos_check_transceivers"]
 # -----------------------------------------------------------------------------
 
 
+@EOSDeviceUnderTest.execute_checks.register
 async def eos_check_transceivers(
-    self, testcases: TransceiverCheckCollection
+    self, check_collection: TransceiverCheckCollection
 ) -> trt.CheckResultsCollection:
     """
     This method is imported into the ESO DUT class definition to support
@@ -99,7 +98,7 @@ async def eos_check_transceivers(
 
     rsvd_ports_set = set()
 
-    for check in testcases.checks:
+    for check in check_collection.checks:
 
         if_name = check.check_id()
         dev_iface: DeviceInterface = device.interfaces[if_name]
@@ -135,15 +134,15 @@ async def eos_check_transceivers(
         )
 
     # next add the test coverage for the exclusive list.
-
-    results.extend(
-        eos_test_exclusive_list(
-            device=device,
-            expd_ports=if_port_numbers,
-            msrd_ports=dev_inv_ifstatus,
-            rsvd_ports=rsvd_ports_set,
+    if check_collection.exclusive:
+        results.extend(
+            eos_test_exclusive_list(
+                device=device,
+                expd_ports=if_port_numbers,
+                msrd_ports=dev_inv_ifstatus,
+                rsvd_ports=rsvd_ports_set,
+            )
         )
-    )
 
     return results
 

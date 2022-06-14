@@ -18,7 +18,7 @@
 # -----------------------------------------------------------------------------
 
 import re
-from typing import TYPE_CHECKING, Set, List, Iterable
+from typing import Set, List, Iterable
 from itertools import chain
 
 # -----------------------------------------------------------------------------
@@ -33,6 +33,7 @@ from netcad.checks import check_result_types as tr
 
 from netcad.topology.checks.check_interfaces import (
     InterfaceCheckExclusiveList,
+    InterfacesListExpected,
     InterfaceCheckCollection,
     InterfaceCheck,
 )
@@ -41,8 +42,7 @@ from netcad.topology.checks.check_interfaces import (
 # Private Imports
 # -----------------------------------------------------------------------------
 
-if TYPE_CHECKING:
-    from netcam_aioeos.eos_dut import EOSDeviceUnderTest
+from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -60,8 +60,9 @@ __all__ = ["eos_check_interfaces", "eos_check_one_interface", "eos_check_one_svi
 _match_svi = re.compile(r"Vlan(\d+)").match
 
 
+@EOSDeviceUnderTest.execute_checks.register
 async def eos_check_interfaces(
-    self, testcases: InterfaceCheckCollection
+    self, collection: InterfaceCheckCollection
 ) -> tr.CheckResultsCollection:
     """
     This async generator is responsible for implementing the "interfaces" test
@@ -77,7 +78,7 @@ async def eos_check_interfaces(
     self: <!LEAVE UNHINTED!>
         The DUT instance for the EOS device
 
-    testcases: InterfaceCheckCollection
+    collection: InterfaceCheckCollection
         The testcases instance that contains the specific testing details.
 
     Yields
@@ -108,19 +109,20 @@ async def eos_check_interfaces(
     # Check for the exclusive set of interfaces expected vs actual.
     # -------------------------------------------------------------------------
 
-    results.extend(
-        eos_check_interfaces_list(
-            device=device,
-            expd_interfaces=set(check.check_id() for check in testcases.checks),
-            msrd_interfaces=set(chain(map_if_oper_data, map_ip_ifaces)),
+    if collection.exclusive:
+        results.extend(
+            eos_check_exclusive_interfaces_list(
+                device=device,
+                expd_interfaces=set(check.check_id() for check in collection.checks),
+                msrd_interfaces=set(chain(map_if_oper_data, map_ip_ifaces)),
+            )
         )
-    )
 
     # -------------------------------------------------------------------------
     # Check each interface for health checks
     # -------------------------------------------------------------------------
 
-    for check in testcases.checks:
+    for check in collection.checks:
 
         if_name = check.check_id()
 
@@ -213,14 +215,17 @@ def sorted_by_name(device: Device, if_name_list: Iterable[str]) -> List[str]:
     ]
 
 
-def eos_check_interfaces_list(
+def eos_check_exclusive_interfaces_list(
     device: Device, expd_interfaces: Set[str], msrd_interfaces: Set[str]
 ) -> tr.CheckResultsCollection:
     """
     This check validates the exclusive list of interfaces found on the device
     against the expected list in the design.
     """
-    tc = InterfaceCheckExclusiveList()
+
+    tc = InterfaceCheckExclusiveList(
+        expected_results=InterfacesListExpected(if_name_list=list(expd_interfaces))
+    )
 
     expd_sorted_names = sorted_by_name(device, expd_interfaces)
 
