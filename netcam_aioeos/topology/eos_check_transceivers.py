@@ -28,6 +28,7 @@ from netcad.topology.checks.check_transceivers import (
     TransceiverCheck,
     TransceiverCheckExclusiveList,
 )
+from netcad.topology import transceiver_model_matches, transceiver_type_matches
 
 from netcad.device import Device, DeviceInterface
 from netcad.netcam import any_failures
@@ -38,7 +39,6 @@ from netcad.checks import check_result_types as trt
 # -----------------------------------------------------------------------------
 
 from netcam_aioeos.eos_dut import EOSDeviceUnderTest
-from .eos_xcvr_matching import eos_xcvr_model_matches, eos_xcvr_type_matches
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -245,7 +245,7 @@ def eos_test_one_interface(
         )
         return results
 
-    if not eos_xcvr_model_matches(exp_model, msrd_model):
+    if not transceiver_model_matches(expected_model=exp_model, given_mdoel=msrd_model):
         results.append(
             trt.CheckFailFieldMismatch(
                 device=device,
@@ -257,7 +257,7 @@ def eos_test_one_interface(
 
     expd_type = check.expected_results.type
     msrd_type = ifacehw["transceiverType"]
-    if not eos_xcvr_type_matches(expd_type, msrd_type):
+    if not transceiver_type_matches(expected_type=expd_type, given_type=msrd_type):
         results.append(
             trt.CheckFailFieldMismatch(
                 device=device, check=check, field="type", measurement=msrd_type
