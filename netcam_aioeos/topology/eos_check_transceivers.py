@@ -26,7 +26,8 @@ from typing import Set
 from netcad.topology.checks.check_transceivers import (
     TransceiverCheckCollection,
     TransceiverCheck,
-    TransceiverCheckExclusiveList,
+    TransceiverExclusiveListCheck,
+    TransceiverExclusiveListCheckResult,
 )
 from netcad.topology import transceiver_model_matches, transceiver_type_matches
 
@@ -134,14 +135,14 @@ async def eos_check_transceivers(
         )
 
     # next add the test coverage for the exclusive list.
+
     if check_collection.exclusive:
-        results.extend(
-            eos_test_exclusive_list(
-                device=device,
-                expd_ports=if_port_numbers,
-                msrd_ports=dev_inv_ifstatus,
-                rsvd_ports=rsvd_ports_set,
-            )
+        _check_exclusive_list(
+            device=device,
+            expd_ports=if_port_numbers,
+            msrd_ports=dev_inv_ifstatus,
+            rsvd_ports=rsvd_ports_set,
+            results=results,
         )
 
     return results
@@ -154,17 +155,20 @@ async def eos_check_transceivers(
 # -----------------------------------------------------------------------------
 
 
-def eos_test_exclusive_list(
-    device: Device, expd_ports, msrd_ports, rsvd_ports: Set
-) -> trt.CheckResultsCollection:
+def _check_exclusive_list(
+    device: Device,
+    expd_ports,
+    msrd_ports,
+    rsvd_ports: Set,
+    results: trt.CheckResultsCollection,
+):
     """
     Check to ensure that the list of transceivers found on the device matches the exclusive list.
     This check helps to find "unused" optics; or report them so that a Designer can account for them
     in the design-notes.
     """
 
-    results = list()
-    tc = TransceiverCheckExclusiveList()
+    check = TransceiverExclusiveListCheck(expected_results=expd_ports)
 
     used_msrd_ports = {
         int(po_num)
@@ -177,38 +181,11 @@ def eos_test_exclusive_list(
 
     used_msrd_ports -= rsvd_ports
 
-    if missing := expd_ports - used_msrd_ports:
-        results.append(
-            trt.CheckFailMissingMembers(
-                device=device,
-                check=tc,
-                field="transceivers",
-                expected=sorted(expd_ports),
-                missing=sorted(missing),
-            )
-        )
+    result = TransceiverExclusiveListCheckResult(
+        device=device, check=check, measurement=used_msrd_ports
+    )
 
-    if extras := used_msrd_ports - expd_ports:
-        results.append(
-            trt.CheckFailExtraMembers(
-                device=device,
-                check=tc,
-                field="transceivers",
-                expected=sorted(expd_ports),
-                extras=sorted(extras),
-            )
-        )
-
-    if not any_failures(results):
-        results.append(
-            trt.CheckPassResult(
-                device=device,
-                check=TransceiverCheckExclusiveList(),
-                measurement="OK: no extra or missing transceivers",
-            )
-        )
-
-    return results
+    results.append(result.finalize())
 
 
 def eos_test_one_interface(
