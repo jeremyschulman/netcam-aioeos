@@ -32,8 +32,8 @@ from netcad.netcam import any_failures
 from netcad.checks import check_result_types as tr
 
 from netcad.topology.checks.check_interfaces import (
-    InterfaceCheckExclusiveList,
-    InterfacesListExpected,
+    InterfaceExclusiveListCheck,
+    InterfaceExclusiveListCheckResult,
     InterfaceCheckCollection,
     InterfaceCheck,
 )
@@ -110,12 +110,11 @@ async def eos_check_interfaces(
     # -------------------------------------------------------------------------
 
     if collection.exclusive:
-        results.extend(
-            eos_check_exclusive_interfaces_list(
-                device=device,
-                expd_interfaces=set(check.check_id() for check in collection.checks),
-                msrd_interfaces=set(chain(map_if_oper_data, map_ip_ifaces)),
-            )
+        eos_check_exclusive_interfaces_list(
+            device=device,
+            expd_interfaces=set(check.check_id() for check in collection.checks),
+            msrd_interfaces=set(chain(map_if_oper_data, map_ip_ifaces)),
+            results=results,
         )
 
     # -------------------------------------------------------------------------
@@ -216,54 +215,28 @@ def sorted_by_name(device: Device, if_name_list: Iterable[str]) -> List[str]:
 
 
 def eos_check_exclusive_interfaces_list(
-    device: Device, expd_interfaces: Set[str], msrd_interfaces: Set[str]
-) -> tr.CheckResultsCollection:
+    device: Device,
+    expd_interfaces: Set[str],
+    msrd_interfaces: Set[str],
+    results: tr.CheckResultsCollection,
+):
     """
     This check validates the exclusive list of interfaces found on the device
     against the expected list in the design.
     """
 
-    tc = InterfaceCheckExclusiveList(
-        expected_results=InterfacesListExpected(if_name_list=list(expd_interfaces))
+    def sort_key(i):
+        return DeviceInterface(i, interfaces=device.interfaces)
+
+    check = InterfaceExclusiveListCheck(
+        expected_results=sorted(expd_interfaces, key=sort_key)
     )
 
-    expd_sorted_names = sorted_by_name(device, expd_interfaces)
+    result = InterfaceExclusiveListCheckResult(
+        device=device, check=check, measurement=sorted(msrd_interfaces, key=sort_key)
+    )
 
-    results = list()
-
-    if missing_interfaces := expd_interfaces - msrd_interfaces:
-
-        results.append(
-            tr.CheckFailMissingMembers(
-                device=device,
-                check=tc,
-                field="interfaces",
-                expected=expd_sorted_names,
-                missing=sorted_by_name(device, missing_interfaces),
-            )
-        )
-
-    if extra_interfaces := msrd_interfaces - expd_interfaces:
-        results.append(
-            tr.CheckFailExtraMembers(
-                device=device,
-                check=tc,
-                field="interfaces",
-                expected=expd_sorted_names,
-                extras=sorted_by_name(device, extra_interfaces),
-            )
-        )
-
-    if not any_failures(results):
-        results.append(
-            tr.CheckPassResult(
-                device=device,
-                check=tc,
-                measurement="OK: no extra or missing interfaces",
-            )
-        )
-
-    return results
+    results.append(result.finalize(sort_key=sort_key))
 
 
 # -----------------------------------------------------------------------------
