@@ -18,7 +18,7 @@
 # -----------------------------------------------------------------------------
 
 import re
-from typing import Set, List, Iterable
+from typing import Set
 from itertools import chain
 
 # -----------------------------------------------------------------------------
@@ -191,16 +191,6 @@ async def eos_check_interfaces(
 #                       PRIVATE CODE BEGINS
 #
 # -----------------------------------------------------------------------------
-
-
-def sorted_by_name(device: Device, if_name_list: Iterable[str]) -> List[str]:
-    return [
-        iface.name
-        for iface in (
-            DeviceInterface(if_name, interfaces=device.interfaces)
-            for if_name in if_name_list
-        )
-    ]
 
 
 def eos_check_exclusive_interfaces_list(
