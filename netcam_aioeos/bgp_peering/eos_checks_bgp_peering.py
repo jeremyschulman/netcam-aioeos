@@ -5,6 +5,7 @@
 from netcad.bgp_peering.checks import (
     BgpNeighborsCheckCollection,
     BgpNeighborCheck,
+    BgpNeighborCheckResult,
 )
 
 from netcad.checks import check_result_types as trt
@@ -54,7 +55,7 @@ def _check_bgp_neighbor(
     check: BgpNeighborCheck,
     dev_data: dict,
     results: trt.CheckResultsCollection,
-) -> bool:
+):
     """
     This function checks one BGP neighbor.  A check is considered to pass if and
     only if:
@@ -80,15 +81,10 @@ def _check_bgp_neighbor(
 
     results: trt.CheckResultsCollection
         The accumulation of check results.
-
-    Returns
-    -------
-    True if the check passes, False otherwise.
     """
-    check_pass = True
 
     params = check.check_params
-    expected = check.expected_results
+    result = BgpNeighborCheckResult(device=dut.device, check=check)
 
     rtr_data = dev_data["vrfs"][params.vrf or EOS_DEFAULT_VRF_NAME]
     rtr_neis = rtr_data.get("peers", {})
@@ -97,40 +93,14 @@ def _check_bgp_neighbor(
     # that result, and we are done checking this neighbor.
 
     if not (nei_data := rtr_neis.get(params.nei_ip)):
-        results.append(trt.CheckFailNoExists(device=dut.device, check=check))
-        return False
+        result.measurement = None
+        results.append(result.finalize())
+        return
 
-    # next check for peer ASN matching.
+    # Store the measurements
 
-    if (remote_asn := nei_data["asn"]) != expected.remote_asn:
-        check_pass = False
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=dut.device, check=check, field="asn", measurement=remote_asn
-            )
-        )
+    msrd = result.measurement
+    msrd.remote_asn = nei_data["asn"]
+    msrd.state = EOS_MAP_BGP_STATES[nei_data["peerState"]]
 
-    # check for matching expected BGP state
-
-    peer_state = EOS_MAP_BGP_STATES[nei_data["peerState"]]
-
-    if peer_state != expected.state:
-        check_pass = False
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=dut.device, check=check, field="state", measurement=peer_state
-            )
-        )
-
-    if not check_pass:
-        return False
-
-    results.append(
-        trt.CheckPassResult(
-            device=dut.device,
-            check=check,
-            measurement=nei_data,
-        )
-    )
-
-    return True
+    results.append(result.finalize())

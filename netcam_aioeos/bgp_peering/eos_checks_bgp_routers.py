@@ -5,6 +5,7 @@
 from netcad.bgp_peering.checks import (
     BgpRoutersCheckCollection,
     BgpRouterCheck,
+    BgpRouterCheckResult,
 )
 
 from netcad.checks import check_result_types as trt
@@ -67,39 +68,17 @@ def _check_router_vrf(
     check: BgpRouterCheck,
     dev_data: dict,
     results: trt.CheckResultsCollection,
-) -> bool:
+):
 
     dev_data = dev_data["vrfs"][check.check_params.vrf or EOS_DEFAULT_VRF_NAME]
 
-    expected = check.expected_results
-    check_pass = True
+    result = BgpRouterCheckResult(device=dut.device, check=check)
+    msrd = result.measurement
 
     # from the device, routerId is a string
-    if (rtr_id := dev_data.get("routerId", "")) != expected.router_id:
-        results.append(
-            trt.CheckFailFieldMismatch(
-                check=check, device=dut.device, field="router_id", measurement=rtr_id
-            )
-        )
-        check_pass = False
+    msrd.router_id = dev_data.get("routerId", "")
 
     # from the device, asn is an int
+    msrd.asn = dev_data.get("asn", -1)
 
-    if (dev_asn := dev_data.get("asn", -1)) != expected.asn:
-        results.append(
-            trt.CheckFailFieldMismatch(
-                check=check, device=dut.device, field="asn", measurement=dev_asn
-            )
-        )
-        check_pass = False
-
-    if check_pass:
-        results.append(
-            trt.CheckPassResult(
-                device=dut.device,
-                check=check,
-                measurement=dict(routerId=rtr_id, asn=dev_asn),
-            )
-        )
-
-    return check_pass
+    results.append(result.finalize())
