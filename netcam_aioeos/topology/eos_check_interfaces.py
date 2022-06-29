@@ -158,7 +158,7 @@ async def eos_check_interfaces(
 
             if not (lo_status := map_ip_ifaces.get(if_name)):
                 result.measurement = None
-                results.append(result.finalize())
+                results.append(result.measure())
                 continue
 
             # if the loopback exists, then it is a PASS, and we are not going
@@ -215,7 +215,7 @@ def eos_check_exclusive_interfaces_list(
         device=device, check=check, measurement=sorted(msrd_interfaces, key=sort_key)
     )
 
-    results.append(result.finalize(sort_key=sort_key))
+    results.append(result.measure(sort_key=sort_key))
 
 
 # -----------------------------------------------------------------------------
@@ -259,7 +259,7 @@ def eos_check_one_interface(
 
     if not iface_oper_status:
         result.measurement = None
-        results.append(result.finalize())
+        results.append(result.measure())
         return
 
     # transform the CLI data into a measurment instance for consistent
@@ -294,7 +294,7 @@ def eos_check_one_interface(
     result.measurement.used = measurement.used
 
     if not check.expected_results.used:
-        results.append(result.finalize())
+        results.append(result.measure())
         return
 
     # If here, then we want to check all the opeational fields.
@@ -311,7 +311,7 @@ def eos_check_one_interface(
         if _field == "speed" and measurement.oper_up is False:
             return tr.CheckStatus.SKIP
 
-    results.append(result.finalize(on_mismatch=on_mismatch))
+    results.append(result.measure(on_mismatch=on_mismatch))
     return
 
 
@@ -339,4 +339,4 @@ def eos_check_one_svi(
         msrd.desc = check.expected_results.desc
         msrd.oper_up = svi_oper_status["status"] == "active"
 
-    results.append(result.finalize())
+    results.append(result.measure())

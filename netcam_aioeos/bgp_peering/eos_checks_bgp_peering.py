@@ -94,7 +94,7 @@ def _check_bgp_neighbor(
 
     if not (nei_data := rtr_neis.get(params.nei_ip)):
         result.measurement = None
-        results.append(result.finalize())
+        results.append(result.measure())
         return
 
     # Store the measurements
@@ -103,4 +103,4 @@ def _check_bgp_neighbor(
     msrd.remote_asn = nei_data["asn"]
     msrd.state = EOS_MAP_BGP_STATES[nei_data["peerState"]]
 
-    results.append(result.finalize())
+    results.append(result.measure())

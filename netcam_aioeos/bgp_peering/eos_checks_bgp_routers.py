@@ -81,4 +81,4 @@ def _check_router_vrf(
     # from the device, asn is an int
     msrd.asn = dev_data.get("asn", -1)
 
-    results.append(result.finalize())
+    results.append(result.measure())
