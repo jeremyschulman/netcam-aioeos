@@ -8,7 +8,7 @@ from netcad.bgp_peering.checks import (
     BgpRouterCheckResult,
 )
 
-from netcad.checks import check_result_types as trt
+from netcad.checks import CheckResultsCollection
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -27,7 +27,7 @@ from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME
 @EOSDeviceUnderTest.execute_checks.register
 async def check_bgp_neighbors(
     self, check_bgp_routers: BgpRoutersCheckCollection
-) -> trt.CheckResultsCollection:
+) -> CheckResultsCollection:
     """
     This function is responsible for validating the EOS device IP BGP neighbors
     are operationally correct.
@@ -44,7 +44,7 @@ async def check_bgp_neighbors(
     -------
     trt.CheckResultsCollection - The results of the checks
     """
-    results: trt.CheckResultsCollection = list()
+    results: CheckResultsCollection = list()
     checks = check_bgp_routers.checks
     dut: EOSDeviceUnderTest = self
 
@@ -67,7 +67,7 @@ def _check_router_vrf(
     dut: EOSDeviceUnderTest,
     check: BgpRouterCheck,
     dev_data: dict,
-    results: trt.CheckResultsCollection,
+    results: CheckResultsCollection,
 ):
 
     dev_data = dev_data["vrfs"][check.check_params.vrf or EOS_DEFAULT_VRF_NAME]

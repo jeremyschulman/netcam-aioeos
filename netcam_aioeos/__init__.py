@@ -27,7 +27,8 @@ from .eos_get_dut import plugin_get_dut
 from .eos_init import plugin_init
 
 from . import topology
-from . import vlans
+
+# from . import vlans
 from . import bgp_peering
 
 plugin_version = importlib_metadata.version(__name__)

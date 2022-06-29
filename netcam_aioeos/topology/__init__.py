@@ -16,4 +16,5 @@ from . import eos_check_device_info
 from . import eos_check_interfaces
 from . import eos_check_ipaddrs
 from . import eos_check_cabling
-from . import eos_check_transceivers
+
+# from . import eos_check_transceivers
