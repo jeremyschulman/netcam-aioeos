@@ -331,6 +331,7 @@ def eos_check_one_svi(
 
     else:
         msrd = result.measurement
+        msrd.used = True
         msrd.desc = check.expected_results.desc
         msrd.oper_up = svi_oper_status["status"] == "active"
 
