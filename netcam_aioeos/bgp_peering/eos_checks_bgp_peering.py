@@ -8,7 +8,7 @@ from netcad.bgp_peering.checks import (
     BgpNeighborCheckResult,
 )
 
-from netcad.checks import check_result_types as trt
+from netcad.checks import CheckResultsCollection
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -27,10 +27,10 @@ from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME, EOS_MAP_BGP_STATES
 @EOSDeviceUnderTest.execute_checks.register
 async def check_neeighbors(
     self, check_collection: BgpNeighborsCheckCollection
-) -> trt.CheckResultsCollection:
+) -> CheckResultsCollection:
     dut: EOSDeviceUnderTest = self
 
-    results: trt.CheckResultsCollection = list()
+    results: CheckResultsCollection = list()
     checks = check_collection.checks
 
     dev_data = await dut.api_cache_get(key="bgp-summary", command="show ip bgp summary")
@@ -54,7 +54,7 @@ def _check_bgp_neighbor(
     dut: EOSDeviceUnderTest,
     check: BgpNeighborCheck,
     dev_data: dict,
-    results: trt.CheckResultsCollection,
+    results: CheckResultsCollection,
 ):
     """
     This function checks one BGP neighbor.  A check is considered to pass if and
@@ -94,7 +94,7 @@ def _check_bgp_neighbor(
 
     if not (nei_data := rtr_neis.get(params.nei_ip)):
         result.measurement = None
-        results.append(result.finalize())
+        results.append(result.measure())
         return
 
     # Store the measurements
@@ -103,4 +103,4 @@ def _check_bgp_neighbor(
     msrd.remote_asn = nei_data["asn"]
     msrd.state = EOS_MAP_BGP_STATES[nei_data["peerState"]]
 
-    results.append(result.finalize())
+    results.append(result.measure())

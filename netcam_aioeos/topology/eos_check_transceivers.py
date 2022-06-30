@@ -22,18 +22,16 @@ from typing import Set
 # -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
+from netcad.checks import CheckResultsCollection, CheckStatus
 
 from netcad.topology.checks.check_transceivers import (
     TransceiverCheckCollection,
-    TransceiverCheck,
+    TransceiverCheckResult,
     TransceiverExclusiveListCheck,
     TransceiverExclusiveListCheckResult,
 )
 from netcad.topology import transceiver_model_matches, transceiver_type_matches
-
 from netcad.device import Device, DeviceInterface
-from netcad.netcam import any_failures
-from netcad.checks import check_result_types as trt
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -57,8 +55,8 @@ __all__ = ["eos_check_transceivers"]
 
 @EOSDeviceUnderTest.execute_checks.register
 async def eos_check_transceivers(
-    self, check_collection: TransceiverCheckCollection
-) -> trt.CheckResultsCollection:
+    dut, check_collection: TransceiverCheckCollection
+) -> CheckResultsCollection:
     """
     This method is imported into the ESO DUT class definition to support
     checking the status of the transceivers.
@@ -70,7 +68,7 @@ async def eos_check_transceivers(
     the EOS inventor as "54".
     """
 
-    dut: EOSDeviceUnderTest = self
+    dut: EOSDeviceUnderTest
     device = dut.device
 
     # obtain the transceiver _model_ information from the inventory command.
@@ -100,6 +98,7 @@ async def eos_check_transceivers(
     rsvd_ports_set = set()
 
     for check in check_collection.checks:
+        result = TransceiverCheckResult(device=device, check=check)
 
         if_name = check.check_id()
         dev_iface: DeviceInterface = device.interfaces[if_name]
@@ -109,29 +108,26 @@ async def eos_check_transceivers(
         ifacehw = (dev_ifhw_ifstatus.get(if_name),)
 
         if dev_iface.profile.is_reserved:
-            results.append(
-                trt.CheckInfoLog(
-                    device=device,
-                    check=check,
-                    measurement=dict(
-                        message="interface is in reserved state",
-                        hardware=ifaceinv,  # from the show inventory command
-                        status=ifacehw,  # from the show interfaces ... hardware command
-                    ),
-                )
+            result.status = CheckStatus.INFO
+            result.logs.INFO(
+                "reserved",
+                dict(
+                    message="interface is in reserved state",
+                    hardware=ifaceinv,  # from the show inventory command
+                    status=ifacehw,  # from the show interfaces ... hardware command
+                ),
             )
+            results.append(result.measure())
             rsvd_ports_set.add(if_pri_port)
             continue
 
         if_port_numbers.add(if_pri_port)
 
-        results.extend(
-            eos_test_one_interface(
-                device=device,
-                check=check,
-                ifaceinv=dev_inv_ifstatus.get(str(if_pri_port)),
-                ifacehw=dev_ifhw_ifstatus.get(if_name),
-            )
+        eos_test_one_interface(
+            result=result,
+            ifaceinv=dev_inv_ifstatus.get(str(if_pri_port)),
+            ifacehw=dev_ifhw_ifstatus.get(if_name),
+            results=results,
         )
 
     # next add the test coverage for the exclusive list.
@@ -160,7 +156,7 @@ def _check_exclusive_list(
     expd_ports,
     msrd_ports,
     rsvd_ports: Set,
-    results: trt.CheckResultsCollection,
+    results: CheckResultsCollection,
 ):
     """
     Check to ensure that the list of transceivers found on the device matches the exclusive list.
@@ -185,69 +181,43 @@ def _check_exclusive_list(
         device=device, check=check, measurement=used_msrd_ports
     )
 
-    results.append(result.finalize())
+    results.append(result.measure())
 
 
 def eos_test_one_interface(
-    device: Device, check: TransceiverCheck, ifaceinv: dict, ifacehw: dict
-) -> trt.CheckResultsCollection:
+    ifaceinv: dict,
+    ifacehw: dict,
+    result: TransceiverCheckResult,
+    results: CheckResultsCollection,
+):
     """
     This function validates that a specific interface is using the specific
     transceiver as defined in the design.
     """
 
-    results = list()
-
     # if there is no entry for this interface, then the transceiver does not
-    # exist.
+    # exist.  if there is no model value, then the transceiver does not exist.
 
-    if not ifaceinv:
-        results.append(
-            trt.CheckFailNoExists(
-                device=device,
-                check=check,
-            )
-        )
-        return results
+    if not ifaceinv or not ifaceinv.get("modelName"):
+        result.measurement = None
+        results.append(result.measure())
+        return
 
-    # if there is no model value, then the transceiver does not exist.
+    msrd = result.measurement
+    msrd.model = ifaceinv["modelName"]
+    msrd.type = ifacehw["transceiverType"]
 
-    exp_model = check.expected_results.model
-    if not (msrd_model := ifaceinv["modelName"]):
-        results.append(
-            trt.CheckFailNoExists(
-                device=device,
-                check=check,
-            )
-        )
-        return results
+    def on_mismatch(_field, _expd, _msrd):
+        match _field:
+            case "model":
+                is_ok = transceiver_model_matches(
+                    expected_model=_expd, given_mdoel=_msrd
+                )
+            case "type":
+                is_ok = transceiver_type_matches(expected_type=_expd, given_type=_msrd)
+            case _:
+                is_ok = False
 
-    if not transceiver_model_matches(expected_model=exp_model, given_mdoel=msrd_model):
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=device,
-                check=check,
-                field="model",
-                measurement=msrd_model,
-            )
-        )
+        return CheckStatus.PASS if is_ok else CheckStatus.FAIL
 
-    expd_type = check.expected_results.type
-    msrd_type = ifacehw["transceiverType"]
-    if not transceiver_type_matches(expected_type=expd_type, given_type=msrd_type):
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=device, check=check, field="type", measurement=msrd_type
-            )
-        )
-
-    if not any_failures(results):
-        results.append(
-            trt.CheckPassResult(
-                device=device,
-                check=check,
-                measurement=dict(model=msrd_model, type=msrd_type),
-            )
-        )
-
-    return results
+    results.append(result.measure(on_mismatch=on_mismatch))

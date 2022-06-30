@@ -16,12 +16,10 @@
 # Public Impors
 # -----------------------------------------------------------------------------
 
-from netcad.topology.checks.check_device_info import DeviceInformationCheckCollection
-from netcad.checks import (
-    CheckPassResult,
-    CheckFailResult,
-    CheckInfoLog,
-    CheckResultsCollection,
+from netcad.checks import CheckResultsCollection, CheckResult, CheckStatus
+from netcad.topology.checks.check_device_info import (
+    DeviceInformationCheckCollection,
+    DeviceInformationCheckResult,
 )
 
 # -----------------------------------------------------------------------------
@@ -61,40 +59,26 @@ async def eos_check_device_info(
     # purposes.
 
     check = device_checks.checks[0]
+    result = DeviceInformationCheckResult(device=dut.device, check=check)
+
     exp_values = check.expected_results
 
     exp_product_model = exp_values.product_model
     has_product_model = ver_info["modelName"]
 
     check_len = min(len(has_product_model), len(exp_product_model))
-    match = has_product_model[:check_len] == exp_product_model[:check_len]
+    model_match = has_product_model[:check_len] == exp_product_model[:check_len]
 
-    if match:
-        results.append(
-            CheckPassResult(
-                device=dut.device,
-                check=check,
-                measurement=has_product_model,
-                field="product_model",
-            )
-        )
-    else:
-        results.append(
-            CheckFailResult(
-                device=dut.device,
-                check=check,
-                measurement=has_product_model,
-                field="product_model",
-                error=f"Mismatch: product_model, expected {exp_product_model}, actual {has_product_model}",
-            )
-        )
+    def on_mismatch(_field, _expd, _msrd):
+        return CheckStatus.PASS if model_match else CheckStatus.FAIL
+
+    results.append(result.measure(on_mismatch=on_mismatch))
 
     # include an information block that provides the raw "show version" object content.
 
-    results.append(
-        CheckInfoLog(
-            device=dut.device, check=check, field="version", measurement=ver_info
-        )
+    info = CheckResult(
+        device=dut.device, check=check, status=CheckStatus.INFO, measurement=ver_info
     )
 
+    results.append(info)
     return results

@@ -26,7 +26,7 @@ from itertools import chain
 # -----------------------------------------------------------------------------
 
 from netcad.device import Device, DeviceInterface
-from netcad.checks import check_result_types as tr
+from netcad.checks import CheckResultsCollection, CheckStatus
 
 from netcad.topology.checks.check_interfaces import (
     InterfaceCheckCollection,
@@ -62,7 +62,7 @@ _match_svi = re.compile(r"Vlan(\d+)").match
 @EOSDeviceUnderTest.execute_checks.register
 async def eos_check_interfaces(
     self, collection: InterfaceCheckCollection
-) -> tr.CheckResultsCollection:
+) -> CheckResultsCollection:
     """
     This async generator is responsible for implementing the "interfaces" test
     cases for EOS devices.
@@ -158,7 +158,7 @@ async def eos_check_interfaces(
 
             if not (lo_status := map_ip_ifaces.get(if_name)):
                 result.measurement = None
-                results.append(result.finalize())
+                results.append(result.measure())
                 continue
 
             # if the loopback exists, then it is a PASS, and we are not going
@@ -197,7 +197,7 @@ def eos_check_exclusive_interfaces_list(
     device: Device,
     expd_interfaces: Set[str],
     msrd_interfaces: Set[str],
-    results: tr.CheckResultsCollection,
+    results: CheckResultsCollection,
 ):
     """
     This check validates the exclusive list of interfaces found on the device
@@ -215,7 +215,7 @@ def eos_check_exclusive_interfaces_list(
         device=device, check=check, measurement=sorted(msrd_interfaces, key=sort_key)
     )
 
-    results.append(result.finalize(sort_key=sort_key))
+    results.append(result.measure(sort_key=sort_key))
 
 
 # -----------------------------------------------------------------------------
@@ -246,7 +246,7 @@ def eos_check_one_interface(
     device: Device,
     check: InterfaceCheck,
     iface_oper_status: dict,
-    results: tr.CheckResultsCollection,
+    results: CheckResultsCollection,
 ):
     """
     Validates a specific physical interface against the expectations in the
@@ -259,7 +259,7 @@ def eos_check_one_interface(
 
     if not iface_oper_status:
         result.measurement = None
-        results.append(result.finalize())
+        results.append(result.measure())
         return
 
     # transform the CLI data into a measurment instance for consistent
@@ -276,14 +276,9 @@ def eos_check_one_interface(
     # -------------------------------------------------------------------------
 
     if is_reserved:
-        results.append(
-            tr.CheckInfoLog(
-                device=device,
-                check=check,
-                field="is_reserved",
-                measurement=measurement.dict(),
-            )
-        )
+        result.status = CheckStatus.INFO
+        result.logs.INFO("reserved", measurement.dict())
+        results.append(result.measure())
         return results
 
     # -------------------------------------------------------------------------
@@ -294,24 +289,24 @@ def eos_check_one_interface(
     result.measurement.used = measurement.used
 
     if not check.expected_results.used:
-        results.append(result.finalize())
+        results.append(result.measure())
         return
 
     # If here, then we want to check all the opeational fields.
 
     result.measurement = measurement
 
-    def on_mismatch(_field, _expected, _measured) -> tr.CheckStatus:
+    def on_mismatch(_field, _expected, _measured) -> CheckStatus:
         # if the field is description, then it is a warning, and not a failure.
         if _field == "desc":
-            return tr.CheckStatus.WARN
+            return CheckStatus.WARN
 
         # if the speed is mismatched because the port is down, then this is not
         # a failure.
         if _field == "speed" and measurement.oper_up is False:
-            return tr.CheckStatus.SKIP
+            return CheckStatus.SKIP
 
-    results.append(result.finalize(on_mismatch=on_mismatch))
+    results.append(result.measure(on_mismatch=on_mismatch))
     return
 
 
@@ -319,7 +314,7 @@ def eos_check_one_svi(
     device: Device,
     check: InterfaceCheck,
     svi_oper_status: dict | None,
-    results: tr.CheckResultsCollection,
+    results: CheckResultsCollection,
 ):
     """
     Checks the device state for a VLAN SVI interface against the expected
@@ -336,7 +331,8 @@ def eos_check_one_svi(
 
     else:
         msrd = result.measurement
+        msrd.used = True
         msrd.desc = check.expected_results.desc
         msrd.oper_up = svi_oper_status["status"] == "active"
 
-    results.append(result.finalize())
+    results.append(result.measure())

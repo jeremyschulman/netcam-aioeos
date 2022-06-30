@@ -12,4 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from . import eos_check_topology_design_service
+from . import eos_check_device_info
+from . import eos_check_interfaces
+from . import eos_check_ipaddrs
+from . import eos_check_cabling
+from . import eos_check_transceivers

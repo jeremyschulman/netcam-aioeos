@@ -20,6 +20,7 @@
 from netcad.topology.checks.check_cabling_nei import (
     InterfaceCablingCheckCollection,
     InterfaceCablingCheck,
+    InterfaceCablingCheckResult,
 )
 from netcad.topology.checks.utils_cabling_nei import (
     nei_interface_match,
@@ -27,8 +28,7 @@ from netcad.topology.checks.utils_cabling_nei import (
 )
 
 from netcad.device import Device
-from netcad.netcam import any_failures
-from netcad.checks import check_result_types as trt
+from netcad.checks import CheckResultsCollection, CheckStatus
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -41,7 +41,7 @@ from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_test_cabling", "eos_test_one_interface"]
+__all__ = []
 
 # -----------------------------------------------------------------------------
 #
@@ -51,9 +51,9 @@ __all__ = ["eos_test_cabling", "eos_test_one_interface"]
 
 
 @EOSDeviceUnderTest.execute_checks.register
-async def eos_test_cabling(
+async def eos_check_cabling(
     self, testcases: InterfaceCablingCheckCollection
-) -> trt.CheckResultsCollection:
+) -> CheckResultsCollection:
     """
     Support the "cabling" tests for Arista EOS devices.  These tests are
     implementeding by examing the LLDP neighborship status.
@@ -86,57 +86,42 @@ async def eos_test_cabling(
         if_name = check.check_id()
 
         if not (port_nei := dev_lldpnei_ifname.get(if_name)):
-            results.append(trt.CheckFailNoExists(device=device, check=check))
+            result = InterfaceCablingCheckResult(
+                device=device, check=check, measurement=None
+            )
+            results.append(result.measure())
             continue
 
-        results.extend(
-            eos_test_one_interface(
-                device=dut.device,
-                check=check,
-                ifnei_status=port_nei,
-            )
+        _check_one_interface(
+            device=dut.device, check=check, ifnei_status=port_nei, results=results
         )
 
     return results
 
 
-def eos_test_one_interface(
-    device: Device, check: InterfaceCablingCheck, ifnei_status: dict
-) -> trt.CheckResultsCollection:
+def _check_one_interface(
+    device: Device,
+    check: InterfaceCablingCheck,
+    ifnei_status: dict,
+    results: CheckResultsCollection,
+):
     """
     Validates the LLDP information for a specific interface.
     """
-    results = list()
+    result = InterfaceCablingCheckResult(device=device, check=check)
+    msrd = result.measurement
 
-    expd_name = check.expected_results.device
-    expd_port_id = check.expected_results.port_id
+    msrd.device = ifnei_status["neighborDevice"]
+    msrd.port_id = ifnei_status["neighborPort"]
 
-    msrd_name = ifnei_status["neighborDevice"]
-    msrd_port_id = ifnei_status["neighborPort"]
+    def on_mismatch(_field, _expd, _msrd):
+        is_ok = False
+        match _field:
+            case "device":
+                is_ok = nei_hostname_match(_expd, _msrd)
+            case "port_id":
+                is_ok = nei_interface_match(_expd, _msrd)
 
-    if not nei_hostname_match(expd_name, msrd_name):
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=device,
-                check=check,
-                field="device",
-                measurement=msrd_name,
-            )
-        )
+        return CheckStatus.PASS if is_ok else CheckStatus.FAIL
 
-    if not nei_interface_match(expd_port_id, msrd_port_id):
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=device,
-                check=check,
-                field="port_id",
-                measurement=msrd_port_id,
-            )
-        )
-
-    if not any_failures(results):
-        results.append(
-            trt.CheckPassResult(device=device, check=check, measurement=ifnei_status)
-        )
-
-    return results
+    results.append(result.measure(on_mismatch=on_mismatch))

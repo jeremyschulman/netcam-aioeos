@@ -1,0 +1,185 @@
+{
+    "sourceDetail": "",
+    "vlans": {
+        "1": {
+            "status": "active",
+            "name": "default",
+            "interfaces": {
+                "Port-Channel2000": {
+                    "privatePromoted": false
+                },
+                "Ethernet45": {
+                    "privatePromoted": false
+                }
+            },
+            "dynamic": false
+        },
+        "997": {
+            "status": "active",
+            "name": "VLAN-997",
+            "interfaces": {
+                "Port-Channel2000": {
+                    "privatePromoted": false
+                },
+                "Ethernet45": {
+                    "privatePromoted": false
+                }
+            },
+            "dynamic": false
+        },
+        "5": {
+            "status": "active",
+            "name": "VLAN-5",
+            "interfaces": {
+                "Port-Channel2000": {
+                    "privatePromoted": false
+                },
+                "Ethernet45": {
+                    "privatePromoted": false
+                }
+            },
+            "dynamic": false
+        },
+        "301": {
+            "status": "active",
+            "name": "VLAN-301",
+            "interfaces": {
+                "Port-Channel2000": {
+                    "privatePromoted": false
+                },
+                "Ethernet45": {
+                    "privatePromoted": false
+                }
+            },
+            "dynamic": false
+        },
+        "302": {
+            "status": "active",
+            "name": "VLAN-302",
+            "interfaces": {
+                "Ethernet2": {
+                    "privatePromoted": false
+                },
+                "Ethernet45": {
+                    "privatePromoted": false
+                },
+                "Ethernet1": {
+                    "privatePromoted": false
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false
+                }
+            },
+            "dynamic": false
+        },
+        "303": {
+            "status": "active",
+            "name": "VLAN-303",
+            "interfaces": {
+                "Port-Channel2000": {
+                    "privatePromoted": false
+                },
+                "Ethernet45": {
+                    "privatePromoted": false
+                }
+            },
+            "dynamic": false
+        },
+        "999": {
+            "status": "active",
+            "name": "VLAN-999",
+            "interfaces": {
+                "Ethernet8": {
+                    "privatePromoted": false
+                },
+                "Ethernet9": {
+                    "privatePromoted": false
+                },
+                "Ethernet48": {
+                    "privatePromoted": false
+                },
+                "Ethernet47": {
+                    "privatePromoted": false
+                },
+                "Ethernet46": {
+                    "privatePromoted": false
+                },
+                "Ethernet45": {
+                    "privatePromoted": false
+                },
+                "Ethernet44": {
+                    "privatePromoted": false
+                },
+                "Ethernet43": {
+                    "privatePromoted": false
+                },
+                "Ethernet42": {
+                    "privatePromoted": false
+                },
+                "Cpu": {
+                    "privatePromoted": false
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false
+                }
+            },
+            "dynamic": false
+        },
+        "969": {
+            "status": "active",
+            "name": "VLAN-969",
+            "interfaces": {
+                "Port-Channel2000": {
+                    "privatePromoted": false
+                },
+                "Ethernet45": {
+                    "privatePromoted": false
+                }
+            },
+            "dynamic": false
+        },
+        "998": {
+            "status": "active",
+            "name": "VLAN-998",
+            "interfaces": {
+                "Ethernet3": {
+                    "privatePromoted": false
+                },
+                "Ethernet45": {
+                    "privatePromoted": false
+                },
+                "Ethernet6": {
+                    "privatePromoted": false
+                },
+                "Ethernet7": {
+                    "privatePromoted": false
+                },
+                "Ethernet4": {
+                    "privatePromoted": false
+                },
+                "Ethernet5": {
+                    "privatePromoted": false
+                },
+                "Ethernet14": {
+                    "privatePromoted": false
+                },
+                "Ethernet13": {
+                    "privatePromoted": false
+                },
+                "Ethernet10": {
+                    "privatePromoted": false
+                },
+                "Ethernet11": {
+                    "privatePromoted": false
+                },
+                "Ethernet12": {
+                    "privatePromoted": false
+                },
+                "Port-Channel2000": {
+                    "privatePromoted": false
+                }
+            },
+            "dynamic": false
+        }
+    }
+}

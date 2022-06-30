@@ -17,7 +17,7 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import Generator, Sequence
+from typing import Sequence
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -26,13 +26,13 @@ from typing import Generator, Sequence
 from netcad.topology.checks.check_ipaddrs import (
     IPInterfacesCheckCollection,
     IPInterfaceCheck,
-    IPInterfaceCheckExclusiveList,
-    IPInterfaceList,
+    IPInterfaceCheckResult,
+    IPInterfaceExclusiveListCheck,
+    IPInterfaceExclusiveListCheckResult,
 )
 
 from netcad.device import Device
-from netcad.netcam import any_failures
-from netcad.checks import check_result_types as trt
+from netcad.checks import CheckResultsCollection, CheckStatus
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -45,7 +45,7 @@ from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["eos_test_ipaddrs"]
+__all__ = []
 
 
 # -----------------------------------------------------------------------------
@@ -57,14 +57,15 @@ __all__ = ["eos_test_ipaddrs"]
 
 @EOSDeviceUnderTest.execute_checks.register
 async def eos_test_ipaddrs(
-    self, collection: IPInterfacesCheckCollection
-) -> trt.CheckResultsCollection:
+    dut, collection: IPInterfacesCheckCollection
+) -> CheckResultsCollection:
     """
     This check executor validates the IP addresses used on the device against
     those that are defined in the design.
     """
 
-    dut: EOSDeviceUnderTest = self
+    dut: EOSDeviceUnderTest
+
     device = dut.device
     cli_rsp = await dut.eapi.cli("show ip interface brief")
     dev_ips_data = cli_rsp["interfaces"]
@@ -76,33 +77,35 @@ async def eos_test_ipaddrs(
         if_name = check.check_id()
         if_names.append(if_name)
 
+        # if the IP address does not exist, then report that measurement and
+        # move on to the next interface.
+
         if not (if_ip_data := dev_ips_data.get(if_name)):
             results.append(
-                trt.CheckFailNoExists(device=device, check=check, field="if_ipaddr")
+                IPInterfaceCheckResult(
+                    device=device, check=check, measurement=None
+                ).measure()
             )
             continue
 
-        one_results = await eos_test_one_interface(
-            dut, device=device, check=check, msrd_data=if_ip_data
+        await eos_test_one_interface(
+            dut, device=device, check=check, msrd_data=if_ip_data, results=results
         )
-
-        results.extend(one_results)
 
     # only include device interface that have an assigned IP address; this
     # conditional is checked by examining the interface IP address mask length
     # against zero.
 
     if collection.exclusive:
-        results.extend(
-            eos_test_exclusive_list(
-                device=device,
-                expd_if_names=if_names,
-                msrd_if_names=[
-                    if_ip_data["name"]
-                    for if_ip_data in dev_ips_data.values()
-                    if if_ip_data["interfaceAddress"]["ipAddr"]["maskLen"] != 0
-                ],
-            )
+        eos_test_exclusive_list(
+            device=device,
+            expd_if_names=if_names,
+            msrd_if_names=[
+                if_ip_data["name"]
+                for if_ip_data in dev_ips_data.values()
+                if if_ip_data["interfaceAddress"]["ipAddr"]["maskLen"] != 0
+            ],
+            results=results,
         )
 
     return results
@@ -116,35 +119,29 @@ async def eos_test_one_interface(
     device: Device,
     check: IPInterfaceCheck,
     msrd_data: dict,
-) -> trt.CheckResultsCollection:
+    results: CheckResultsCollection,
+):
     """
     This function validates a specific interface use of an IP address against
     the design expectations.
     """
-    results = list()
-
-    # get the interface name begin tested
 
     if_name = check.check_id()
+    result = IPInterfaceCheckResult(device=device, check=check)
+    msrd = result.measurement
 
     # -------------------------------------------------------------------------
-    # if there is any error accessing the expect interface IP address
+    # if there is any error accessing extracting interface IP address
     # information, then yeild a failure and return.
     # -------------------------------------------------------------------------
 
     try:
         msrd_if_addr = msrd_data["interfaceAddress"]["ipAddr"]
-        msrd_if_ipaddr = f"{msrd_if_addr['address']}/{msrd_if_addr['maskLen']}"
+        msrd.if_ipaddr = f"{msrd_if_addr['address']}/{msrd_if_addr['maskLen']}"
 
     except KeyError:
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=device,
-                check=check,
-                field="measurement",
-                measurement=msrd_data,
-            )
-        )
+        result.measurement = None
+        results.append(result.measure())
         return results
 
     # -------------------------------------------------------------------------
@@ -158,23 +155,8 @@ async def eos_test_one_interface(
     # value as an INFO check result.
 
     if expd_if_ipaddr == "is_reserved":
-        results.append(
-            trt.CheckInfoLog(
-                device=device,
-                check=check,
-                field="if_ipaddr",
-                measurement=msrd_if_ipaddr,
-            )
-        )
-    elif msrd_if_ipaddr != expd_if_ipaddr:
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=device,
-                check=check,
-                field="if_ipaddr",
-                measurement=msrd_if_ipaddr,
-            )
-        )
+        result.status = CheckStatus.INFO
+        results.append(result.measure())
 
     # -------------------------------------------------------------------------
     # Ensure the IP interface is "up".
@@ -189,42 +171,29 @@ async def eos_test_one_interface(
     dut_iface = dut_interfaces[if_name]
     iface_enabled = dut_iface["enabled"] is True
 
-    if iface_enabled and (if_oper := msrd_data["lineProtocolStatus"]) != "up":
+    msrd.oper_up = msrd_data["lineProtocolStatus"] == "up"
 
+    if iface_enabled and not msrd.oper_up:
         # if the interface is an SVI, then we need to check to see if _all_ of
         # the associated physical interfaces are either disabled or in a
         # reseverd condition.
 
         if if_name.startswith("Vlan"):
-
-            svi_res = await _check_vlan_assoc_interface(
-                dut, check, if_name=if_name, msrd_ipifaddr_oper=if_oper
+            await _check_vlan_assoc_interface(
+                dut, if_name=if_name, result=result, results=results
             )
-            results.extend(svi_res)
+            return results
 
-        else:
-            results.append(
-                trt.CheckFailFieldMismatch(
-                    device=device,
-                    check=check,
-                    field="if_oper",
-                    expected="up",
-                    measurement=if_oper,
-                    error=f"IP exists {expd_if_ipaddr}, interface is not up: {if_oper}",
-                )
-            )
-
-    if not any_failures(results):
-        results.append(
-            trt.CheckPassResult(device=device, check=check, measurement=msrd_data)
-        )
-
+    results.append(result.measure())
     return results
 
 
 def eos_test_exclusive_list(
-    device: Device, expd_if_names: Sequence[str], msrd_if_names: Sequence[str]
-) -> Generator:
+    device: Device,
+    expd_if_names: Sequence[str],
+    msrd_if_names: Sequence[str],
+    results: CheckResultsCollection,
+):
     """
     This check determines if there are any extra IP Interfaces defined on the
     device that are not expected per the design.
@@ -233,32 +202,25 @@ def eos_test_exclusive_list(
     # the previous per-interface checks for any missing; therefore we only need
     # to check for any extra interfaces found on the device.
 
-    tc = IPInterfaceCheckExclusiveList(
-        expected_results=IPInterfaceList(if_names=list(expd_if_names))
+    result = IPInterfaceExclusiveListCheckResult(
+        device=device,
+        check=IPInterfaceExclusiveListCheck(expected_results=expd_if_names),
+        measurement=sorted(msrd_if_names, key=expd_if_names.index),
     )
-
-    if extras := set(msrd_if_names) - set(expd_if_names):
-        result = trt.CheckFailExtraMembers(
-            device=device,
-            check=tc,
-            field="interfaces",
-            expected=sorted(expd_if_names),
-            extras=sorted(extras),
-        )
-    else:
-        result = trt.CheckPassResult(device=device, check=tc, measurement="exists")
-
-    yield result
+    results.append(result.measure())
 
 
 async def _check_vlan_assoc_interface(
-    dut: "EOSDeviceUnderTest", check, if_name: str, msrd_ipifaddr_oper
-) -> trt.CheckResultsCollection:
+    dut: EOSDeviceUnderTest,
+    if_name: str,
+    result: IPInterfaceCheckResult,
+    results: CheckResultsCollection,
+):
     """
-    This coroutine is used to check whether a VLAN SVI ip address is not
-    "up" due to the fact that the underlying interfaces are either disabled or
-    in a "reserved" design; meaning we do not care if they are up or down. If
-    the SVI is down because of this condition, the test case will "pass", and an
+    This function is used to check whether a VLAN SVI ip address is not "up"
+    due to the fact that the underlying interfaces are either disabled or in a
+    "reserved" design; meaning we do not care if they are up or down. If the
+    SVI is down because of this condition, the test case will "pass", and an
     information record is yielded to inform the User.
 
     Parameters
@@ -266,27 +228,23 @@ async def _check_vlan_assoc_interface(
     dut:
         The device under test
 
-    check:
-        The specific test case
+    result:
+        The result instance bound to the check
 
     if_name:
         The specific VLAN SVI name, "Vlan12" for example:
-
-    msrd_ipifaddr_oper:
-        The measured opertional state of the IP interface
 
     Yields
     ------
     netcad test case results; one or more depending on the condition of SVI
     interfaces.
     """
+
     vlan_id = if_name.split("Vlan")[-1]
     cli_res = await dut.eapi.cli(f"show vlan id {vlan_id} configured-ports")
     vlan_cfgd_ifnames = set(cli_res["vlans"][vlan_id]["interfaces"])
     disrd_ifnames = set()
     dut_ifs = dut.device_info["interfaces"]
-
-    results = list()
 
     for check_ifname in vlan_cfgd_ifnames:
         dut_iface = dut_ifs[check_ifname]
@@ -296,33 +254,31 @@ async def _check_vlan_assoc_interface(
             disrd_ifnames.add(check_ifname)
 
     if disrd_ifnames == vlan_cfgd_ifnames:
-        results.append(
-            trt.CheckInfoLog(
-                device=dut.device,
-                check=check,
-                field="if_oper",
-                measurement=dict(
-                    if_oper=msrd_ipifaddr_oper,
-                    interfaces=list(vlan_cfgd_ifnames),
-                    message="interfaces are either disabled or in reserved state",
-                ),
-            )
+        # then the SVI check should be a PASS because of the conditions
+        # mentioned.
+
+        result.logs.INFO(
+            "oper_up",
+            dict(
+                message="interfaces are either disabled or in reserved state",
+                interfaces=list(vlan_cfgd_ifnames),
+            ),
         )
 
-        results.append(
-            trt.CheckPassResult(device=dut.device, check=check, measurement="exists")
-        )
-        return results
+        def on_mismatch(_field, _expd, _msrd):
+            return CheckStatus.PASS if _field == "oper_up" else CheckStatus.FAIL
 
-    results.append(
-        trt.CheckFailFieldMismatch(
-            device=dut.device,
-            check=check,
-            field="if_oper",
-            expected="up",
-            measurement=msrd_ipifaddr_oper,
-            error=f"interface for IP {check.expected_results.if_ipaddr} is not up: {msrd_ipifaddr_oper}",
-        )
-    )
+        results.append(result.measure(on_mismatch=on_mismatch))
+
+    # results.append(
+    #     trt.CheckFailFieldMismatch(
+    #         device=dut.device,
+    #         check=check,
+    #         field="if_oper",
+    #         expected="up",
+    #         measurement=msrd_ipifaddr_oper,
+    #         error=f"interface for IP {check.expected_results.if_ipaddr} is not up: {msrd_ipifaddr_oper}",
+    #     )
+    # )
 
     return results

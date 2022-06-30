@@ -17,16 +17,20 @@
 # -----------------------------------------------------------------------------
 
 from typing import Set
-from operator import attrgetter
 
 # -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.device import Device, DeviceInterface
-from netcad.netcam import any_failures
-from netcad.checks import check_result_types as trt
-from netcad.vlans.checks.check_vlans import VlanCheckCollection, VlanCheck
+from netcad.device import Device
+from netcad.checks import CheckResultsCollection, CheckStatus
+
+from netcad.vlans.checks.check_vlans import (
+    VlanCheckCollection,
+    VlanCheckResult,
+    VlanExclusiveListCheck,
+    VlanExclusiveListCheckResult,
+)
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -45,7 +49,7 @@ __all__ = ["eos_check_vlans", "eos_check_one_vlan"]
 @EOSDeviceUnderTest.execute_checks.register
 async def eos_check_vlans(
     self, vlan_checks: VlanCheckCollection
-) -> trt.CheckResultsCollection:
+) -> CheckResultsCollection:
     """
     This check executor validates tha the device has the VLANs expected by the
     design.  These checks include validating the VLANs exist as they should in
@@ -83,36 +87,40 @@ async def eos_check_vlans(
         cfg_interfaces = dev_vlans_cfg_info[vlan_id]["interfaces"]
         dev_vlans_info[vlan_id]["interfaces"].update(cfg_interfaces)
 
+    # keep track of the set of expectd VLAN-IDs (ints) should we need them for
+    # the exclusivity check.
+
+    expd_vlan_ids = set()
+
     for check in vlan_checks.checks:
+        result = VlanCheckResult(device=device, check=check)
 
         # The check ID is the VLAN ID in string form.
+
         vlan_id = check.check_id()
+        expd_vlan_ids.add(vlan_id)
+
+        # If the VLAN data is missing from the device, then we are done.
 
         if not (vlan_status := dev_vlans_info.get(vlan_id)):
-            results.append(
-                trt.CheckFailNoExists(
-                    device=device,
-                    check=check,
-                )
-            )
+            result.measurement = None
+            results.append(result.measure())
             continue
 
-        results.extend(
-            eos_check_one_vlan(
-                device=device, check=check, vlan_id=vlan_id, vlan_status=vlan_status
-            )
+        eos_check_one_vlan(
+            exclusive=vlan_checks.exclusive,
+            vlan_status=vlan_status,
+            result=result,
+            results=results,
         )
 
-    results.extend(
-        eos_check_vlan_exl_list(
+    if vlan_checks.exclusive:
+        _check_exclusive(
             device=device,
-            check=vlan_checks.exclusive,
-            expd_vlan_ids=set(
-                map(attrgetter("vlan_id"), vlan_checks.exclusive.expected_results.vlans)
-            ),
+            expd_vlan_ids=expd_vlan_ids,
             msrd_vlan_ids=msrd_active_vlan_ids,
+            results=results,
         )
-    )
 
     return results
 
@@ -124,129 +132,78 @@ async def eos_check_vlans(
 # -----------------------------------------------------------------------------
 
 
-def eos_check_vlan_exl_list(
+def _check_exclusive(
     device: Device,
-    check,
     expd_vlan_ids: Set,
     msrd_vlan_ids: Set,
-) -> trt.CheckResultsCollection:
+    results: CheckResultsCollection,
+):
     """
     This function checks to see if there are any VLANs measured on the device
     that are not in the expected exclusive list.  We do not need to check for
     missing VLANs since expected per-vlan checks have already been performed.
     """
 
-    if extras := msrd_vlan_ids - expd_vlan_ids:
-        return [
-            trt.CheckFailExtraMembers(
-                device=device,
-                check=check,
-                field=check.check_id(),
-                expected=sorted(expd_vlan_ids),
-                extras=sorted(extras),
-            )
-        ]
-
-    return [
-        trt.CheckPassResult(
-            device=device, check=check, measurement=sorted(msrd_vlan_ids)
-        )
-    ]
+    result = VlanExclusiveListCheckResult(
+        device=device,
+        check=VlanExclusiveListCheck(expected_results=sorted(expd_vlan_ids)),
+        measurement=sorted(msrd_vlan_ids),
+    )
+    results.append(result.measure())
 
 
 def eos_check_one_vlan(
-    device: Device, check: VlanCheck, vlan_id: str, vlan_status: dict
-) -> trt.CheckResultsCollection:
+    exclusive: bool,
+    result: VlanCheckResult,
+    vlan_status: dict,
+    results: CheckResultsCollection,
+):
     """
     Checks a specific VLAN to ensure that it exists on the device as expected.
     """
 
-    results = list()
+    check = result.check
+    msrd = result.measurement
 
-    # -------------------------------------------------------------------------
-    # check that the VLAN is active.
-    # -------------------------------------------------------------------------
+    vlan_id = check.check_id()
 
-    msrd_vlan_status = vlan_status["status"]
-    if msrd_vlan_status != "active":
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=device,
-                check=check,
-                field="status",
-                measurement=msrd_vlan_status,
-            )
-        )
-
-    # -------------------------------------------------------------------------
-    # check the configured VLAN name value
-    # -------------------------------------------------------------------------
-
-    msrd_vlan_name = vlan_status["name"]
-    expd_vlan_name = check.expected_results.vlan.name
-
-    if msrd_vlan_name != expd_vlan_name:
-        results.append(
-            trt.CheckFailFieldMismatch(
-                device=device,
-                check=check,
-                field="name",
-                expected=expd_vlan_name,
-                measurement=msrd_vlan_name,
-            )
-        )
+    msrd.oper_up = vlan_status["status"] == "active"
+    msrd.name = vlan_status["name"]
 
     # -------------------------------------------------------------------------
     # check the VLAN interface membership list.
     # -------------------------------------------------------------------------
-
-    expd_interfaces = set(check.expected_results.interfaces)
-    expd_sorted = DeviceInterface.sorted_interface_names(expd_interfaces)
 
     # Map the EOS reported interfaces list into a set for comparitive
     # processing. Do not include any "peer" interfaces; these represent MLAG
     # information. If the VLAN includes a reference to "Cpu", the map that to
     # the "interface Vlan<X>" name.
 
-    msrd_interfaces = set(
+    msrd.interfaces = [
         if_name if if_name != "Cpu" else f"Vlan{vlan_id}"
         for if_name in vlan_status["interfaces"]
         if not if_name.startswith("Peer")
-    )
+    ]
 
-    if missing_interfaces := expd_interfaces - msrd_interfaces:
-        results.append(
-            trt.CheckFailMissingMembers(
-                device=device,
-                check=check,
-                field="interfaces",
-                expected=expd_sorted,
-                missing=DeviceInterface.sorted_interface_names(missing_interfaces),
-            )
-        )
+    msrd_ifs_set = set(msrd.interfaces)
+    expd_ifs_set = set(check.expected_results.interfaces)
 
-    if extra_interfaces := msrd_interfaces - expd_interfaces:
-        results.append(
-            trt.CheckFailExtraMembers(
-                device=device,
-                check=check,
-                field="interfaces",
-                expected=expd_sorted,
-                extras=DeviceInterface.sorted_interface_names(extra_interfaces),
-            )
-        )
+    if exclusive:
+        if missing_interfaces := expd_ifs_set - msrd_ifs_set:
+            result.logs.FAIL("interfaces", dict(missing=missing_interfaces))
 
-    if not any_failures(results):
-        results.append(
-            trt.CheckPassResult(
-                device=device,
-                check=check,
-                measurement=dict(
-                    name=msrd_vlan_name,
-                    status=msrd_vlan_status,
-                    interfaces=DeviceInterface.sorted_interface_names(msrd_interfaces),
-                ),
-            )
-        )
+        if extra_interfaces := msrd_ifs_set - expd_ifs_set:
+            result.logs.FAIL("interfaces", dict(extra=extra_interfaces))
 
-    return results
+    def on_mismatch(_field, _expd, _msrd):
+        if _field == "name":
+            result.logs.WARN(_field, dict(expected=_expd, measured=_msrd))
+            return CheckStatus.PASS
+
+        if _field == "interfaces" and not exclusive:
+            # if the set of measured interfaces are in the set of expected, and
+            # this check is non-exclusive, then pass it.
+            if msrd_ifs_set & expd_ifs_set == expd_ifs_set:
+                return CheckStatus.PASS
+
+    results.append(result.measure(on_mismatch=on_mismatch))
