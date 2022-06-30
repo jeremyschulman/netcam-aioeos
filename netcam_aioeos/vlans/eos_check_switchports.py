@@ -16,14 +16,14 @@
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.netcam import any_failures
-from netcad.checks import check_result_types as tr
+from netcad.checks import CheckResultsCollection, CheckStatus
+
 from netcad.helpers import range_string
 
 from netcad.vlans.checks.check_switchports import (
     SwitchportCheckCollection,
-    SwitchportAccessExpectation,
-    SwitchportTrunkExpectation,
+    SwitchportCheck,
+    SwitchportCheckResult,
 )
 
 from netcam_aioeos.eos_dut import EOSDeviceUnderTest
@@ -49,7 +49,7 @@ __all__ = ["eos_check_switchports"]
 @EOSDeviceUnderTest.execute_checks.register
 async def eos_check_switchports(
     self, switchport_checks: SwitchportCheckCollection
-) -> tr.CheckResultsCollection:
+) -> CheckResultsCollection:
     """
     This check executor validates the device operational status of the interface
     switchports.
@@ -80,6 +80,8 @@ async def eos_check_switchports(
     # checks to ensure that the expected switchport use is as expected.
 
     for check in switchport_checks.checks:
+        result = SwitchportCheckResult(device=device, check=check)
+
         expd_status = check.expected_results
 
         if_name = check.check_id()
@@ -88,108 +90,62 @@ async def eos_check_switchports(
         # report this error and go to next check.
 
         if not (msrd_port := map_msrd_swichports.get(if_name)):
-            results.append(tr.CheckFailNoExists(device=device, check=check))
+            result.measurement = None
+            results.append(result.measure())
             continue
 
         msrd_swpinfo = msrd_port["switchportInfo"]
 
         # verify the expected switchport mode (access / trunk)
-
-        msrd_mode = msrd_swpinfo["mode"]
-        expd_mode = expd_status.switchport_mode
-
-        if expd_mode != msrd_mode:
-            results.append(
-                tr.CheckFailFieldMismatch(
-                    device=device,
-                    check=check,
-                    field="switchport_mode",
-                    measurement=msrd_mode,
+        match expd_status.switchport_mode:
+            case "access":
+                _check_access_switchport(
+                    result=result, msrd_status=msrd_swpinfo, results=results
                 )
-            )
-            continue
-
-        # validate the interface switchport status depending on if it is access
-        # or trunk.
-
-        mode_handler = {
-            "access": _check_access_switchport,
-            "trunk": _check_trunk_switchport,
-        }.get(expd_mode)
-
-        mode_results = mode_handler(dut, check, expd_status, msrd_swpinfo)
-
-        if not any_failures(mode_results):
-            mode_results.append(
-                tr.CheckPassResult(device=device, check=check, measurement=msrd_swpinfo)
-            )
-
-        results.extend(mode_results)
+            case "trunk":
+                _check_trunk_switchport(
+                    result=result, msrd_status=msrd_swpinfo, results=results
+                )
 
     # return the collection of results for all switchport interfaces
     return results
 
 
 def _check_access_switchport(
-    dut, check, expd_status: SwitchportAccessExpectation, msrd_status: dict
-) -> tr.CheckResultsCollection:
+    result: SwitchportCheckResult, msrd_status: dict, results: CheckResultsCollection
+):
     """
-    This function validates that the access port is reporting as expected.  This
-    primary check here is ensuring the access VLAN-ID matches.
+    This function validates that the access port is reporting as expected.
+    This primary check here is ensuring the access VLAN-ID matches.
     """
 
-    results = list()
+    msrd: SwitchportCheckResult.MeasuredAccess = result.measurement
+
+    msrd.switchport_mode = msrd_status["mode"]
 
     # EOS stores the vlan id as int, so type comparison AOK
-
-    e_vl_id = expd_status.vlan.vlan_id
-    m_vl_id = msrd_status["accessVlanId"]
-
-    if e_vl_id != m_vl_id:
-        results.append(
-            tr.CheckFailFieldMismatch(
-                device=dut.routers,
-                check=check,
-                field="vlan",
-                expected=e_vl_id,
-                measurement=m_vl_id,
-            )
-        )
-
-    return results
+    msrd.vlan = msrd_status["accessVlanId"]
+    results.append(result.measure())
 
 
 def _check_trunk_switchport(
-    dut, check, expd_status: SwitchportTrunkExpectation, msrd_status: dict
-) -> tr.CheckResultsCollection:
+    result: SwitchportCheckResult, msrd_status: dict, results: CheckResultsCollection
+):
     """
     This function validates a trunk switchport against the expected values.
     These checks include matching on the native-vlan and trunk-allowed-vlans.
     """
 
-    results = list()
-    device = dut.routers
+    expd: SwitchportCheck.ExpectTrunk = result.check.expected_results
+    msrd: SwitchportCheckResult.MeasuredTrunk = result.measurement
 
-    e_nvl_id = expd_status.native_vlan.vlan_id if expd_status.native_vlan else None
-    m_nvl_id = msrd_status["trunkingNativeVlanId"]
-
-    if e_nvl_id and (e_nvl_id != m_nvl_id):
-        results.append(
-            tr.CheckFailFieldMismatch(
-                device=device,
-                check=check,
-                field="native_vlan",
-                expected=e_nvl_id,
-                measurement=m_nvl_id,
-            )
-        )
+    msrd.switchport_mode = msrd_status["mode"]
+    msrd.native_vlan = msrd_status["trunkingNativeVlanId"]
 
     # EOS stores this as a CSV string, with ranges, for example:
     # 14,16,25-26,29
 
-    e_tr_allowed_vids = sorted(
-        [vlan.vlan_id for vlan in expd_status.trunk_allowed_vlans]
-    )
+    e_tr_allowed_vids = sorted([vlan.vlan_id for vlan in expd.trunk_allowed_vlans])
 
     # conver the list of vlan-ids to a range string for string comparison
     # purposes.
@@ -197,21 +153,15 @@ def _check_trunk_switchport(
     e_tr_alwd_vstr = range_string(e_tr_allowed_vids)
     m_tr_alwd_vstr = msrd_status["trunkAllowedVlans"]
 
-    # if there no expected allowed vlans on this trunk, then set the expected
+    # if there is no expected allowed vlans on this trunk, then set the expected
     # value to "NONE" since that is what EOS reports in this case.
 
     if not e_tr_alwd_vstr:
         e_tr_alwd_vstr = "NONE"
 
-    if e_tr_alwd_vstr != m_tr_alwd_vstr:
-        results.append(
-            tr.CheckFailFieldMismatch(
-                device=device,
-                check=check,
-                field="trunk_allowed_vlans",
-                expected=e_tr_alwd_vstr,
-                measurement=m_tr_alwd_vstr,
-            )
-        )
+    def on_mismatch(_field, _expd, _msrd):
+        if _field == "trunk_allowed_vlans":
+            if e_tr_alwd_vstr == m_tr_alwd_vstr:
+                return CheckStatus.PASS
 
-    return results
+    results.append(result.measure(on_mismatch=on_mismatch))
