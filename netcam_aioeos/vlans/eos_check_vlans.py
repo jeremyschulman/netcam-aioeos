@@ -200,10 +200,16 @@ def eos_check_one_vlan(
             result.logs.WARN(_field, dict(expected=_expd, measured=_msrd))
             return CheckStatus.PASS
 
-        if _field == "interfaces" and not exclusive:
-            # if the set of measured interfaces are in the set of expected, and
-            # this check is non-exclusive, then pass it.
-            if msrd_ifs_set & expd_ifs_set == expd_ifs_set:
-                return CheckStatus.PASS
+        if _field == "interfaces":
+            if exclusive:
+                # use the sets for comparison purposes to avoid mismatch
+                # due to list order.
+                if msrd_ifs_set == expd_ifs_set:
+                    return CheckStatus.PASS
+            else:
+                # if the set of measured interfaces are in the set of expected, and
+                # this check is non-exclusive, then pass it.
+                if msrd_ifs_set & expd_ifs_set == expd_ifs_set:
+                    return CheckStatus.PASS
 
     results.append(result.measure(on_mismatch=on_mismatch))

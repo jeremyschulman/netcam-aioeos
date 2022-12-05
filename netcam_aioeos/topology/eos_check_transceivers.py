@@ -131,12 +131,19 @@ async def eos_check_transceivers(
         )
 
     # next add the test coverage for the exclusive list.
+    # only include interfaces that have a serial-number to avoid false
+    # failures
+
+    dev_inv_ifxvrs = dict(filter(
+        lambda _iface: _iface[1]['serialNum'],
+        dev_inv_ifstatus.items()
+    ))
 
     if check_collection.exclusive:
         _check_exclusive_list(
             device=device,
             expd_ports=if_port_numbers,
-            msrd_ports=dev_inv_ifstatus,
+            msrd_ports=dev_inv_ifxvrs,
             rsvd_ports=rsvd_ports_set,
             results=results,
         )
