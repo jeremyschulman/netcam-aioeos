@@ -134,10 +134,9 @@ async def eos_check_transceivers(
     # only include interfaces that have a serial-number to avoid false
     # failures
 
-    dev_inv_ifxvrs = dict(filter(
-        lambda _iface: _iface[1]['serialNum'],
-        dev_inv_ifstatus.items()
-    ))
+    dev_inv_ifxvrs = dict(
+        filter(lambda _iface: _iface[1]["serialNum"], dev_inv_ifstatus.items())
+    )
 
     if check_collection.exclusive:
         _check_exclusive_list(

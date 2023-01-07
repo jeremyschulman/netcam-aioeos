@@ -32,6 +32,8 @@ from netcad.vlans.checks.check_vlans import (
     VlanExclusiveListCheckResult,
 )
 
+from netcad.vlans import VlanDesignServiceConfig
+
 # -----------------------------------------------------------------------------
 # Private Imports
 # -----------------------------------------------------------------------------
@@ -76,6 +78,11 @@ async def eos_check_vlans(
 
     dev_vlans_info = cli_vlan_resp["vlans"]
     dev_vlans_cfg_info = cli_vlan_cfg_resp["vlans"]
+
+    ds_config = VlanDesignServiceConfig.parse_obj(vlan_checks.config)
+    if ds_config.allow_unused_vlan1:
+        dev_vlans_info.pop("1")
+        dev_vlans_cfg_info.pop("1")
 
     msrd_active_vlan_ids = {
         int(vlan_id)
@@ -197,6 +204,14 @@ def eos_check_one_vlan(
 
     def on_mismatch(_field, _expd, _msrd):
         if _field == "name":
+
+            # if the VLAN name is not set, then we do not check-validate the
+            # configured name.  This was added to support design-unused-vlan1;
+            # but could be used for any VLAN.
+
+            if not _expd:
+                return CheckStatus.PASS
+
             result.logs.WARN(_field, dict(expected=_expd, measured=_msrd))
             return CheckStatus.PASS
 
