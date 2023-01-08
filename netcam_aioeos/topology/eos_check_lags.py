@@ -16,7 +16,6 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import AsyncGenerator, Generator
 from collections import defaultdict
 from itertools import chain
 
@@ -24,10 +23,15 @@ from itertools import chain
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.topology.checks.check_lags import LagCheckCollection, LagCheck
+from netcad.topology.checks.check_lags import (
+    LagCheckCollection,
+    LagCheck,
+    LagCheckResult,
+    LagCheckExpectedInterfaceStatus,
+)
 
-from netcad.device import Device, DeviceInterface
-from netcad.checks import check_result_types as trt
+from netcad.device import Device
+from netcad.checks import CheckResultsCollection
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -44,7 +48,7 @@ __all__ = ["eos_check_lags", "eos_check_one_lag"]
 
 
 @EOSDeviceUnderTest.execute_checks.register
-async def eos_check_lags(self, testcases: LagCheckCollection) -> AsyncGenerator:
+async def eos_check_lags(self, testcases: LagCheckCollection) -> CheckResultsCollection:
     """
     This chcek-executor validates that the LAGs on the device match those as
     defined in the design.
@@ -58,6 +62,8 @@ async def eos_check_lags(self, testcases: LagCheckCollection) -> AsyncGenerator:
     # The EOS data is a dictionary key is port-channel interface name.
     dev_lacp_data = cli_lacp_resp["portChannels"]
 
+    results = list()
+
     for check in testcases.checks:
 
         # The test case ID is the port-channel interface name.
@@ -67,35 +73,28 @@ async def eos_check_lags(self, testcases: LagCheckCollection) -> AsyncGenerator:
         # with the next interface.
 
         if not (lag_status := dev_lacp_data.get(if_name)):
-            yield trt.CheckFailNoExists(device=device, check=check)
+            result = LagCheckResult(device=device, check=check, measurement=None)
+            results.append(result)
             continue
 
-        for result in eos_check_one_lag(
-            device=device, check=check, lag_status=lag_status
-        ):
-            yield result
+        eos_check_one_lag(
+            device=device, check=check, lag_status=lag_status, results=results
+        )
+
+    return results
 
 
-def eos_check_one_lag(device: Device, check: LagCheck, lag_status: dict) -> Generator:
+def eos_check_one_lag(
+    device: Device, check: LagCheck, lag_status: dict, results: CheckResultsCollection
+):
     """
     Validates the checks for one specific LAG on the device.
     """
-    fails = 0
 
     po_interfaces = lag_status["interfaces"]
 
-    # TODO: presenting this code is **ASSUMING** that the given LAG is enabled
-    #       in the design.  The test-case does account for this setting; but not
-    #       checking it.  Need to implement that logic.
-
-    # TODO: each test-case interface has an `enabled` setting to account for
-    #       whether or not the interface is expected to be in the bundled state.
-    #       the code below is currently not checking this setting.  Need to
-    #       implement that logic.
-
-    expd_interfaces = set(
-        lagif.interface for lagif in check.expected_results.interfaces
-    )
+    result = LagCheckResult(device=device, check=check)
+    msrd = result.measurement
 
     # -------------------------------------------------------------------------
     # check the interface bundle status.  we will use a defaultdict-list to find
@@ -112,48 +111,22 @@ def eos_check_one_lag(device: Device, check: LagCheck, lag_status: dict) -> Gene
     # means that there are interfaces in a non bundled state.  Need to report
     # this as a failure.
 
-    if bundle_status:
-        nonb_interfacees = list(chain.from_iterable(bundle_status.values()))
-        yield trt.CheckFailMissingMembers(
-            device=device,
-            check=check,
-            expected=list(expd_interfaces),
-            missing=nonb_interfacees,
-        )
-        fails += 1
+    iface_unbundled_state = {
+        if_name: False for if_name in list(chain.from_iterable(bundle_status.values()))
+    }
+
+    lag_down = len(iface_unbundled_state) == len(po_interfaces)
 
     # -------------------------------------------------------------------------
     # Check for any missing or extra interfaces in the port-channel liss.
     # -------------------------------------------------------------------------
 
-    msrd_interfaces = set(po_interfaces)
-
-    if missing_interfaces := expd_interfaces - msrd_interfaces:
-        yield trt.CheckFailMissingMembers(
-            device=device,
-            check=check,
-            field="interfaces",
-            expected=list(expd_interfaces),
-            missing=list(missing_interfaces),
+    msrd.enabled = not lag_down
+    msrd.interfaces = [
+        LagCheckExpectedInterfaceStatus(
+            enabled=iface_unbundled_state.get(if_name, True), interface=if_name
         )
-        fails += 1
+        for if_name in po_interfaces
+    ]
 
-    if extra_interfaces := msrd_interfaces - expd_interfaces:
-        yield trt.CheckFailExtraMembers(
-            device=device,
-            check=check,
-            field="interfaces",
-            expected=list(expd_interfaces),
-            extras=list(extra_interfaces),
-        )
-        fails += 1
-
-    if fails:
-        return
-
-    # -------------------------------------------------------------------------
-    # Test case passed
-    # -------------------------------------------------------------------------
-
-    if_list = [iface.name for iface in sorted(map(DeviceInterface, msrd_interfaces))]
-    yield trt.CheckPassResult(device=device, check=check, measurement=if_list)
+    results.append(result.measure())

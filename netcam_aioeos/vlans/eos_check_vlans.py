@@ -80,7 +80,7 @@ async def eos_check_vlans(
     dev_vlans_cfg_info = cli_vlan_cfg_resp["vlans"]
 
     ds_config = VlanDesignServiceConfig.parse_obj(vlan_checks.config)
-    if ds_config.allow_unused_vlan1:
+    if not ds_config.check_vlan1:
         dev_vlans_info.pop("1")
         dev_vlans_cfg_info.pop("1")
 
