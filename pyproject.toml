@@ -7,7 +7,6 @@ authors = ["Jeremy Schulman"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-netcad = {path = "../netcadcam"}
 aio-eapi = "^0.3.0"
 
 [tool.poetry.dev-dependencies]
