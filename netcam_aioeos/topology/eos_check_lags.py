@@ -93,15 +93,6 @@ def eos_check_one_lag(
 
     po_interfaces = lag_status["interfaces"]
 
-    # TODO: presenting this code is **ASSUMING** that the given LAG is enabled
-    #       in the design.  The test-case does account for this setting; but not
-    #       checking it.  Need to implement that logic.
-
-    # TODO: each test-case interface has an `enabled` setting to account for
-    #       whether or not the interface is expected to be in the bundled state.
-    #       the code below is currently not checking this setting.  Need to
-    #       implement that logic.
-
     result = LagCheckResult(device=device, check=check)
     msrd = result.measurement
 
