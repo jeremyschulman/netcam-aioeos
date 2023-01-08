@@ -30,7 +30,7 @@ from netcad.topology.checks.check_lags import (
     LagCheckExpectedInterfaceStatus,
 )
 
-from netcad.device import Device
+from netcad.device import Device, DeviceInterface
 from netcad.checks import CheckResultsCollection
 
 # -----------------------------------------------------------------------------
@@ -122,11 +122,15 @@ def eos_check_one_lag(
     # -------------------------------------------------------------------------
 
     msrd.enabled = not lag_down
+
     msrd.interfaces = [
         LagCheckExpectedInterfaceStatus(
             enabled=iface_unbundled_state.get(if_name, True), interface=if_name
         )
-        for if_name in po_interfaces
+        for if_name in sorted(
+            po_interfaces,
+            key=lambda _ifname: DeviceInterface(_ifname, interfaces=device.interfaces),
+        )
     ]
 
     results.append(result.measure())
