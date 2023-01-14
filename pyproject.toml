@@ -1,23 +1,12 @@
 [tool.poetry]
 name = "netcam-aioeos"
-version = "0.2.1"
+version = "0.3.0"
 description = "NetCAD - Arista EOS (asyncio) driver"
 readme = "README.md"
 authors = ["Jeremy Schulman"]
 
 [tool.poetry.dependencies]
-   python = ">=^3.8"
-
-[tool.poetry.dev-dependencies]
-    pytest = "*"
-    invoke = "*"
-    black = "*"
-    flake8 = "*"
-    flake8-breakpoint = "*"
-    pytest-cov = "*"
-    pytest-asyncio = "*"
-    pre-commit = "*"
-    interrogate = "*"
+   python = ">=3.10"
 
 
 [build-system]
