@@ -65,7 +65,6 @@ async def eos_check_lags(self, testcases: LagCheckCollection) -> CheckResultsCol
     results = list()
 
     for check in testcases.checks:
-
         # The test case ID is the port-channel interface name.
         if_name = check.check_id()
 
