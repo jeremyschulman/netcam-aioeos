@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .eos_config import init_config
+from .eos_plugin_config import eos_plugin_config
 
 
 def plugin_init(plugin_def: dict):
@@ -31,4 +31,4 @@ def plugin_init(plugin_def: dict):
     if not (config := plugin_def.get("config")):
         return
 
-    init_config(config)
+    eos_plugin_config(config)

@@ -31,7 +31,7 @@ from netcad.netcam.dev_config import AsyncDeviceConfigurable
 # Privae Imports
 # -----------------------------------------------------------------------------
 
-from .eos_config import g_eos
+from netcam_aioeos.eos_plugin_config import g_eos
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -60,7 +60,9 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
             The netcad device instance from the design.
         """
         super().__init__(device=device)
-        self.eapi = DeviceEAPI(host=device.name, auth=g_eos.basic_auth)
+        self.eapi = DeviceEAPI(
+            host=device.name, auth=g_eos.basic_auth, timeout=g_eos.config.timeout
+        )
 
     async def fetch_running_config(self) -> str:
         """

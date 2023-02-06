@@ -30,7 +30,7 @@ from pydantic import BaseModel, Field, Extra, ValidationError
 # Exports
 # -----------------------------------------------------------------------------
 
-__all__ = ["init_config", "g_eos"]
+__all__ = ["eos_plugin_config", "g_eos"]
 
 # -----------------------------------------------------------------------------
 #
@@ -98,9 +98,10 @@ class EosConfig(BaseModel, extra=Extra.forbid):
     """define the schema for the plugin configuration"""
 
     env: EosEnvConfig
+    timeout: int = 60
 
 
-def init_config(config: dict):
+def eos_plugin_config(config: dict):
     """
     Called during plugin init, this function is used to setup the default
     credentials to access the EOS devices.

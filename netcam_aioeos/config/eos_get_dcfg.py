@@ -22,7 +22,7 @@ from netcad.device import Device
 # Private Imports
 # -----------------------------------------------------------------------------
 
-from netcam_aioeos.eos_dcfg import EOSDeviceConfigurable
+from netcam_aioeos.config.eos_dcfg import EOSDeviceConfigurable
 
 # -----------------------------------------------------------------------------
 # Exports
