@@ -56,7 +56,9 @@ class EosGlobals:
         The authorization value that will be used to access the EOS devices via
         eAPI. This username-password auth combination is prepared once during
         initialization so that we do not need to duplicate the calls for each
-        DUT.  Note that this approach does (currently) preclude the use of
+        DUT.
+
+        Note that this approach does (currently) preclude the use of
         per-device authorizations.  TODO: feature.
 
     config: dict

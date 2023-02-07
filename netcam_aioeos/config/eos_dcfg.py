@@ -98,7 +98,20 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         return await self.eapi.cli("show running-config", ofmt="text")
 
     async def load_config(self, config_contents: str, replace: Optional[bool] = False):
-        pass
+        """
+        Attempts to load the given configuration into the session config.  If
+        this fails for any reason an exception will be raised.
+
+        Parameters
+        ----------
+        config_contents
+        replace
+        """
+        await self.sesson_config.push(config_contents, replace=replace)
+
+    async def abort_config(self):
+        """Aborts the EOS session config"""
+        await self.sesson_config.abort()
 
     async def diff_config(self) -> str:
         return await self.sesson_config.diff()
