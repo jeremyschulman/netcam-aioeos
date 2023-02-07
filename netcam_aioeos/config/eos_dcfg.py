@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from typing import Optional
 
 # =============================================================================
 # This file contains the EOS "Device Under Test" class definition.  This is
@@ -24,6 +25,8 @@
 # -----------------------------------------------------------------------------
 
 from aioeapi import Device as DeviceEAPI
+from aioeapi.config_session import SessionConfig
+
 from netcad.device import Device
 from netcad.netcam.dev_config import AsyncDeviceConfigurable
 
@@ -63,6 +66,26 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         self.eapi = DeviceEAPI(
             host=device.name, auth=g_eos.basic_auth, timeout=g_eos.config.timeout
         )
+        self.sesson_config: SessionConfig | None = None
+
+    def _set_config_id(self, name: str):
+        """
+        The eAPI config session will be created when the Caller sets the
+        config_id attribute.
+
+        Parameters
+        ----------
+        name: str
+            The name of the config session, which is the same as the config_id
+            attribute.
+        """
+        self.sesson_config = self.eapi.config_session(name)
+
+    async def check_reachability(self) -> bool:
+        """
+        Returns True when the device is reachable over eAPI, False otherwise.
+        """
+        return await self.eapi.check_connection()
 
     async def fetch_running_config(self) -> str:
         """
@@ -73,3 +96,9 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         The running config as a text string.
         """
         return await self.eapi.cli("show running-config", ofmt="text")
+
+    async def load_config(self, config_contents: str, replace: Optional[bool] = False):
+        pass
+
+    async def diff_config(self) -> str:
+        return await self.sesson_config.diff()
