@@ -53,12 +53,32 @@ def eos_plugin_config(config: dict):
     try:
         g_eos.config = EosPluginConfig.parse_obj(config)
     except ValidationError as exc:
-        raise RuntimeError(f"invalid plugin configuration: {str(exc)}")
+        raise RuntimeError(f"Failed to load EOS plugin configuration: {str(exc)}")
 
     try:
         g_eos.basic_auth = httpx.BasicAuth(
-            username=environ[g_eos.config.env.username],
-            password=environ[g_eos.config.env.password],
+            username=environ[g_eos.config.env.read.username.get_secret_value()],
+            password=environ[g_eos.config.env.read.password.get_secret_value()],
         )
     except KeyError as exc:
-        raise RuntimeError(f"Missing environment variable: {exc.args[0]}")
+        raise RuntimeError(
+            f"Missing read credential environment variable: {exc.args[0]}"
+        )
+
+    # If the User provides the admin credential environment variobles,
+    # then set up the admin authentication that is used for configruation
+    # management
+
+    if (rw_user := g_eos.config.env.admin.username) and (
+        rw_passwd := g_eos.config.env.admin.password
+    ):
+        try:
+            username = environ[rw_user]
+            password = environ[rw_passwd]
+        except KeyError as exc:
+            raise RuntimeError(
+                f"Missing admin credential environment variable: {exc.args[0]}"
+            )
+
+        g_eos.basic_auth_rw = httpx.BasicAuth(username, password)
+        g_eos.scp_creds = (username, password)

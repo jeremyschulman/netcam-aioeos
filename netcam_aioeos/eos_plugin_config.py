@@ -13,10 +13,17 @@
 #  limitations under the License.
 
 # -----------------------------------------------------------------------------
+# System Imports
+# -----------------------------------------------------------------------------
+
+from typing import Optional
+
+# -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from pydantic import BaseModel, Field, Extra
+from pydantic import BaseModel, Extra
+from pydantic_env.models import EnvSecretStr
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -30,8 +37,6 @@ __all__ = ["EosPluginConfig"]
 #
 # -----------------------------------------------------------------------------
 
-DEFAULT_ENV_USERNAME = "NETWORK_USERNAME"
-DEFAULT_ENV_PASSWORD = "NETWORK_PASSWORD"
 
 # -----------------------------------------------------------------------------
 # Use pydantic models to validate the User configuration file.  Configure
@@ -40,14 +45,23 @@ DEFAULT_ENV_PASSWORD = "NETWORK_PASSWORD"
 # -----------------------------------------------------------------------------
 
 
-class EosPluginEnvConfig(BaseModel, extra=Extra.forbid):
+class EosPluginEnvCreds(BaseModel, extra=Extra.forbid):
     """
     Define the environment variable names to source the username and password values.  When
     provided, these will override the default values.
+
+    The read-write (rw) values are used for configuration management.  The User
+    environment may not need these features, and therefore these config
+    parameters are optional.
     """
 
-    username: str = Field(default=DEFAULT_ENV_USERNAME)
-    password: str = Field(default=DEFAULT_ENV_PASSWORD)
+    username: EnvSecretStr
+    password: EnvSecretStr
+
+
+class EosPluginEnvConfig(BaseModel, extra=Extra.forbid):
+    read: EosPluginEnvCreds
+    admin: Optional[EosPluginEnvCreds] = None
 
 
 class EosPluginConfig(BaseModel, extra=Extra.forbid):

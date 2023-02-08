@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+
 from typing import Optional
 
 # =============================================================================
@@ -18,7 +19,6 @@ from typing import Optional
 # where the specific check-executors are wired into the class to support the
 # various design-service checks.
 # =============================================================================
-
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -63,8 +63,9 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
             The netcad device instance from the design.
         """
         super().__init__(device=device)
+        self._scp_creds = g_eos.scp_creds
         self.eapi = DeviceEAPI(
-            host=device.name, auth=g_eos.basic_auth, timeout=g_eos.config.timeout
+            host=device.name, auth=g_eos.basic_auth_rw, timeout=g_eos.config.timeout
         )
         self.sesson_config: SessionConfig | None = None
 

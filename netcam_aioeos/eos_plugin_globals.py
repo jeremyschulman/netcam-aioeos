@@ -16,15 +16,15 @@
 # System Imports
 # -----------------------------------------------------------------------------
 
-from typing import Optional
+from typing import Optional, Tuple
 
 # -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
 
 import httpx
-from pydantic.dataclasses import dataclass
 
+from dataclasses import dataclass
 from .eos_plugin_config import EosPluginConfig
 
 
@@ -36,13 +36,17 @@ class EosGlobals:
     Attributes
     ----------
     basic_auth: httpx.BasicAuth
-        The authorization value that will be used to access the EOS devices via
-        eAPI. This username-password auth combination is prepared once during
-        initialization so that we do not need to duplicate the calls for each
-        DUT.
+        The authorization value that will be used for read-only access the EOS
+        devices via eAPI. This username-password auth combination is prepared
+        once during initialization so that we do not need to duplicate the
+        calls for each DUT.
 
         Note that this approach does (currently) preclude the use of
         per-device authorizations.  TODO: feature.
+
+    basic_auth_rw: httpx.BasicAuth
+        The authorization used for read-write access.  This is used primarily
+        for configuration management.
 
     config: dict
         This is the plugin configuration dictionary as declared in the User
@@ -50,7 +54,9 @@ class EosGlobals:
     """
 
     basic_auth: Optional[httpx.BasicAuth] = None
+    basic_auth_rw: Optional[httpx.BasicAuth] = None
     config: Optional[EosPluginConfig] = None
+    scp_creds: Optional[Tuple[str, str]] = None
 
 
 # -----------------------------------------------------------------------------
