@@ -12,7 +12,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from os import environ
 from pydantic import ValidationError
 import httpx
 
@@ -55,30 +54,16 @@ def eos_plugin_config(config: dict):
     except ValidationError as exc:
         raise RuntimeError(f"Failed to load EOS plugin configuration: {str(exc)}")
 
-    try:
-        g_eos.basic_auth = httpx.BasicAuth(
-            username=environ[g_eos.config.env.read.username.get_secret_value()],
-            password=environ[g_eos.config.env.read.password.get_secret_value()],
-        )
-    except KeyError as exc:
-        raise RuntimeError(
-            f"Missing read credential environment variable: {exc.args[0]}"
-        )
+    g_eos.basic_auth = httpx.BasicAuth(
+        username=g_eos.config.env.read.username.get_secret_value(),
+        password=g_eos.config.env.read.password.get_secret_value(),
+    )
 
-    # If the User provides the admin credential environment variobles,
-    # then set up the admin authentication that is used for configruation
-    # management
+    # If the User provides the admin credential environment variobles, then set
+    # up the admin authentication that is used for configruation management
 
-    if (rw_user := g_eos.config.env.admin.username) and (
-        rw_passwd := g_eos.config.env.admin.password
-    ):
-        try:
-            username = environ[rw_user]
-            password = environ[rw_passwd]
-        except KeyError as exc:
-            raise RuntimeError(
-                f"Missing admin credential environment variable: {exc.args[0]}"
-            )
-
-        g_eos.basic_auth_rw = httpx.BasicAuth(username, password)
-        g_eos.scp_creds = (username, password)
+    if admin := g_eos.config.env.admin:
+        admin_user = admin.username.get_secret_value()
+        adin_passwd = admin.password.get_secret_value()
+        g_eos.basic_auth_rw = httpx.BasicAuth(admin_user, adin_passwd)
+        g_eos.scp_creds = (admin_user, adin_passwd)

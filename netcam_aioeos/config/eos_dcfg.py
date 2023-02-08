@@ -110,6 +110,28 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         """
         await self.sesson_config.push(config_contents, replace=replace)
 
+    async def load_scp_file(self, filename: str, replace: Optional[bool] = False):
+        """
+        This function is used to load the configuration from the devices local
+        filesystem, after the configuration file has been copied via the
+        scp_config method.
+
+        If the replace parameter is True then the file contents will replace
+        the existing session config (load-replace).
+
+        Parameters
+        ----------
+        filename:
+            The name of the configuration file without any device specific
+            filesys-prefix (e.g. "flash:").  This subclass will provide any
+            necessary filesys-prefix.
+
+        replace:
+            When True, the contents of the file will completely replace the
+            session config for a load-replace behavior.
+        """
+        await self.sesson_config.load_scp_file(filename=filename, replace=replace)
+
     async def abort_config(self):
         """Aborts the EOS session config"""
         await self.sesson_config.abort()
