@@ -34,7 +34,7 @@ from netcad.netcam.dev_config import AsyncDeviceConfigurable
 # Privae Imports
 # -----------------------------------------------------------------------------
 
-from netcam_aioeos.eos_plugin_config import g_eos
+from netcam_aioeos.eos_plugin_globals import g_eos
 
 # -----------------------------------------------------------------------------
 # Exports

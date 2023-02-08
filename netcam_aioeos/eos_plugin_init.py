@@ -12,7 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .eos_plugin_config import eos_plugin_config
+from os import environ
+from pydantic import ValidationError
+import httpx
+
+from .eos_plugin_globals import g_eos
+from .eos_plugin_config import EosPluginConfig
 
 
 def plugin_init(plugin_def: dict):
@@ -32,3 +37,28 @@ def plugin_init(plugin_def: dict):
         return
 
     eos_plugin_config(config)
+
+
+def eos_plugin_config(config: dict):
+    """
+    Called during plugin init, this function is used to setup the default
+    credentials to access the EOS devices.
+
+    Parameters
+    ----------
+    config: dict
+        The dict object as defined in the User configuration file.
+    """
+
+    try:
+        g_eos.config = EosPluginConfig.parse_obj(config)
+    except ValidationError as exc:
+        raise RuntimeError(f"invalid plugin configuration: {str(exc)}")
+
+    try:
+        g_eos.basic_auth = httpx.BasicAuth(
+            username=environ[g_eos.config.env.username],
+            password=environ[g_eos.config.env.password],
+        )
+    except KeyError as exc:
+        raise RuntimeError(f"Missing environment variable: {exc.args[0]}")

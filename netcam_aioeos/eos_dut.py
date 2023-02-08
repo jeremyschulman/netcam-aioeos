@@ -41,7 +41,7 @@ from netcad.netcam.dut import AsyncDeviceUnderTest
 # Privae Imports
 # -----------------------------------------------------------------------------
 
-from .eos_plugin_config import g_eos
+from .eos_plugin_globals import g_eos
 
 # -----------------------------------------------------------------------------
 # Exports
