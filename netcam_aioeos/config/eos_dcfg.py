@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 from typing import Optional
+from datetime import timedelta
 
 # =============================================================================
 # This file contains the EOS "Device Under Test" class definition.  This is
@@ -132,9 +133,63 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         """
         await self.sesson_config.load_scp_file(filename=filename, replace=replace)
 
+    async def delete_scp_file(self, filename: str):
+        """
+        This function is used to remove the configuration file that was
+        previously copied to the remote device.  This function is expected to
+        be called during a "cleanup" process.
+
+        Parameters
+        ----------
+        filename:
+            The name of the configuration file without any device specific
+            filesys-prefix (e.g. "flash:").  The subclass will provide any
+            necessary filesys-prefix.
+        """
+        await self.eapi.cli(f"delete flash:{filename}")
+
     async def abort_config(self):
         """Aborts the EOS session config"""
         await self.sesson_config.abort()
 
     async def diff_config(self) -> str:
         return await self.sesson_config.diff()
+
+    async def save_config(self, timeout: timedelta) -> bool:
+        """
+        This function is used to commit the staged configuration.
+
+        Once the config is activated, the next step is to check reachability to
+        the device to ensure the configuration did not result in loss of
+        reachability.  If that fails, then rollback the configuraiton to the
+        previous config.
+
+        Notes
+        ------
+        The presumption is that the underlying devlice can support a mechansim
+        to "rollback" the staged configuration using a timer mechanism.  This
+        is supported natively in some operating systems, such as Arista EOS and
+        Juniper JUNOS.  If this is not the case, for example IOS-XE, then a mechanism
+        to support this must be implemented in some manner.
+
+        Parameters
+        ----------
+        timeout:
+            Specifies the amount of time to set the timeout-rollback counter.
+        """
+
+        hours, remainder = divmod(timeout.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        timer = f"00:{minutes:02}:{seconds:02}"
+
+        await self.sesson_config.commit(timer=timer)
+
+        if not await self.check_reachability():
+            await self.sesson_config.abort()
+            return False
+
+        # commit the configuration and copy running to startup
+        await self.sesson_config.commit()
+        await self.eapi.cli("write")
+
+        return True
