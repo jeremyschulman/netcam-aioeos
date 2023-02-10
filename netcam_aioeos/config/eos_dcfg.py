@@ -12,14 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Optional
-from datetime import timedelta
+# -----------------------------------------------------------------------------
+# System Imports
+# -----------------------------------------------------------------------------
 
-# =============================================================================
-# This file contains the EOS "Device Under Test" class definition.  This is
-# where the specific check-executors are wired into the class to support the
-# various design-service checks.
-# =============================================================================
+from typing import Optional
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -41,6 +38,8 @@ from netcam_aioeos.eos_plugin_globals import g_eos
 # Exports
 # -----------------------------------------------------------------------------
 
+_Caps = AsyncDeviceConfigurable.Capabilities
+
 
 class EOSDeviceConfigurable(AsyncDeviceConfigurable):
     """
@@ -55,6 +54,8 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         The asyncio driver instance used to communicate with the EOS eAPI.
     """
 
+    DEFAULT_CAPABILITIES = _Caps.diff | _Caps.rollback | _Caps.check | _Caps.replace
+
     def __init__(self, *, device: Device, **_kwargs):
         """
         Initialize the instance with eAPI
@@ -65,10 +66,12 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         """
         super().__init__(device=device)
         self._scp_creds = g_eos.scp_creds
+        self._dev_fs = "flash:"
         self.eapi = DeviceEAPI(
             host=device.name, auth=g_eos.basic_auth_rw, timeout=g_eos.config.timeout
         )
         self.sesson_config: SessionConfig | None = None
+        self.capabilities = self.DEFAULT_CAPABILITIES
 
     def _set_config_id(self, name: str):
         """
@@ -83,13 +86,13 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         """
         self.sesson_config = self.eapi.config_session(name)
 
-    async def check_reachability(self) -> bool:
+    async def is_reachable(self) -> bool:
         """
         Returns True when the device is reachable over eAPI, False otherwise.
         """
         return await self.eapi.check_connection()
 
-    async def fetch_running_config(self) -> str:
+    async def config_get(self) -> str:
         """
         Retrieves the current running configuration from the device.
 
@@ -99,97 +102,40 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         """
         return await self.eapi.cli("show running-config", ofmt="text")
 
-    async def load_config(self, config_contents: str, replace: Optional[bool] = False):
-        """
-        Attempts to load the given configuration into the session config.  If
-        this fails for any reason an exception will be raised.
-
-        Parameters
-        ----------
-        config_contents
-        replace
-        """
-        await self.sesson_config.push(config_contents, replace=replace)
-
-    async def load_scp_file(self, filename: str, replace: Optional[bool] = False):
-        """
-        This function is used to load the configuration from the devices local
-        filesystem, after the configuration file has been copied via the
-        scp_config method.
-
-        If the replace parameter is True then the file contents will replace
-        the existing session config (load-replace).
-
-        Parameters
-        ----------
-        filename:
-            The name of the configuration file without any device specific
-            filesys-prefix (e.g. "flash:").  This subclass will provide any
-            necessary filesys-prefix.
-
-        replace:
-            When True, the contents of the file will completely replace the
-            session config for a load-replace behavior.
-        """
-        await self.sesson_config.load_scp_file(filename=filename, replace=replace)
-
-    async def delete_scp_file(self, filename: str):
-        """
-        This function is used to remove the configuration file that was
-        previously copied to the remote device.  This function is expected to
-        be called during a "cleanup" process.
-
-        Parameters
-        ----------
-        filename:
-            The name of the configuration file without any device specific
-            filesys-prefix (e.g. "flash:").  The subclass will provide any
-            necessary filesys-prefix.
-        """
-        await self.eapi.cli(f"delete flash:{filename}")
-
-    async def abort_config(self):
+    async def config_cancel(self):
         """Aborts the EOS session config"""
         await self.sesson_config.abort()
 
-    async def diff_config(self) -> str:
-        return await self.sesson_config.diff()
+    async def config_check(self, replace: Optional[bool | None] = None):
+        await self.sesson_config.load_scp_file(
+            filename=self.config_file.name, replace=replace or self.replace
+        )
 
-    async def save_config(self, timeout: timedelta) -> bool:
-        """
-        This function is used to commit the staged configuration.
+        self.config_diff_contents = await self.sesson_config.diff()
+        await self.sesson_config.abort()
 
-        Once the config is activated, the next step is to check reachability to
-        the device to ensure the configuration did not result in loss of
-        reachability.  If that fails, then rollback the configuraiton to the
-        previous config.
+    async def config_diff(self) -> str:
+        self.config_diff_contents = await self.sesson_config.diff()
+        return self.config_diff_contents
 
-        Notes
-        ------
-        The presumption is that the underlying devlice can support a mechansim
-        to "rollback" the staged configuration using a timer mechanism.  This
-        is supported natively in some operating systems, such as Arista EOS and
-        Juniper JUNOS.  If this is not the case, for example IOS-XE, then a mechanism
-        to support this must be implemented in some manner.
+    async def config_replace(self, rollback_timeout: int):
+        """ """
+        await self.sesson_config.load_scp_file(
+            filename=self.config_file.name, replace=True
+        )
+        await self.sesson_config.commit(timer=f"00:{rollback_timeout}:02:00")
 
-        Parameters
-        ----------
-        timeout:
-            Specifies the amount of time to set the timeout-rollback counter.
-        """
-
-        hours, remainder = divmod(timeout.seconds, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        timer = f"00:{minutes:02}:{seconds:02}"
-
-        await self.sesson_config.commit(timer=timer)
-
-        if not await self.check_reachability():
-            await self.sesson_config.abort()
-            return False
+        if not await self.is_reachable():
+            raise RuntimeError(f"{self.device.name}: device is no longer reachable.")
 
         # commit the configuration and copy running to startup
         await self.sesson_config.commit()
         await self.eapi.cli("write")
 
-        return True
+    async def file_delete(self):
+        """
+        This function is used to remove the configuration file that was
+        previously copied to the remote device.  This function is expected to
+        be called during a "cleanup" process.
+        """
+        await self.eapi.cli(f"delete flash:{self.config_file.name}")
