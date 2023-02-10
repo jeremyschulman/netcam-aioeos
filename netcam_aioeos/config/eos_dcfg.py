@@ -123,7 +123,16 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         await self.sesson_config.load_scp_file(
             filename=self.config_file.name, replace=True
         )
-        await self.sesson_config.commit(timer=f"00:{rollback_timeout}:02:00")
+
+        # capture the diffs before running the commit
+        self.config_diff_contents = await self.sesson_config.diff()
+
+        # if there are no diffs, abort the session, and return
+        if not self.config_diff_contents:
+            await self.sesson_config.abort()
+            return
+
+        await self.sesson_config.commit(timer=f"00:{rollback_timeout:02}:00")
 
         if not await self.is_reachable():
             raise RuntimeError(f"{self.device.name}: device is no longer reachable.")
