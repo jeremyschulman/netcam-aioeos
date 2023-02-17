@@ -86,6 +86,10 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         """
         self.sesson_config = self.eapi.config_session(name)
 
+    @property
+    def local_file(self):
+        return f"flash:{self.config_file.name}"
+
     async def is_reachable(self) -> bool:
         """
         Returns True when the device is reachable over eAPI, False otherwise.
@@ -106,13 +110,20 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         """Aborts the EOS session config"""
         await self.sesson_config.abort()
 
-    async def config_check(self, replace: Optional[bool | None] = None):
-        await self.sesson_config.load_scp_file(
-            filename=self.config_file.name, replace=replace or self.replace
-        )
+    async def config_check(self, replace: Optional[bool | None] = None) -> str | None:
+        try:
+            await self.sesson_config.load_scp_file(
+                filename=self.local_file, replace=replace or self.replace
+            )
+        except RuntimeError as exc:
+            errors = exc.args[0]
+        else:
+            errors = None
 
         self.config_diff_contents = await self.sesson_config.diff()
         await self.sesson_config.abort()
+
+        return errors
 
     async def config_diff(self) -> str:
         self.config_diff_contents = await self.sesson_config.diff()
@@ -120,9 +131,7 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
 
     async def config_replace(self, rollback_timeout: int):
         """ """
-        await self.sesson_config.load_scp_file(
-            filename=self.config_file.name, replace=True
-        )
+        await self.sesson_config.load_scp_file(filename=self.local_file, replace=True)
 
         # capture the diffs before running the commit
         self.config_diff_contents = await self.sesson_config.diff()
@@ -147,4 +156,9 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         previously copied to the remote device.  This function is expected to
         be called during a "cleanup" process.
         """
-        await self.eapi.cli(f"delete flash:{self.config_file.name}")
+        await self.eapi.cli(f"delete {self.local_file}")
+
+    async def config_merge(self, rollback_timeout: int):
+        raise RuntimeError(
+            f"{self.device.naem}: EOS config-mgmt does not support merge"
+        )
