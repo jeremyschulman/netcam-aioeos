@@ -9,7 +9,7 @@ authors = ["Jeremy Schulman"]
    python = ">=3.10"
    asyncssh = "*"
    pydantic-env = "*"
-   netcadcam = ">=0.4.0"
+   netcad = ">=0.4.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
