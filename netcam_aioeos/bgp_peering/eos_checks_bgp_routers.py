@@ -69,7 +69,6 @@ def _check_router_vrf(
     dev_data: dict,
     results: CheckResultsCollection,
 ):
-
     dev_data = dev_data["vrfs"][check.check_params.vrf or EOS_DEFAULT_VRF_NAME]
 
     result = BgpRouterCheckResult(device=dut.device, check=check)

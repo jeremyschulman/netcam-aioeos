@@ -41,7 +41,7 @@ from netcad.netcam.dut import AsyncDeviceUnderTest
 # Privae Imports
 # -----------------------------------------------------------------------------
 
-from .eos_config import g_eos
+from .eos_plugin_globals import g_eos
 
 # -----------------------------------------------------------------------------
 # Exports
@@ -79,7 +79,9 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
 
         super().__init__(device=device)
 
-        self.eapi = DeviceEAPI(host=device.name, auth=g_eos.basic_auth)
+        self.eapi = DeviceEAPI(
+            host=device.name, auth=g_eos.basic_auth, timeout=g_eos.config.timeout
+        )
         self.version_info: Optional[dict] = None
 
         # inialize the DUT cache mechanism; used exclusvely by the

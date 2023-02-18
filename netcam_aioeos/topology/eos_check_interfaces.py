@@ -130,7 +130,6 @@ async def eos_check_interfaces(
         # ---------------------------------------------------------------------
 
         if vlan_mo := _match_svi(if_name):
-
             # extract the VLAN ID value from the interface name; the lookup is
             # an int-as-string since that is how the data is encoded in the CLI
             # response object.  If the VLAN does not exist, or if the VLAN does

@@ -204,7 +204,6 @@ def eos_check_one_vlan(
 
     def on_mismatch(_field, _expd, _msrd):
         if _field == "name":
-
             # if the VLAN name is not set, then we do not check-validate the
             # configured name.  This was added to support design-unused-vlan1;
             # but could be used for any VLAN.

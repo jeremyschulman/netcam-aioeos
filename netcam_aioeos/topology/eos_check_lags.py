@@ -65,7 +65,6 @@ async def eos_check_lags(self, testcases: LagCheckCollection) -> CheckResultsCol
     results = list()
 
     for check in testcases.checks:
-
         # The test case ID is the port-channel interface name.
         if_name = check.check_id()
 
@@ -105,7 +104,8 @@ def eos_check_one_lag(
     for if_name, if_data in po_interfaces.items():
         bundle_status[if_data["actorPortStatus"]].append(if_name)
 
-    bundle_status.pop("bundled")
+    # add the default=None in case no interfaces are bundled.
+    bundle_status.pop("bundled", None)
 
     # if there are any keys remaining in the bundled_status dictionary this
     # means that there are interfaces in a non bundled state.  Need to report
