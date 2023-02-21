@@ -26,7 +26,7 @@ from aioeapi import Device as DeviceEAPI
 from aioeapi.config_session import SessionConfig
 
 from netcad.device import Device
-from netcad.netcam.dev_config import AsyncDeviceConfigurable
+from netcam.dcfg import AsyncDeviceConfigurable
 
 # -----------------------------------------------------------------------------
 # Privae Imports
@@ -160,5 +160,5 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
 
     async def config_merge(self, rollback_timeout: int):
         raise RuntimeError(
-            f"{self.device.naem}: EOS config-mgmt does not support merge"
+            f"{self.device.name}: EOS config-mgmt does not support merge"
         )
