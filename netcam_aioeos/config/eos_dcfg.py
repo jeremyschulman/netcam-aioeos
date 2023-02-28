@@ -27,6 +27,7 @@ from aioeapi.config_session import SessionConfig
 
 from netcad.device import Device
 from netcam.dcfg import AsyncDeviceConfigurable
+from netcad.logger import get_logger
 
 # -----------------------------------------------------------------------------
 # Privae Imports
@@ -111,6 +112,10 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         await self.sesson_config.abort()
 
     async def config_check(self, replace: Optional[bool | None] = None) -> str | None:
+        log = get_logger()
+        log.info(
+            f"{self.device.name}: loading config into session {self.config_id} ..."
+        )
         try:
             await self.sesson_config.load_scp_file(
                 filename=self.local_file, replace=replace or self.replace
@@ -120,6 +125,7 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         else:
             errors = None
 
+        log.info(f"{self.device.name}: generating session diff ...")
         self.config_diff_contents = await self.sesson_config.diff()
         await self.sesson_config.abort()
 
@@ -131,9 +137,14 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
 
     async def config_replace(self, rollback_timeout: int):
         """ """
+        log = get_logger()
+        log.info(
+            f"{self.device.name}: loading config into session {self.config_id} ..."
+        )
         await self.sesson_config.load_scp_file(filename=self.local_file, replace=True)
 
         # capture the diffs before running the commit
+        log.info(f"{self.device.name}: generating session diff ...")
         self.config_diff_contents = await self.sesson_config.diff()
 
         # if there are no diffs, abort the session, and return
@@ -141,12 +152,19 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
             await self.sesson_config.abort()
             return
 
+        log.info(
+            f"{self.device.name}: commit with rollback-timer {rollback_timeout} minutes ..."
+        )
         await self.sesson_config.commit(timer=f"00:{rollback_timeout:02}:00")
 
+        log.info(f"{self.device.name}: checking device reachability ...")
         if not await self.is_reachable():
             raise RuntimeError(f"{self.device.name}: device is no longer reachable.")
 
         # commit the configuration and copy running to startup
+        log.info(
+            f"{self.device.name}: committing confiuration and saving to startup ..."
+        )
         await self.sesson_config.commit()
         await self.eapi.cli("write")
 
