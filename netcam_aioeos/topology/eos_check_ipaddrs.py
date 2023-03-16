@@ -31,7 +31,7 @@ from netcad.topology.checks.check_ipaddrs import (
     IPInterfaceExclusiveListCheckResult,
 )
 
-from netcad.device import Device
+from netcad.device import Device, DeviceInterface
 from netcad.checks import CheckResultsCollection, CheckStatus
 
 # -----------------------------------------------------------------------------
@@ -202,10 +202,13 @@ def eos_test_exclusive_list(
     # the previous per-interface checks for any missing; therefore we only need
     # to check for any extra interfaces found on the device.
 
+    def sort_key(i):
+        return DeviceInterface(i, interfaces=device.interfaces)
+
     result = IPInterfaceExclusiveListCheckResult(
         device=device,
         check=IPInterfaceExclusiveListCheck(expected_results=expd_if_names),
-        measurement=sorted(msrd_if_names, key=expd_if_names.index),
+        measurement=sorted(msrd_if_names, key=sort_key),
     )
     results.append(result.measure())
 

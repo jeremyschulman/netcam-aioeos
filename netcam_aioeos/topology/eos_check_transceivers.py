@@ -167,7 +167,7 @@ def _check_exclusive_list(
     """
     Check to ensure that the list of transceivers found on the device matches the exclusive list.
     This check helps to find "unused" optics; or report them so that a Designer can account for them
-    in the design-notes.
+    in the design-notepad.
     """
 
     check = TransceiverExclusiveListCheck(expected_results=expd_ports)
