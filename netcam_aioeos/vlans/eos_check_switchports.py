@@ -18,7 +18,7 @@
 
 from netcad.checks import CheckResultsCollection
 
-from netcad.helpers import range_string
+from netcad.helpers import range_string, parse_istrange
 
 from netcad.vlans.checks.check_switchports import (
     SwitchportCheckCollection,
@@ -159,4 +159,19 @@ def _check_trunk_switchport(
         expd.native_vlan = expd.native_vlan.vlan_id
 
     msrd.trunk_allowed_vlans = msrd_status["trunkAllowedVlans"]
-    results.append(result.measure())
+
+    def on_mismatch(_field, _expd_v, _msrd_v):
+        if _field != "trunk_allowed_vlans":
+            return
+
+        _msrd_v_set = parse_istrange(_msrd_v)
+        _expd_v_set = set(expd_allowed_vids)
+        _info = dict()
+        if _missing := _expd_v_set - _msrd_v_set:
+            _info["missing"] = _missing
+        if _extra := _msrd_v_set - _expd_v_set:
+            _info["extra"] = _extra
+
+        result.logs.INFO("trunk_allowed_vlans_mismatch", _info)
+
+    results.append(result.measure(on_mismatch=on_mismatch))
