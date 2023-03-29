@@ -35,7 +35,7 @@ from aioeapi import Device as DeviceEAPI
 
 from netcad.device import Device
 from netcad.checks import CheckCollection, CheckResultsCollection
-from netcam.dut import AsyncDeviceUnderTest
+from netcam.dut import AsyncDeviceUnderTest, SetupError
 
 # -----------------------------------------------------------------------------
 # Privae Imports
@@ -157,7 +157,7 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
         await super().setup()
 
         if not await self.eapi.check_connection():
-            raise RuntimeError(
+            raise SetupError(
                 f"Unable to connect to EOS device: {self.device.name}: "
                 "Device offline or eAPI is not enabled, check config."
             )
