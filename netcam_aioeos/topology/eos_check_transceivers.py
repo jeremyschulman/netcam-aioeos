@@ -170,13 +170,16 @@ def _check_exclusive_list(
     in the design-notepad.
     """
 
-    check = TransceiverExclusiveListCheck(expected_results=expd_ports)
+    # remove the reserved ports form the used list so that we do not consider
+    # them as part of the exclusive list testing.
+
+    check = TransceiverExclusiveListCheck(expected_results=expd_ports - rsvd_ports)
 
     used_msrd_ports = {
         int(po_num)
         for po_num, po_data in msrd_ports.items()
         if po_data.get("modelName")
-    }
+    } - rsvd_ports
 
     # remove the reserved ports form the used list so that we do not consider
     # them as part of the exclusive list testing.
