@@ -13,6 +13,12 @@
 #  limitations under the License.
 
 # -----------------------------------------------------------------------------
+# System Imports
+# -----------------------------------------------------------------------------
+
+from typing import cast
+
+# -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
 
@@ -82,7 +88,7 @@ async def eos_check_switchports(
     for check in switchport_checks.checks:
         result = SwitchportCheckResult(device=device, check=check)
 
-        expd_status = check.expected_results
+        expd_status = cast(SwitchportCheck.ExpectSwitchport, check.expected_results)
 
         if_name = check.check_id()
 
@@ -94,7 +100,15 @@ async def eos_check_switchports(
             results.append(result.measure())
             continue
 
+        # ensure the expected port mode matches before calling the specific
+        # mode check.  if there is a mismatch, then fail now.
+
         msrd_swpinfo = msrd_port["switchportInfo"]
+        if expd_status.switchport_mode != (msrd_mdoe := msrd_swpinfo["mode"]):
+            result.measurement = SwitchportCheckResult.Measurement()
+            result.measurement.switchport_mode = msrd_mdoe
+            results.append(result.measure())
+            continue
 
         # verify the expected switchport mode (access / trunk)
         (
@@ -135,9 +149,8 @@ def _check_trunk_switchport(
     These checks include matching on the native-vlan and trunk-allowed-vlans.
     """
 
-    expd: SwitchportCheck.ExpectTrunk = result.check.expected_results
+    expd = cast(SwitchportCheck.ExpectTrunk, result.check.expected_results)
     msrd = result.measurement = SwitchportCheckResult.MeasuredTrunk()
-
     msrd.switchport_mode = msrd_status["mode"]
     msrd.native_vlan = msrd_status["trunkingNativeVlanId"]
 
@@ -165,6 +178,7 @@ def _check_trunk_switchport(
             return
 
         _msrd_v_set = parse_istrange(_msrd_v)
+
         _expd_v_set = set(expd_allowed_vids)
         _info = dict()
         if _missing := _expd_v_set - _msrd_v_set:
