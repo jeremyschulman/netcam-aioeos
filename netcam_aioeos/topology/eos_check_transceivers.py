@@ -190,7 +190,7 @@ def _check_exclusive_list(
         device=device, check=check, measurement=used_msrd_ports
     )
 
-    results.append(result.measure())
+    results.append(result.measure(on_extra=CheckStatus.INFO))
 
 
 def eos_test_one_interface(
