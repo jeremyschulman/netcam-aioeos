@@ -7,7 +7,7 @@ authors = ["Jeremy Schulman"]
 
 [tool.poetry.dependencies]
    python = ">=3.10"
-   netcad = ">=0.8.0"
+   netcad = ">=0.9.0"
    asyncssh = "*"
    pydantic-env = "*"
    aio-eapi = ">=0.6.0"
