@@ -24,7 +24,7 @@ from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME, EOS_MAP_BGP_STATES
 # -----------------------------------------------------------------------------
 
 
-@EOSDeviceUnderTest.execute_checks.register
+@EOSDeviceUnderTest.execute_checks.register  # noqa
 async def check_neeighbors(
     self, check_collection: BgpNeighborsCheckCollection
 ) -> CheckResultsCollection:
@@ -100,7 +100,7 @@ def _check_bgp_neighbor(
     # Store the measurements
 
     msrd = result.measurement
-    msrd.remote_asn = nei_data["asn"]
+    msrd.remote_asn = int(nei_data["asn"])
     msrd.state = EOS_MAP_BGP_STATES[nei_data["peerState"]]
 
     results.append(result.measure())

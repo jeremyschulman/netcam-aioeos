@@ -47,7 +47,7 @@ from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 __all__ = ["eos_check_lags", "eos_check_one_lag"]
 
 
-@EOSDeviceUnderTest.execute_checks.register
+@EOSDeviceUnderTest.execute_checks.register  # noqa
 async def eos_check_lags(self, testcases: LagCheckCollection) -> CheckResultsCollection:
     """
     This chcek-executor validates that the LAGs on the device match those as

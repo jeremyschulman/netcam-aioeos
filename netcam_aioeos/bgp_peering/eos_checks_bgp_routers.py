@@ -24,7 +24,7 @@ from .eos_check_bgp_peering_defs import EOS_DEFAULT_VRF_NAME
 # -----------------------------------------------------------------------------
 
 
-@EOSDeviceUnderTest.execute_checks.register
+@EOSDeviceUnderTest.execute_checks.register  # noqa
 async def check_bgp_neighbors(
     self, check_bgp_routers: BgpRoutersCheckCollection
 ) -> CheckResultsCollection:
@@ -77,7 +77,6 @@ def _check_router_vrf(
     # from the device, routerId is a string
     msrd.router_id = dev_data.get("routerId", "")
 
-    # from the device, asn is an int
-    msrd.asn = dev_data.get("asn", -1)
-
+    # from the device, asn is a str (was an int at one point, tho)
+    msrd.asn = int(dev_data.get("asn", -1))
     results.append(result.measure())

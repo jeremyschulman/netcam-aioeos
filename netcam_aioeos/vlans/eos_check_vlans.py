@@ -48,7 +48,7 @@ from netcam_aioeos.eos_dut import EOSDeviceUnderTest
 __all__ = ["eos_check_vlans", "eos_check_one_vlan"]
 
 
-@EOSDeviceUnderTest.execute_checks.register
+@EOSDeviceUnderTest.execute_checks.register  # noqa
 async def eos_check_vlans(
     self, vlan_checks: VlanCheckCollection
 ) -> CheckResultsCollection:

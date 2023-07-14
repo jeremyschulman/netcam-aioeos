@@ -50,7 +50,7 @@ __all__ = []
 # -----------------------------------------------------------------------------
 
 
-@EOSDeviceUnderTest.execute_checks.register
+@EOSDeviceUnderTest.execute_checks.register  # noqa
 async def eos_check_cabling(
     self, testcases: InterfaceCablingCheckCollection
 ) -> CheckResultsCollection:
