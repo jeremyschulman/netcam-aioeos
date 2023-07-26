@@ -55,7 +55,7 @@ __all__ = []
 # -----------------------------------------------------------------------------
 
 
-@EOSDeviceUnderTest.execute_checks.register
+@EOSDeviceUnderTest.execute_checks.register  # noqa
 async def eos_test_ipaddrs(
     dut, collection: IPInterfacesCheckCollection
 ) -> CheckResultsCollection:

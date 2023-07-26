@@ -53,7 +53,7 @@ __all__ = ["eos_check_transceivers"]
 # -----------------------------------------------------------------------------
 
 
-@EOSDeviceUnderTest.execute_checks.register
+@EOSDeviceUnderTest.execute_checks.register  # noqa
 async def eos_check_transceivers(
     dut, check_collection: TransceiverCheckCollection
 ) -> CheckResultsCollection:

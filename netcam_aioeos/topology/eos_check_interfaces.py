@@ -59,7 +59,7 @@ __all__ = ["eos_check_interfaces", "eos_check_one_interface", "eos_check_one_svi
 _match_svi = re.compile(r"Vlan(\d+)").match
 
 
-@EOSDeviceUnderTest.execute_checks.register
+@EOSDeviceUnderTest.execute_checks.register  # noqa
 async def eos_check_interfaces(
     self, collection: InterfaceCheckCollection
 ) -> CheckResultsCollection:
