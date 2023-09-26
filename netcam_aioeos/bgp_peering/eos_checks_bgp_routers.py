@@ -48,7 +48,9 @@ async def check_bgp_neighbors(
     checks = check_bgp_routers.checks
     dut: EOSDeviceUnderTest = self
 
-    dev_data = await dut.api_cache_get(key="bgp-summary", command="show ip bgp summary vrf all")
+    dev_data = await dut.api_cache_get(
+        key="bgp-summary", command="show ip bgp summary vrf all"
+    )
 
     for rtr_chk in checks:
         _check_router_vrf(dut=dut, check=rtr_chk, dev_data=dev_data, results=results)

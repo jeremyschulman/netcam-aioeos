@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "netcam-aioeos"
-version = "0.6.6"
+version = "0.6.7"
 description = "NetCAD/CAM - Arista EOS/eAPI asyncio driver"
 readme = "README.md"
 authors = ["Jeremy Schulman"]
