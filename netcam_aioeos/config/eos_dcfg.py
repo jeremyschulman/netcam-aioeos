@@ -18,6 +18,8 @@
 
 from typing import Optional
 
+import httpx
+
 # -----------------------------------------------------------------------------
 # Public Imports
 # -----------------------------------------------------------------------------
@@ -122,6 +124,8 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
             )
         except RuntimeError as exc:
             errors = exc.args[0]
+        except httpx.ReadTimeout:
+            errors = f"Read timeout after {self.eapi.timeout}. Increase config.timeout"
         else:
             errors = None
 

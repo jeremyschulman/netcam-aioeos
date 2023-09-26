@@ -33,7 +33,9 @@ async def check_neeighbors(
     results: CheckResultsCollection = list()
     checks = check_collection.checks
 
-    dev_data = await dut.api_cache_get(key="bgp-summary", command="show ip bgp summary vrf all")
+    dev_data = await dut.api_cache_get(
+        key="bgp-summary", command="show ip bgp summary vrf all"
+    )
 
     for nei_check in checks:
         _check_bgp_neighbor(
