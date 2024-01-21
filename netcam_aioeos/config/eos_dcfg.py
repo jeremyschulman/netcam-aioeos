@@ -140,7 +140,15 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         return self.config_diff_contents
 
     async def config_replace(self, rollback_timeout: int):
-        """ """
+        """
+        This function is used to load-replace the configuration file using an
+        EOS configuration session.
+
+        rollback_timeout:
+            The amount of time (minutes) to set when doing the commit with
+            timeout command.
+
+        """
         log = get_logger()
         log.info(
             f"{self.device.name}: loading config into session {self.config_id} ..."
@@ -181,6 +189,43 @@ class EOSDeviceConfigurable(AsyncDeviceConfigurable):
         await self.eapi.cli(f"delete {self.local_file}")
 
     async def config_merge(self, rollback_timeout: int):
-        raise RuntimeError(
-            f"{self.device.name}: EOS config-mgmt does not support merge"
+        """
+        This function is used to load-merge the configuration file using an
+        EOS configuration session.
+
+        Parameters
+        ----------
+        rollback_timeout:
+            The amount of time (minutes) to set when doing the commit with
+            timeout command.
+        """
+        log = get_logger()
+        log.info(
+            f"{self.device.name}: loading config into session {self.config_id} ..."
         )
+        await self.sesson_config.load_scp_file(filename=self.local_file)
+
+        # capture the diffs before running the commit
+        log.info(f"{self.device.name}: generating session diff ...")
+        self.config_diff_contents = await self.sesson_config.diff()
+
+        # if there are no diffs, abort the session, and return
+        if not self.config_diff_contents:
+            await self.sesson_config.abort()
+            return
+
+        log.info(
+            f"{self.device.name}: commit with rollback-timer {rollback_timeout} minutes ..."
+        )
+        await self.sesson_config.commit(timer=f"00:{rollback_timeout:02}:00")
+
+        log.info(f"{self.device.name}: checking device reachability ...")
+        if not await self.is_reachable():
+            raise RuntimeError(f"{self.device.name}: device is no longer reachable.")
+
+        # commit the configuration and copy running to startup
+        log.info(
+            f"{self.device.name}: committing confiuration and saving to startup ..."
+        )
+        await self.sesson_config.commit()
+        await self.eapi.cli("write")
