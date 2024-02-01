@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "netcam-aioeos"
-version = "0.7.0"
+version = "0.8.0"
 description = "NetCAD/CAM - Arista EOS/eAPI asyncio driver"
 readme = "README.md"
 authors = ["Jeremy Schulman"]
 
 [tool.poetry.dependencies]
    python = ">=3.10"
-   netcad = ">=0.9.1"
+   netcad = ">=0.12.0"
    asyncssh = "*"
    pydantic = "<2"
    pydantic-env = "*"
