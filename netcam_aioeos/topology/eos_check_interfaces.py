@@ -280,24 +280,28 @@ def eos_check_one_interface(
         results.append(result.measure())
         return results
 
+    # override the expected condition if there is a forced unused on a port
+    if is_forced_unused := if_flags.get("is_forced_unused"):
+        check.expected_results.used = False
+
     # -------------------------------------------------------------------------
     # Check the 'used' status.  Then if the interface is not being used, then no
     # more checks are required.
     # -------------------------------------------------------------------------
-
-    result.measurement.used = measurement.used
-
-    if not check.expected_results.used:
-        results.append(result.measure())
-        return
-
-    # If here, then we want to check all the opeational fields.
 
     result.measurement = measurement
 
     def on_mismatch(_field, _expected, _measured) -> CheckStatus:
         # if the field is description, then it is a warning, and not a failure.
         if _field == "desc":
+
+            # if the design is meant to force a shutdown on the port, then we
+            # really do want to surface the description error.
+
+            if is_forced_unused:
+                return CheckStatus.FAIL
+
+            # otherwise, the description mismatch is just a warning.
             return CheckStatus.WARN
 
         # if the speed is mismatched because the port is down, then this is not
