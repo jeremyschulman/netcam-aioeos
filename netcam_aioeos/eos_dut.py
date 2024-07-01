@@ -164,7 +164,6 @@ class EOSDeviceUnderTest(AsyncDeviceUnderTest):
 
         try:
             self.version_info = await self.eapi.cli("show version")
-
         except httpx.HTTPError as exc:
             rt_exc = RuntimeError(
                 f"Unable to connect to EOS device {self.device.name}: {str(exc)}"

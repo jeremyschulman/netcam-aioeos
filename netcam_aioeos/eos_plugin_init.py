@@ -40,7 +40,7 @@ def plugin_init(plugin_def: dict):
 
 def eos_plugin_config(config: dict):
     """
-    Called during plugin init, this function is used to setup the default
+    Called during plugin init, this function is used to set up the default
     credentials to access the EOS devices.
 
     Parameters

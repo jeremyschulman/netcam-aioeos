@@ -124,7 +124,7 @@ async def eos_check_interfaces(
         if_name = check.check_id()
 
         # ---------------------------------------------------------------------
-        # if the interface is an SVI, that is begins with "Vlan", then we need
+        # if the interface is an SVI, that it begins with "Vlan", then we need
         # to examine it differently since it does not show up in the "show
         # interfaces ..." command.
         # ---------------------------------------------------------------------
@@ -251,7 +251,6 @@ def eos_check_one_interface(
     Validates a specific physical interface against the expectations in the
     design.
     """
-
     result = InterfaceCheckResult(device=device, check=check)
 
     # if the interface does not exist, then no further checking.
