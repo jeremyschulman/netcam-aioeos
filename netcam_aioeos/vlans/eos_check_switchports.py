@@ -26,7 +26,7 @@ from netcad.checks import CheckResultsCollection
 
 from netcad.helpers import range_string, parse_istrange
 
-from netcad.vlans.checks.check_switchports import (
+from netcad.feats.vlans.checks.check_switchports import (
     SwitchportCheckCollection,
     SwitchportCheck,
     SwitchportCheckResult,
@@ -182,9 +182,9 @@ def _check_trunk_switchport(
         _expd_v_set = set(expd_allowed_vids)
         _info = dict()
         if _missing := _expd_v_set - _msrd_v_set:
-            _info["missing"] = _missing
+            _info["missing"] = list(_missing)
         if _extra := _msrd_v_set - _expd_v_set:
-            _info["extra"] = _extra
+            _info["extra"] = list(_extra)
 
         result.logs.INFO("trunk_allowed_vlans_mismatch", _info)
 

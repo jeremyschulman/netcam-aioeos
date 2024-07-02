@@ -25,14 +25,14 @@ from typing import Set
 from netcad.device import Device
 from netcad.checks import CheckResultsCollection, CheckStatus
 
-from netcad.vlans.checks.check_vlans import (
+from netcad.feats.vlans.checks.check_vlans import (
     VlanCheckCollection,
     VlanCheckResult,
     VlanExclusiveListCheck,
     VlanExclusiveListCheckResult,
 )
 
-from netcad.vlans import VlanDesignServiceConfig
+from netcad.feats.vlans import VlanDesignServiceConfig
 
 # -----------------------------------------------------------------------------
 # Private Imports

@@ -2,7 +2,7 @@
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.bgp_peering.checks import (
+from netcad.feats.bgp_peering.checks import (
     BgpNeighborsCheckCollection,
     BgpNeighborCheck,
     BgpNeighborCheckResult,

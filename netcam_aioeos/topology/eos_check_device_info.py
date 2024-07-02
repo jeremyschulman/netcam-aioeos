@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------------------
 
 from netcad.checks import CheckResultsCollection, CheckResult, CheckStatus
-from netcad.topology.checks.check_device_info import (
+from netcad.feats.topology.checks.check_device_info import (
     DeviceInformationCheckCollection,
     DeviceInformationCheckResult,
 )

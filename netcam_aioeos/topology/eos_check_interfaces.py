@@ -28,7 +28,7 @@ from itertools import chain
 from netcad.device import Device, DeviceInterface
 from netcad.checks import CheckResultsCollection, CheckStatus
 
-from netcad.topology.checks.check_interfaces import (
+from netcad.feats.topology.checks.check_interfaces import (
     InterfaceCheckCollection,
     InterfaceExclusiveListCheck,
     InterfaceExclusiveListCheckResult,
@@ -162,10 +162,7 @@ async def eos_check_interfaces(
 
             # if the loopback exists, then it is a PASS, and we are not going
             # to check anything else at this time.
-            # TODO: could check operational state, but when does anyone
-            #       disable a loopback or config??
-
-            result.measurement.native_status = lo_status
+            result.measurement.oper_up = lo_status['lineProtocolStatus'] == 'up'
             results.append(result)
 
             # done with Loopback, go to next test-case
