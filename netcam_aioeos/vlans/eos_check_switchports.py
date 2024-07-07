@@ -22,7 +22,7 @@ from typing import cast
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.checks import CheckResultsCollection
+from netcad.checks import CheckResultsCollection, CheckStatus
 
 from netcad.helpers import range_string, parse_istrange
 
@@ -176,6 +176,17 @@ def _check_trunk_switchport(
     def on_mismatch(_field, _expd_v, _msrd_v):
         if _field != "trunk_allowed_vlans":
             return
+
+        if _msrd_v == "ALL":
+            result.logs.warn(
+                _field,
+                dict(
+                    message="Using 'ALL' is not recommended",
+                    expected=_expd_v,
+                    measured=_msrd_v,
+                ),
+            )
+            return CheckStatus.PASS
 
         _msrd_v_set = parse_istrange(_msrd_v)
 

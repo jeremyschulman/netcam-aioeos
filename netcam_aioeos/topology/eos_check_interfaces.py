@@ -162,7 +162,7 @@ async def eos_check_interfaces(
 
             # if the loopback exists, then it is a PASS, and we are not going
             # to check anything else at this time.
-            result.measurement.oper_up = lo_status['lineProtocolStatus'] == 'up'
+            result.measurement.oper_up = lo_status["lineProtocolStatus"] == "up"
             results.append(result)
 
             # done with Loopback, go to next test-case
@@ -290,7 +290,6 @@ def eos_check_one_interface(
     def on_mismatch(_field, _expected, _measured) -> CheckStatus:
         # if the field is description, then it is a warning, and not a failure.
         if _field == "desc":
-
             # if the design is meant to force a shutdown on the port, then we
             # really do want to surface the description error.
 

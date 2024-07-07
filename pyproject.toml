@@ -22,3 +22,11 @@ build-backend = "poetry.core.masonry.api"
     color = true
     ignore-module = true
     exclude = ["tasks.py", "examples", "build", "venv"]
+
+[tool.ruff]
+    # Set the maximum line length to 132.
+    # line-length = 132
+    lint.ignore = ["E731"]
+
+[tool.ruff.lint.extend-per-file-ignores]
+    "__init__.py" = ["F401", "E402"]

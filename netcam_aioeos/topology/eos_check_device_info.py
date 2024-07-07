@@ -68,10 +68,13 @@ async def eos_check_device_info(
     check_len = min(len(has_product_model), len(exp_product_model))
     model_match = has_product_model[:check_len] == exp_product_model[:check_len]
 
-    result = DeviceInformationCheckResult(device=dut.device, check=check,
-                                          measurement=DeviceInformationCheckResult.Measurement(
-                                              product_model=has_product_model
-                                          ))
+    result = DeviceInformationCheckResult(
+        device=dut.device,
+        check=check,
+        measurement=DeviceInformationCheckResult.Measurement(
+            product_model=has_product_model
+        ),
+    )
 
     def on_mismatch(_field, _expd, _msrd):
         return CheckStatus.PASS if model_match else CheckStatus.FAIL
