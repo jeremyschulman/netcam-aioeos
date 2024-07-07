@@ -261,7 +261,6 @@ def eos_check_one_interface(
     # comparison with the expected values.
 
     measurement = EosInterfaceMeasurement.from_cli(iface_oper_status)
-
     if_flags = check.check_params.interface_flags or {}
     is_reserved = if_flags.get("is_reserved", False)
 
@@ -278,6 +277,11 @@ def eos_check_one_interface(
 
     # override the expected condition if there is a forced unused on a port
     if is_forced_unused := if_flags.get("is_forced_unused"):
+        check.expected_results.used = False
+
+    # see if the port was explicity set to disabled.
+    if_name = check.check_id()
+    if device.interfaces[if_name].enabled is False:
         check.expected_results.used = False
 
     # -------------------------------------------------------------------------
