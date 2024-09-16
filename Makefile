@@ -1,12 +1,16 @@
-.PHONY: setup.py requirements.txt
+PACKAGE_and_VERSION = $(shell poetry version)
+PACKAGE_NAME = $(word 1, $(PACKAGE_and_VERSION))
+PACKAGE_VERSION = $(word 2, $(PACKAGE_and_VERSION))
 
-DIST_BASENAME := $(shell poetry version | tr ' ' '-')
+precheck: code-format code-check
+	pre-commit run -a && \
+	interrogate -c pyproject.toml
 
-all: precheck
+code-format:
+	ruff format --config pyproject.toml $(CODE_DIRS)
 
-.PHONY: prechck
-precheck:
-	invoke precheck
+code-check:
+	ruff check --config pyproject.toml $(CODE_DIRS)
 
 clean:
 	rm -rf dist *.egg-info .pytest_cache
@@ -14,5 +18,6 @@ clean:
 	rm -f poetry.lock
 	find . -name '__pycache__' | xargs rm -rf
 
-doc-check:
-	interrogate -vvv netcam_aioeos --omit-covered-files
+doccheck:
+	interrogate -vvv netinfraiac --omit-covered-files
+

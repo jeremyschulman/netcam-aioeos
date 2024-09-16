@@ -17,7 +17,7 @@
 # -----------------------------------------------------------------------------
 
 from netcad.checks import CheckResultsCollection, CheckResult, CheckStatus
-from netcad.topology.checks.check_device_info import (
+from netcad.feats.topology.checks.check_device_info import (
     DeviceInformationCheckCollection,
     DeviceInformationCheckResult,
 )
@@ -59,7 +59,6 @@ async def eos_check_device_info(
     # purposes.
 
     check = device_checks.checks[0]
-    result = DeviceInformationCheckResult(device=dut.device, check=check)
 
     exp_values = check.expected_results
 
@@ -68,6 +67,14 @@ async def eos_check_device_info(
 
     check_len = min(len(has_product_model), len(exp_product_model))
     model_match = has_product_model[:check_len] == exp_product_model[:check_len]
+
+    result = DeviceInformationCheckResult(
+        device=dut.device,
+        check=check,
+        measurement=DeviceInformationCheckResult.Measurement(
+            product_model=has_product_model
+        ),
+    )
 
     def on_mismatch(_field, _expd, _msrd):
         return CheckStatus.PASS if model_match else CheckStatus.FAIL

@@ -24,13 +24,13 @@ from typing import Set
 # -----------------------------------------------------------------------------
 from netcad.checks import CheckResultsCollection, CheckStatus
 
-from netcad.topology.checks.check_transceivers import (
+from netcad.feats.topology.checks.check_transceivers import (
     TransceiverCheckCollection,
     TransceiverCheckResult,
     TransceiverExclusiveListCheck,
     TransceiverExclusiveListCheckResult,
 )
-from netcad.topology import transceiver_model_matches, transceiver_type_matches
+from netcad.feats.topology import transceiver_model_matches, transceiver_type_matches
 from netcad.device import Device, DeviceInterface
 
 # -----------------------------------------------------------------------------

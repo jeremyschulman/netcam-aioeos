@@ -17,12 +17,12 @@
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.topology.checks.check_cabling_nei import (
+from netcad.feats.topology.checks.check_cabling_nei import (
     InterfaceCablingCheckCollection,
     InterfaceCablingCheck,
     InterfaceCablingCheckResult,
 )
-from netcad.topology.checks.utils_cabling_nei import (
+from netcad.feats.topology.checks.utils_cabling_nei import (
     nei_interface_match,
     nei_hostname_match,
 )

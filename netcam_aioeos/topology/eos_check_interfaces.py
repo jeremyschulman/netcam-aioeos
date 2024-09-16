@@ -28,7 +28,7 @@ from itertools import chain
 from netcad.device import Device, DeviceInterface
 from netcad.checks import CheckResultsCollection, CheckStatus
 
-from netcad.topology.checks.check_interfaces import (
+from netcad.feats.topology.checks.check_interfaces import (
     InterfaceCheckCollection,
     InterfaceExclusiveListCheck,
     InterfaceExclusiveListCheckResult,
@@ -124,7 +124,7 @@ async def eos_check_interfaces(
         if_name = check.check_id()
 
         # ---------------------------------------------------------------------
-        # if the interface is an SVI, that is begins with "Vlan", then we need
+        # if the interface is an SVI, that it begins with "Vlan", then we need
         # to examine it differently since it does not show up in the "show
         # interfaces ..." command.
         # ---------------------------------------------------------------------
@@ -162,10 +162,7 @@ async def eos_check_interfaces(
 
             # if the loopback exists, then it is a PASS, and we are not going
             # to check anything else at this time.
-            # TODO: could check operational state, but when does anyone
-            #       disable a loopback or config??
-
-            result.measurement.native_status = lo_status
+            result.measurement.oper_up = lo_status["lineProtocolStatus"] == "up"
             results.append(result)
 
             # done with Loopback, go to next test-case
@@ -251,7 +248,6 @@ def eos_check_one_interface(
     Validates a specific physical interface against the expectations in the
     design.
     """
-
     result = InterfaceCheckResult(device=device, check=check)
 
     # if the interface does not exist, then no further checking.
@@ -265,7 +261,6 @@ def eos_check_one_interface(
     # comparison with the expected values.
 
     measurement = EosInterfaceMeasurement.from_cli(iface_oper_status)
-
     if_flags = check.check_params.interface_flags or {}
     is_reserved = if_flags.get("is_reserved", False)
 
@@ -284,6 +279,11 @@ def eos_check_one_interface(
     if is_forced_unused := if_flags.get("is_forced_unused"):
         check.expected_results.used = False
 
+    # see if the port was explicity set to disabled.
+    if_name = check.check_id()
+    if device.interfaces[if_name].enabled is False:
+        check.expected_results.used = False
+
     # -------------------------------------------------------------------------
     # Check the 'used' status.  Then if the interface is not being used, then no
     # more checks are required.
@@ -294,7 +294,6 @@ def eos_check_one_interface(
     def on_mismatch(_field, _expected, _measured) -> CheckStatus:
         # if the field is description, then it is a warning, and not a failure.
         if _field == "desc":
-
             # if the design is meant to force a shutdown on the port, then we
             # really do want to surface the description error.
 

@@ -23,7 +23,7 @@ from typing import Sequence
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.topology.checks.check_ipaddrs import (
+from netcad.feats.topology.checks.check_ipaddrs import (
     IPInterfacesCheckCollection,
     IPInterfaceCheck,
     IPInterfaceCheckResult,

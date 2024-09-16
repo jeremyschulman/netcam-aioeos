@@ -25,14 +25,14 @@ from typing import Set
 from netcad.device import Device
 from netcad.checks import CheckResultsCollection, CheckStatus
 
-from netcad.vlans.checks.check_vlans import (
+from netcad.feats.vlans.checks.check_vlans import (
     VlanCheckCollection,
     VlanCheckResult,
     VlanExclusiveListCheck,
     VlanExclusiveListCheckResult,
 )
 
-from netcad.vlans import VlanDesignServiceConfig
+from netcad.feats.vlans import VlanDesignServiceConfig
 
 # -----------------------------------------------------------------------------
 # Private Imports
@@ -197,10 +197,10 @@ def eos_check_one_vlan(
 
     if exclusive:
         if missing_interfaces := expd_ifs_set - msrd_ifs_set:
-            result.logs.FAIL("interfaces", dict(missing=missing_interfaces))
+            result.logs.FAIL("interfaces", dict(missing=list(missing_interfaces)))
 
         if extra_interfaces := msrd_ifs_set - expd_ifs_set:
-            result.logs.FAIL("interfaces", dict(extra=extra_interfaces))
+            result.logs.FAIL("interfaces", dict(extra=list(extra_interfaces)))
 
     def on_mismatch(_field, _expd, _msrd):
         if _field == "name":

@@ -23,7 +23,7 @@ from itertools import chain
 # Public Imports
 # -----------------------------------------------------------------------------
 
-from netcad.topology.checks.check_lags import (
+from netcad.feats.topology.checks.check_lags import (
     LagCheckCollection,
     LagCheck,
     LagCheckResult,
