@@ -79,7 +79,7 @@ async def eos_check_vlans(
     dev_vlans_info = cli_vlan_resp["vlans"]
     dev_vlans_cfg_info = cli_vlan_cfg_resp["vlans"]
 
-    ds_config = VlanDesignServiceConfig.parse_obj(vlan_checks.config)
+    ds_config = VlanDesignServiceConfig.model_validate(vlan_checks.config)
     if not ds_config.check_vlan1:
         dev_vlans_info.pop("1")
         dev_vlans_cfg_info.pop("1")
@@ -197,10 +197,10 @@ def eos_check_one_vlan(
 
     if exclusive:
         if missing_interfaces := expd_ifs_set - msrd_ifs_set:
-            result.logs.FAIL("interfaces", dict(missing=list(missing_interfaces)))
+            result.logs.fail("interfaces", dict(missing=list(missing_interfaces)))
 
         if extra_interfaces := msrd_ifs_set - expd_ifs_set:
-            result.logs.FAIL("interfaces", dict(extra=list(extra_interfaces)))
+            result.logs.fail("interfaces", dict(extra=list(extra_interfaces)))
 
     def on_mismatch(_field, _expd, _msrd):
         if _field == "name":
@@ -211,7 +211,7 @@ def eos_check_one_vlan(
             if not _expd:
                 return CheckStatus.PASS
 
-            result.logs.WARN(_field, dict(expected=_expd, measured=_msrd))
+            result.logs.warn(_field, dict(expected=_expd, measured=_msrd))
             return CheckStatus.PASS
 
         if _field == "interfaces":
