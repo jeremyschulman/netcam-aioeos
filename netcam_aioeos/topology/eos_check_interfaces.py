@@ -160,9 +160,15 @@ async def eos_check_interfaces(
                 results.append(result.measure())
                 continue
 
+            if_desc = await dut.eapi.cli(f"show interfaces {if_name} description")
+
             # if the loopback exists, then it is a PASS, and we are not going
             # to check anything else at this time.
             result.measurement.oper_up = lo_status["lineProtocolStatus"] == "up"
+            result.measurement.used = True
+            result.measurement.desc = if_desc["interfaceDescriptions"][if_name][
+                "description"
+            ]
             results.append(result)
 
             # done with Loopback, go to next test-case
@@ -271,7 +277,7 @@ def eos_check_one_interface(
 
     if is_reserved:
         result.status = CheckStatus.INFO
-        result.logs.INFO("reserved", measurement.dict())
+        result.logs.info("reserved", measurement.model_dump())
         results.append(result.measure())
         return results
 

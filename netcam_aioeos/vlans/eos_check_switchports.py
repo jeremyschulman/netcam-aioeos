@@ -30,6 +30,9 @@ from netcad.feats.vlans.checks.check_switchports import (
     SwitchportCheckCollection,
     SwitchportCheck,
     SwitchportCheckResult,
+    MeasurementSwitchPort,
+    MeasurementSwitchPortTrunk,
+    MeasurementSwitchPortAccess,
 )
 
 from netcam_aioeos.eos_dut import EOSDeviceUnderTest
@@ -86,11 +89,11 @@ async def eos_check_switchports(
     # checks to ensure that the expected switchport use is as expected.
 
     for check in switchport_checks.checks:
-        result = SwitchportCheckResult(device=device, check=check)
+        if_name = check.check_id()
+
+        result = SwitchportCheckResult(device=device, check=check, measurement=None)
 
         expd_status = cast(SwitchportCheck.ExpectSwitchport, check.expected_results)
-
-        if_name = check.check_id()
 
         # if the interface from the design does not exist on the device, then
         # report this error and go to next check.
@@ -104,9 +107,8 @@ async def eos_check_switchports(
         # mode check.  if there is a mismatch, then fail now.
 
         msrd_swpinfo = msrd_port["switchportInfo"]
-        if expd_status.switchport_mode != (msrd_mdoe := msrd_swpinfo["mode"]):
-            result.measurement = SwitchportCheckResult.Measurement()
-            result.measurement.switchport_mode = msrd_mdoe
+        if expd_status.switchport_mode != (msrd_mode := msrd_swpinfo["mode"]):
+            result.measurement = MeasurementSwitchPort(switchport_mode=msrd_mode)
             results.append(result.measure())
             continue
 
@@ -129,8 +131,9 @@ def _check_access_switchport(
     This primary check here is ensuring the access VLAN-ID matches.
     """
 
-    msrd = result.measurement = SwitchportCheckResult.MeasuredAccess()
-    msrd.switchport_mode = msrd_status["mode"]
+    msrd = result.measurement = MeasurementSwitchPortAccess(
+        switchport_mode=msrd_status["mode"]
+    )
 
     # the check stores the VlanProfile, and we need to mutate this value to the
     # VLAN ID for comparitor reason.
@@ -150,8 +153,9 @@ def _check_trunk_switchport(
     """
 
     expd = cast(SwitchportCheck.ExpectTrunk, result.check.expected_results)
-    msrd = result.measurement = SwitchportCheckResult.MeasuredTrunk()
-    msrd.switchport_mode = msrd_status["mode"]
+    msrd = result.measurement = MeasurementSwitchPortTrunk(
+        switchport_mode=msrd_status["mode"]
+    )
     msrd.native_vlan = msrd_status["trunkingNativeVlanId"]
 
     # conver the expected list of vlan-ids to a range string for string
@@ -197,6 +201,6 @@ def _check_trunk_switchport(
         if _extra := _msrd_v_set - _expd_v_set:
             _info["extra"] = list(_extra)
 
-        result.logs.INFO("trunk_allowed_vlans_mismatch", _info)
+        result.logs.info("trunk_allowed_vlans_mismatch", _info)
 
     results.append(result.measure(on_mismatch=on_mismatch))
