@@ -107,8 +107,8 @@ async def eos_check_switchports(
         # mode check.  if there is a mismatch, then fail now.
 
         msrd_swpinfo = msrd_port["switchportInfo"]
-        if expd_status.switchport_mode != (msrd_mdoe := msrd_swpinfo["mode"]):
-            result.measurement = MeasurementSwitchPort(switchport_mode=msrd_mdoe)
+        if expd_status.switchport_mode != (msrd_mode := msrd_swpinfo["mode"]):
+            result.measurement = MeasurementSwitchPort(switchport_mode=msrd_mode)
             results.append(result.measure())
             continue
 
