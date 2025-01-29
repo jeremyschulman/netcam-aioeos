@@ -17,6 +17,7 @@
 # -----------------------------------------------------------------------------
 
 from typing import Set
+from collections import defaultdict
 
 # -----------------------------------------------------------------------------
 # Public Imports
@@ -70,6 +71,16 @@ async def eos_check_vlans(
 
     cli_vlan_cfg_resp = await dut.eapi.cli("show vlan configured-ports")
     cli_vlan_resp = await dut.eapi.cli("show vlan")
+    cli_vlan_switchports = await dut.eapi.cli("show interfaces switchport")
+
+    vlan_swp_native_vlans = {
+        if_name: if_data["switchportInfo"]["trunkingNativeVlanId"]
+        for if_name, if_data in cli_vlan_switchports["switchports"].items()
+    }
+
+    vlan_native_ifs = defaultdict(list)
+    for if_name, native_vlan in vlan_swp_native_vlans.items():
+        vlan_native_ifs[str(native_vlan)].append(if_name)
 
     # vlan data is a dictionary, key is the VLAN ID in a string form. need to
     # merge the contents of the cfg response.  The 'interfaces' key is a
@@ -117,6 +128,7 @@ async def eos_check_vlans(
         eos_check_one_vlan(
             exclusive=vlan_checks.exclusive,
             vlan_status=vlan_status,
+            natives=vlan_native_ifs,
             result=result,
             results=results,
         )
@@ -163,6 +175,7 @@ def eos_check_one_vlan(
     exclusive: bool,
     result: VlanCheckResult,
     vlan_status: dict,
+    natives: dict,
     results: CheckResultsCollection,
 ):
     """
@@ -193,6 +206,10 @@ def eos_check_one_vlan(
     ]
 
     msrd_ifs_set = set(msrd.interfaces)
+
+    if native_ifs := natives.get(vlan_id):
+        msrd_ifs_set.update(native_ifs)
+
     expd_ifs_set = set(check.expected_results.interfaces)
 
     if exclusive:
